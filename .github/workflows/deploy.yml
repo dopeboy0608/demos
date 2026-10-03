@@ -36,6 +36,7 @@ jobs:
       - name: Build
         env:
           GH_PAGES_BASE_PATH: /${{ github.event.repository.name }}/
+          PUBLIC_KAKAO_MAP_API_KEY: ${{ secrets.PUBLIC_KAKAO_MAP_API_KEY }}
         run: pnpm build
 
       - name: SPA fallback for GitHub Pages (client-side routing)
