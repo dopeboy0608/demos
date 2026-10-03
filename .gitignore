@@ -2,14 +2,23 @@
 docs/history/*
 !docs/history/.gitkeep
 
-# OS
+# Local
 .DS_Store
+*.local
+*.log*
 
-# Editor
-.vscode/
-.idea/
+# Dist
+node_modules
+dist/
+
+# Profile
+.rspack-profile-*/
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+.idea
 
 # Env
 .env
 .env.local
-*.local
