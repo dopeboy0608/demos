@@ -11,9 +11,9 @@ interface DrawingAreaProps {
 export function DrawingAreaHeader({ board }: DrawingAreaProps) {
   return (
     <div>
-      <h4>
-        <span style={{ verticalAlign: 'middle' }}># 그리기 영역</span>
-        <Button className="ml-3" danger onClick={board.resetDrawing}>
+      <h4 style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <span># 그리기 영역</span>
+        <Button danger onClick={board.resetDrawing}>
           그리기 영역 리셋
         </Button>
       </h4>

@@ -10,27 +10,21 @@ interface ResultAreaProps {
 export function ResultAreaHeader({ board }: ResultAreaProps) {
   return (
     <div>
-      <h4
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: 12,
-        }}
-      >
-        <span style={{ verticalAlign: 'middle' }}># 결과 영역</span>
-        <Radio.Group
-          value={board.polygonClickMode}
-          onChange={({ target: { value } }) => board.setPolygonClickMode(value)}
-        >
-          <Radio.Button value="none">기능없음</Radio.Button>
-          <Radio.Button value="edit">폴리곤 수정</Radio.Button>
-          <Radio.Button value="select">다중선택</Radio.Button>
-        </Radio.Group>
+      <h4 style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <span># 결과 영역</span>
         <Button danger onClick={board.resetResults}>
           결과 영역 리셋
         </Button>
       </h4>
+      <Radio.Group
+        style={{ marginBottom: 8 }}
+        value={board.polygonClickMode}
+        onChange={({ target: { value } }) => board.setPolygonClickMode(value)}
+      >
+        <Radio.Button value="none">기능없음</Radio.Button>
+        <Radio.Button value="edit">폴리곤 수정</Radio.Button>
+        <Radio.Button value="select">다중선택</Radio.Button>
+      </Radio.Group>
       <div>
         {board.selectedPolygons.map((polygonId) => (
           <Tag
