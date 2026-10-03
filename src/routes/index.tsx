@@ -12,6 +12,12 @@ const DEMOS = [
     description:
       '지도 2개에서 폴리곤을 그리고 선택·합치기(union/intersection/xor/difference)·분할하는 데모 화면',
   },
+  {
+    to: '/polygon-legacy' as const,
+    title: '폴리곤 제어(원본 포팅)',
+    description:
+      '이전 회사 데모 화면을 그대로 옮긴 임시 페이지 — 그리기 영역(왼쪽)에서 작업하고 결과 영역(오른쪽)에서 확인한다. 동작 확인 후 features/polygon으로 마이그레이션 예정.',
+  },
 ];
 
 export const indexRoute = createRoute({
