@@ -1,72 +1,55 @@
-import { Button, Space } from 'antd';
+import { Button } from 'antd';
 
 import type { OperationType } from '../helper/polygonOperations';
+import type { PolygonBoard } from '../hooks/usePolygonBoard';
 
-const OPERATION_LABELS: Record<OperationType, string> = {
-  union: '합치기(union)',
-  intersection: '교집합(intersection)',
-  xor: 'XOR',
-  difference: '차집합(difference)',
-};
+const MERGE_BUTTONS: Array<{ type: OperationType; label: string }> = [
+  { type: 'union', label: '폴리곤 합집합 실행' },
+  { type: 'intersection', label: '폴리곤 교집합 실행' },
+  { type: 'xor', label: '폴리곤 교차점 제거' },
+  { type: 'difference', label: '폴리곤 차집합' },
+];
 
 interface PolygonToolbarProps {
-  drawingMode: boolean;
-  onToggleDrawing: () => void;
-  splitMode: boolean;
-  onToggleSplit: () => void;
-  selectedCount: number;
-  polygonCount: number;
-  onApplyOperation: (type: OperationType) => void;
-  onDeleteSelected: () => void;
-  onClearAll: () => void;
+  board: PolygonBoard;
 }
 
-export function PolygonToolbar({
-  drawingMode,
-  onToggleDrawing,
-  splitMode,
-  onToggleSplit,
-  selectedCount,
-  polygonCount,
-  onApplyOperation,
-  onDeleteSelected,
-  onClearAll,
-}: PolygonToolbarProps) {
-  // FR-006: 정확히 2개 선택됐을 때만 합치기 연산 버튼을 활성화한다.
-  const canOperate = selectedCount === 2;
-  // 분할은 정확히 1개 선택됐을 때만 활성화한다.
-  const canSplit = selectedCount === 1;
-
+export function PolygonToolbar({ board }: PolygonToolbarProps) {
   return (
-    <Space wrap>
-      <Button
-        type={drawingMode ? 'primary' : 'default'}
-        onClick={onToggleDrawing}
+    <>
+      <div
+        style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}
       >
-        {drawingMode ? '그리기 종료' : '그리기'}
-      </Button>
-      {(Object.keys(OPERATION_LABELS) as OperationType[]).map((type) => (
-        <Button
-          key={type}
-          disabled={!canOperate}
-          onClick={() => onApplyOperation(type)}
-        >
-          {OPERATION_LABELS[type]}
+        <Button type="primary" onClick={board.startPolygonDrawing}>
+          폴리곤 그리기
         </Button>
-      ))}
-      <Button
-        type={splitMode ? 'primary' : 'default'}
-        disabled={!splitMode && !canSplit}
-        onClick={onToggleSplit}
-      >
-        {splitMode ? '분할 종료' : '분할'}
-      </Button>
-      <Button danger disabled={selectedCount === 0} onClick={onDeleteSelected}>
-        선택 삭제
-      </Button>
-      <Button danger disabled={polygonCount === 0} onClick={onClearAll}>
-        전체 삭제
-      </Button>
-    </Space>
+        <Button type="primary" onClick={board.startLineDrawing}>
+          분할선 그리기
+        </Button>
+        <Button danger ghost onClick={board.executeSplit}>
+          선으로 잘라내기 실행
+        </Button>
+        <Button danger ghost onClick={board.executePunch}>
+          폴리곤으로 잘라내기 실행
+        </Button>
+        {MERGE_BUTTONS.map(({ type, label }) => (
+          <Button
+            key={type}
+            type="primary"
+            onClick={() => board.executeMerge(type)}
+          >
+            {label}
+          </Button>
+        ))}
+      </div>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+        <Button type="primary" onClick={board.saveBasicPolygons}>
+          폴리곤 저장
+        </Button>
+        <Button type="primary" onClick={board.printResult}>
+          좌표 결과 콘솔 출력
+        </Button>
+      </div>
+    </>
   );
 }

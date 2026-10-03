@@ -31,15 +31,16 @@ function fromMultiPolygon(multiPolygon: PolygonGeom[]): LatLng[][] {
 /**
  * union/intersection/xor/difference는 모두 결과가 여러 개의 분리된 폴리곤일 수 있어
  * (예: xor) MultiPolygon을 그대로 LatLng[][]로 변환해 반환한다 — 겹치는 영역이 없으면
- * 빈 배열을 반환한다 (spec.md Edge Cases).
+ * 빈 배열을 반환한다 (Edge Case).
+ *
+ * polygon-clipping 함수들은 모두 2개 이상의 geometry를 가변 인자로 받으므로, 폴리곤 2개
+ * 전용이 아니라 2개 이상(N개)을 지원한다 — difference는 "첫 번째에서 나머지를 뺀 결과".
  */
 export function applyPolygonOperation(
   type: OperationType,
-  pathA: LatLng[],
-  pathB: LatLng[],
+  paths: LatLng[][],
 ): LatLng[][] {
-  const polygonA: PolygonGeom = [toRing(pathA)];
-  const polygonB: PolygonGeom = [toRing(pathB)];
-  const result = OPERATIONS[type](polygonA, polygonB);
+  const [first, ...rest] = paths.map((path): PolygonGeom => [toRing(path)]);
+  const result = OPERATIONS[type](first, ...rest);
   return fromMultiPolygon(result);
 }

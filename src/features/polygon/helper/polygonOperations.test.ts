@@ -29,7 +29,7 @@ const SQUARE_C: LatLng[] = [
 
 describe('applyPolygonOperation', () => {
   it('union: 겹치는 두 폴리곤을 하나의 폴리곤으로 합친다', () => {
-    const result = applyPolygonOperation('union', SQUARE_A, SQUARE_B);
+    const result = applyPolygonOperation('union', [SQUARE_A, SQUARE_B]);
     expect(result).toHaveLength(1);
     expect(result[0]).toEqual([
       { lat: 0, lng: 0 },
@@ -43,8 +43,23 @@ describe('applyPolygonOperation', () => {
     ]);
   });
 
+  it('union: 폴리곤 3개(N개) 이상도 지원한다', () => {
+    const result = applyPolygonOperation('union', [
+      SQUARE_A,
+      SQUARE_B,
+      SQUARE_C,
+    ]);
+    expect(result).toHaveLength(2);
+    expect(result[1]).toEqual([
+      { lat: 10, lng: 10 },
+      { lat: 10, lng: 11 },
+      { lat: 11, lng: 11 },
+      { lat: 11, lng: 10 },
+    ]);
+  });
+
   it('intersection: 겹치는 영역만 남긴 폴리곤을 반환한다', () => {
-    const result = applyPolygonOperation('intersection', SQUARE_A, SQUARE_B);
+    const result = applyPolygonOperation('intersection', [SQUARE_A, SQUARE_B]);
     expect(result).toHaveLength(1);
     expect(result[0]).toEqual([
       { lat: 1, lng: 1 },
@@ -55,12 +70,12 @@ describe('applyPolygonOperation', () => {
   });
 
   it('intersection: 겹치는 영역이 없으면 빈 배열을 반환한다 (Edge Case)', () => {
-    const result = applyPolygonOperation('intersection', SQUARE_A, SQUARE_C);
+    const result = applyPolygonOperation('intersection', [SQUARE_A, SQUARE_C]);
     expect(result).toEqual([]);
   });
 
   it('xor: 겹치지 않는 두 영역을 각각 독립된 폴리곤으로 반환한다', () => {
-    const result = applyPolygonOperation('xor', SQUARE_A, SQUARE_B);
+    const result = applyPolygonOperation('xor', [SQUARE_A, SQUARE_B]);
     expect(result).toHaveLength(2);
     expect(result[0]).toEqual([
       { lat: 0, lng: 0 },
@@ -81,7 +96,7 @@ describe('applyPolygonOperation', () => {
   });
 
   it('difference: A에서 B와 겹치는 부분을 제외한 영역을 반환한다', () => {
-    const result = applyPolygonOperation('difference', SQUARE_A, SQUARE_B);
+    const result = applyPolygonOperation('difference', [SQUARE_A, SQUARE_B]);
     expect(result).toHaveLength(1);
     expect(result[0]).toEqual([
       { lat: 0, lng: 0 },
