@@ -1,6 +1,6 @@
-import type { ReactNode } from 'react';
-import { Layout, Menu } from 'antd';
 import { Link, useRouterState } from '@tanstack/react-router';
+import { Layout, Menu } from 'antd';
+import type { ReactNode } from 'react';
 
 const { Header, Content } = Layout;
 
@@ -23,7 +23,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   });
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout style={{ height: '100vh' }}>
       <Header style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
         <span
           style={{
@@ -43,7 +43,17 @@ export function AppLayout({ children }: AppLayoutProps) {
           style={{ flex: 1, minWidth: 0 }}
         />
       </Header>
-      <Content style={{ padding: 24 }}>{children}</Content>
+      <Content
+        style={{
+          padding: 24,
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: 0,
+          overflow: 'auto',
+        }}
+      >
+        {children}
+      </Content>
     </Layout>
   );
 }

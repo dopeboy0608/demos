@@ -3,15 +3,13 @@ import { Map as KakaoMap, Polygon } from 'react-kakao-maps-sdk';
 
 import type { PolygonBoard } from '../hooks/usePolygonBoard';
 
-interface ResultAreaPanelProps {
+interface ResultAreaProps {
   board: PolygonBoard;
 }
 
-export function ResultAreaPanel({ board }: ResultAreaPanelProps) {
-  const { resultsByGroup } = board;
-
+export function ResultAreaHeader({ board }: ResultAreaProps) {
   return (
-    <section style={{ flex: 1, minWidth: 360 }}>
+    <div>
       <h4
         style={{
           display: 'flex',
@@ -33,7 +31,7 @@ export function ResultAreaPanel({ board }: ResultAreaPanelProps) {
           결과 영역 리셋
         </Button>
       </h4>
-      <div style={{ marginBottom: 8 }}>
+      <div>
         {board.selectedPolygons.map((polygonId) => (
           <Tag
             key={polygonId}
@@ -47,92 +45,93 @@ export function ResultAreaPanel({ board }: ResultAreaPanelProps) {
           </Tag>
         ))}
       </div>
-      <KakaoMap
-        className="delivery-region-test__map-wrapper"
-        center={board.mapCenter}
-        level={board.zoomLevel}
-        disableDoubleClickZoom={true}
-        disableDoubleClick={true}
-        onZoomChanged={board.handleMapZoomChanged}
-        onCenterChanged={board.handleMapCenterChanged}
-      >
-        {resultsByGroup.basic.map((path, index) => {
-          const polygonId = `basic_${index}`;
-          return (
-            <Polygon
-              key={polygonId}
-              path={path}
-              strokeWeight={2}
-              strokeColor={'#b26bb2'}
-              strokeOpacity={0.8}
-              fillColor={'#f9f'}
-              fillOpacity={
-                board.selectedPolygons.includes(polygonId) ? 0.8 : 0.5
-              }
-              onClick={(polygon) =>
-                board.handleResultPolygonClick(polygon, polygonId)
-              }
-            />
-          );
-        })}
+    </div>
+  );
+}
 
-        {resultsByGroup.punch.length > 0 && (
+export function ResultAreaMap({ board }: ResultAreaProps) {
+  const { resultsByGroup } = board;
+
+  return (
+    <KakaoMap
+      className="delivery-region-test__map-wrapper"
+      center={board.mapCenter}
+      level={board.zoomLevel}
+      disableDoubleClickZoom={true}
+      disableDoubleClick={true}
+      onZoomChanged={board.handleMapZoomChanged}
+      onCenterChanged={board.handleMapCenterChanged}
+    >
+      {resultsByGroup.basic.map((path, index) => {
+        const polygonId = `basic_${index}`;
+        return (
           <Polygon
-            key="punch_polygon"
-            path={resultsByGroup.punch}
+            key={polygonId}
+            path={path}
             strokeWeight={2}
             strokeColor={'#b26bb2'}
             strokeOpacity={0.8}
             fillColor={'#f9f'}
-            fillOpacity={
-              board.selectedPolygons.includes('punch_polygon') ? 0.8 : 0.5
-            }
+            fillOpacity={board.selectedPolygons.includes(polygonId) ? 0.8 : 0.5}
             onClick={(polygon) =>
-              board.handleResultPolygonClick(polygon, 'punch_polygon')
+              board.handleResultPolygonClick(polygon, polygonId)
             }
           />
-        )}
+        );
+      })}
 
-        {resultsByGroup.split.map((path, index) => {
-          const polygonId = `split_${index}`;
-          return (
-            <Polygon
-              key={polygonId}
-              path={path}
-              strokeWeight={2}
-              strokeColor={'#b26bb2'}
-              strokeOpacity={0.8}
-              fillColor={'#f9f'}
-              fillOpacity={
-                board.selectedPolygons.includes(polygonId) ? 0.8 : 0.5
-              }
-              onClick={(polygon) =>
-                board.handleResultPolygonClick(polygon, polygonId)
-              }
-            />
-          );
-        })}
+      {resultsByGroup.punch.length > 0 && (
+        <Polygon
+          key="punch_polygon"
+          path={resultsByGroup.punch}
+          strokeWeight={2}
+          strokeColor={'#b26bb2'}
+          strokeOpacity={0.8}
+          fillColor={'#f9f'}
+          fillOpacity={
+            board.selectedPolygons.includes('punch_polygon') ? 0.8 : 0.5
+          }
+          onClick={(polygon) =>
+            board.handleResultPolygonClick(polygon, 'punch_polygon')
+          }
+        />
+      )}
 
-        {resultsByGroup.merge.map((path, index) => {
-          const polygonId = `merge_${index}`;
-          return (
-            <Polygon
-              key={polygonId}
-              path={path}
-              strokeWeight={2}
-              strokeColor={'#b26bb2'}
-              strokeOpacity={0.8}
-              fillColor={'#f9f'}
-              fillOpacity={
-                board.selectedPolygons.includes(polygonId) ? 0.8 : 0.5
-              }
-              onClick={(polygon) =>
-                board.handleResultPolygonClick(polygon, polygonId)
-              }
-            />
-          );
-        })}
-      </KakaoMap>
-    </section>
+      {resultsByGroup.split.map((path, index) => {
+        const polygonId = `split_${index}`;
+        return (
+          <Polygon
+            key={polygonId}
+            path={path}
+            strokeWeight={2}
+            strokeColor={'#b26bb2'}
+            strokeOpacity={0.8}
+            fillColor={'#f9f'}
+            fillOpacity={board.selectedPolygons.includes(polygonId) ? 0.8 : 0.5}
+            onClick={(polygon) =>
+              board.handleResultPolygonClick(polygon, polygonId)
+            }
+          />
+        );
+      })}
+
+      {resultsByGroup.merge.map((path, index) => {
+        const polygonId = `merge_${index}`;
+        return (
+          <Polygon
+            key={polygonId}
+            path={path}
+            strokeWeight={2}
+            strokeColor={'#b26bb2'}
+            strokeOpacity={0.8}
+            fillColor={'#f9f'}
+            fillOpacity={board.selectedPolygons.includes(polygonId) ? 0.8 : 0.5}
+            onClick={(polygon) =>
+              board.handleResultPolygonClick(polygon, polygonId)
+            }
+          />
+        );
+      })}
+    </KakaoMap>
   );
 }

@@ -1,6 +1,12 @@
-import { DrawingAreaPanel } from '@/features/polygon/components/DrawingAreaPanel';
+import {
+  DrawingAreaHeader,
+  DrawingAreaMap,
+} from '@/features/polygon/components/DrawingAreaPanel';
 import { PolygonMapGuard } from '@/features/polygon/components/PolygonMapGuard';
-import { ResultAreaPanel } from '@/features/polygon/components/ResultAreaPanel';
+import {
+  ResultAreaHeader,
+  ResultAreaMap,
+} from '@/features/polygon/components/ResultAreaPanel';
 import { usePolygonBoard } from '@/features/polygon/hooks/usePolygonBoard';
 import '@/features/polygon/polygonBoard.css';
 
@@ -9,9 +15,11 @@ export function PolygonControlPage() {
 
   return (
     <PolygonMapGuard>
-      <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-        <DrawingAreaPanel board={board} />
-        <ResultAreaPanel board={board} />
+      <div className="polygon-board-grid">
+        <DrawingAreaHeader board={board} />
+        <ResultAreaHeader board={board} />
+        <DrawingAreaMap board={board} />
+        <ResultAreaMap board={board} />
       </div>
     </PolygonMapGuard>
   );
