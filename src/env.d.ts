@@ -17,3 +17,6 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
+
+// rsbuild.config.ts의 source.define으로 주입되는 빌드 base 경로
+declare const __BASE_PATH__: string;

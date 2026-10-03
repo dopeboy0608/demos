@@ -1,0 +1,4 @@
+/* body 기본 margin(8px)이 AppLayout의 100vh와 더해져 가로/세로 스크롤을 만들기 때문에 제거한다. */
+body {
+  margin: 0;
+}

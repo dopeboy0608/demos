@@ -20,4 +20,10 @@ export default defineConfig({
   server: {
     base: basePath,
   },
+  source: {
+    // 라우터 basepath를 빌드 base와 항상 같은 값으로 맞추기 위해 코드에 주입한다.
+    define: {
+      __BASE_PATH__: JSON.stringify(basePath),
+    },
+  },
 });
