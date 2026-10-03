@@ -52,6 +52,7 @@
     "kakao.maps.d.ts": "^0.1.40",
     "lint-staged": "^17.6.0",
     "msw": "^2.15.0",
+    "playwright": "^1.63.0",
     "prettier": "^3.9.6",
     "tailwindcss": "^4.3.3",
     "typescript": "^7.0.2",

@@ -86,6 +86,10 @@ src/
 - 스타일링/UI: Tailwind CSS + antd
 - 린트/포맷: biome + prettier, husky + lint-staged로 커밋 시 자동 적용
 - 테스트: vitest + @testing-library/react + msw
+- 브라우저 디버깅: playwright (devDependency) — 자동화된 테스트 하네스에는 포함하지 않고,
+  Claude가 `pnpm dev`로 띄운 화면을 직접 열어 콘솔 로그/스크린샷으로 동작을 확인하는
+  디버깅 도구로만 사용한다. E2E 테스트 스위트로 쓰려면(CLAUDE.md "테스트 하네스 적용 기준"의
+  E2E 항목) 별도로 사용자 동의를 받는다.
 
 추가 라이브러리(캐싱/재시도 등)가 필요하다고 판단되면 임의로 도입하지 말고 먼저 사용자에게 제안하고
 동의를 받은 뒤 적용한다.
