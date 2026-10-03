@@ -1,0 +1,7 @@
+.delivery-region-test__map-wrapper {
+  width: 100%;
+  /* 원본은 40%(부모 높이 기준)였지만 이 페이지엔 고정 높이 부모가 없어 px로 대체했다. */
+  height: 400px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 10%);
+}
