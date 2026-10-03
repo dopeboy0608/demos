@@ -7,3 +7,11 @@ declare module '*.svg?react' {
   const ReactComponent: FunctionComponent<SVGProps<SVGSVGElement>>;
   export default ReactComponent;
 }
+
+interface ImportMetaEnv {
+  readonly PUBLIC_KAKAO_MAP_API_KEY: string;
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}
