@@ -1,4 +1,5 @@
 import { Button } from 'antd';
+import type { ReactNode } from 'react';
 
 import type { OperationType } from '../helper/polygonOperations';
 import type { PolygonBoard } from '../hooks/usePolygonBoard';
@@ -10,16 +11,49 @@ const MERGE_BUTTONS: Array<{ type: OperationType; label: string }> = [
   { type: 'difference', label: '폴리곤 차집합' },
 ];
 
+interface ToolbarGroupProps {
+  label: string;
+  children: ReactNode;
+}
+
+function ToolbarGroup({ label, children }: ToolbarGroupProps) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 4,
+        padding: '6px 10px',
+        border: '1px solid #f0f0f0',
+        borderRadius: 6,
+      }}
+    >
+      <span style={{ fontSize: 12, color: 'rgba(0, 0, 0, 0.45)' }}>
+        {label}
+      </span>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
 interface PolygonToolbarProps {
   board: PolygonBoard;
 }
 
 export function PolygonToolbar({ board }: PolygonToolbarProps) {
   return (
-    <>
-      <div
-        style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}
-      >
+    <div
+      style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        alignItems: 'flex-start',
+        gap: 12,
+        marginBottom: 8,
+      }}
+    >
+      <ToolbarGroup label="그리기">
         <Button
           type={board.activeOverlayType === 'polygon' ? 'primary' : 'default'}
           onClick={board.startPolygonDrawing}
@@ -38,12 +72,18 @@ export function PolygonToolbar({ board }: PolygonToolbarProps) {
         >
           그리기 취소
         </Button>
+      </ToolbarGroup>
+
+      <ToolbarGroup label="잘라내기">
         <Button danger ghost onClick={board.executeSplit}>
           선으로 잘라내기 실행
         </Button>
         <Button danger ghost onClick={board.executePunch}>
           폴리곤으로 잘라내기 실행
         </Button>
+      </ToolbarGroup>
+
+      <ToolbarGroup label="병합">
         {MERGE_BUTTONS.map(({ type, label }) => (
           <Button
             key={type}
@@ -53,15 +93,16 @@ export function PolygonToolbar({ board }: PolygonToolbarProps) {
             {label}
           </Button>
         ))}
-      </div>
-      <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+      </ToolbarGroup>
+
+      <ToolbarGroup label="결과">
         <Button type="primary" onClick={board.saveBasicPolygons}>
           폴리곤 저장
         </Button>
         <Button type="primary" onClick={board.printResult}>
           좌표 결과 콘솔 출력
         </Button>
-      </div>
-    </>
+      </ToolbarGroup>
+    </div>
   );
 }
