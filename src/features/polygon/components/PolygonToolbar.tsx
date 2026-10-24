@@ -32,6 +32,12 @@ export function PolygonToolbar({ board }: PolygonToolbarProps) {
         >
           분할선 그리기
         </Button>
+        <Button
+          disabled={!board.activeOverlayType}
+          onClick={board.cancelDrawing}
+        >
+          그리기 취소
+        </Button>
         <Button danger ghost onClick={board.executeSplit}>
           선으로 잘라내기 실행
         </Button>
