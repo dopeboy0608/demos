@@ -13,3 +13,34 @@
   border-radius: 8px;
   box-shadow: 0 1px 3px 0 rgb(0 0 0 / 10%);
 }
+
+/* 좁은 화면(모바일 등)에서는 좌/우 2단 그리드가 지도를 과도하게 좁혀 보기 어려우므로
+   그리기 영역(헤더+지도) → 결과 영역(헤더+지도) 순서의 세로 스택으로 전환한다. */
+@media (max-width: 768px) {
+  .polygon-board-grid {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .polygon-board-grid > :nth-child(1) {
+    order: 1;
+  }
+
+  .polygon-board-grid > :nth-child(3) {
+    order: 2;
+  }
+
+  .polygon-board-grid > :nth-child(2) {
+    order: 3;
+  }
+
+  .polygon-board-grid > :nth-child(4) {
+    order: 4;
+  }
+
+  .polygon-board-grid .delivery-region-test__map-wrapper {
+    height: 320px;
+    flex-shrink: 0;
+  }
+}

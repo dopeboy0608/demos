@@ -13,7 +13,7 @@
 | 01  | 활성 OverlayType 버튼 강조          | `usePolygonBoard`에 활성 그리기 모드 상태 추가, `PolygonToolbar`에서 해당 버튼 강조 표시        | 완료 (ed3465c) |
 | 02  | 그리기/분할선 취소 버튼 추가        | `DrawingManager.cancel()`을 호출하는 버튼을 `PolygonToolbar`에 노출, 활성 모드 상태 초기화      | 완료 (b4eac8e) |
 | 03  | 수정모드 전송 폴리곤 중복 표시 개선 | `polygonClickMode === 'edit'`로 그리기 영역에 보낸 결과 폴리곤을 결과 영역에서 제거/흐리게 처리 | 완료           |
-| 04  | 반응형 그리드 레이아웃              | `polygonBoard.css`에 768px 이하 브레이크포인트 추가, 좌/우 2단 → 세로 스택 전환                 | 대기           |
+| 04  | 반응형 그리드 레이아웃              | `polygonBoard.css`에 768px 이하 브레이크포인트 추가, 좌/우 2단 → 세로 스택 전환                 | 완료           |
 | 05  | 원본 포팅 메뉴/페이지 제거          | `/polygon-legacy` 라우트·네비게이션·데모 목록 카드 제거, `src/pages/legacy/` 디렉터리 삭제      | 대기           |
 
 이슈 본문의 체크리스트 4건에 1:1 대응(01~04)하고, 사용자 요청으로 05(원본 포팅 메뉴/파일 제거)를 추가했다.
@@ -60,3 +60,13 @@
   `removeResultPolygon`을 호출해 결과 영역 중복 표시를 없앤다.
 - `pnpm dev`(포트 3000)에서 폴리곤을 그려 저장 → "폴리곤 수정" 모드로 전환 → 결과 영역의
   폴리곤 클릭 → 결과 영역에서 사라지고 그리기 영역에 반영되는 것을 직접 확인.
+
+### 04. 반응형 그리드 레이아웃
+
+- `polygonBoard.css`에 `max-width: 768px` 미디어쿼리를 추가. `.polygon-board-grid`를 flex
+  column으로 전환하고 `order`로 그리기 헤더 → 그리기 지도 → 결과 헤더 → 결과 지도 순 세로 스택을
+  만들었다(JSX 구조는 바꾸지 않고 CSS만으로 순서 재배치).
+- `.delivery-region-test__map-wrapper`는 모바일에서 `height:100%`가 0으로 collapse되므로
+  `height: 320px; flex-shrink: 0`을 명시.
+- 브라우저 뷰포트를 모바일(375×812)로 바꿔 세로 스택 순서/지도 높이를 확인하고, 데스크톱으로
+  되돌려 기존 좌/우 2단 레이아웃이 그대로인지도 확인.
