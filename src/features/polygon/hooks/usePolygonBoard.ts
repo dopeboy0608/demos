@@ -190,6 +190,22 @@ export function usePolygonBoard() {
     );
   }, []);
 
+  // 결과 영역 폴리곤 id는 `${group}_${index}`(punch는 예외로 `punch_polygon`) 형식이다.
+  const removeResultPolygon = useCallback((polygonId: string) => {
+    if (polygonId === 'punch_polygon') {
+      setResultsByGroup((prev) => ({ ...prev, punch: [] }));
+      return;
+    }
+    const separatorIndex = polygonId.lastIndexOf('_');
+    const group = polygonId.slice(0, separatorIndex) as ResultGroup;
+    const index = Number(polygonId.slice(separatorIndex + 1));
+    setResultsByGroup((prev) => ({
+      ...prev,
+      [group]: prev[group].filter((_, i) => i !== index),
+    }));
+    setSelectedPolygons((prev) => prev.filter((id) => id !== polygonId));
+  }, []);
+
   const handleResultPolygonClick = useCallback(
     (polygon: kakao.maps.Polygon, polygonId: string) => {
       const manager = drawingManagerRef.current;
@@ -210,13 +226,15 @@ export function usePolygonBoard() {
           } else {
             manager.put('polygon', polygonPaths as kakao.maps.LatLng[]);
           }
+          // 그리기 영역으로 보낸 결과 폴리곤은 결과 영역에서 제거해 중복 표시를 막는다.
+          removeResultPolygon(polygonId);
           break;
         case 'select':
           toggleSelectedPolygon(polygonId);
           break;
       }
     },
-    [polygonClickMode, toggleSelectedPolygon],
+    [polygonClickMode, toggleSelectedPolygon, removeResultPolygon],
   );
 
   const handleMapCenterChanged = useCallback((map: kakao.maps.Map) => {

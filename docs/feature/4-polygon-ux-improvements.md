@@ -11,8 +11,8 @@
 | #   | 제목                                | 범위                                                                                            | 상태           |
 | --- | ----------------------------------- | ----------------------------------------------------------------------------------------------- | -------------- |
 | 01  | 활성 OverlayType 버튼 강조          | `usePolygonBoard`에 활성 그리기 모드 상태 추가, `PolygonToolbar`에서 해당 버튼 강조 표시        | 완료 (ed3465c) |
-| 02  | 그리기/분할선 취소 버튼 추가        | `DrawingManager.cancel()`을 호출하는 버튼을 `PolygonToolbar`에 노출, 활성 모드 상태 초기화      | 완료           |
-| 03  | 수정모드 전송 폴리곤 중복 표시 개선 | `polygonClickMode === 'edit'`로 그리기 영역에 보낸 결과 폴리곤을 결과 영역에서 제거/흐리게 처리 | 대기           |
+| 02  | 그리기/분할선 취소 버튼 추가        | `DrawingManager.cancel()`을 호출하는 버튼을 `PolygonToolbar`에 노출, 활성 모드 상태 초기화      | 완료 (b4eac8e) |
+| 03  | 수정모드 전송 폴리곤 중복 표시 개선 | `polygonClickMode === 'edit'`로 그리기 영역에 보낸 결과 폴리곤을 결과 영역에서 제거/흐리게 처리 | 완료           |
 | 04  | 반응형 그리드 레이아웃              | `polygonBoard.css`에 768px 이하 브레이크포인트 추가, 좌/우 2단 → 세로 스택 전환                 | 대기           |
 | 05  | 원본 포팅 메뉴/페이지 제거          | `/polygon-legacy` 라우트·네비게이션·데모 목록 카드 제거, `src/pages/legacy/` 디렉터리 삭제      | 대기           |
 
@@ -50,3 +50,13 @@
 - `activeOverlayType`이 없을 때는 버튼을 `disabled`로 비활성화.
 - `pnpm dev`(포트 3000)에서 폴리곤 그리기 모드 진입 → 취소 버튼 활성화 → 클릭 시 모드 해제 및
   버튼 비활성화까지 직접 확인.
+
+### 03. 수정모드 전송 폴리곤 중복 표시 개선
+
+- `usePolygonBoard`에 `removeResultPolygon(polygonId)`을 추가. 결과 폴리곤 id는
+  `${group}_${index}`(punch만 예외로 `punch_polygon`) 형식이라 id를 파싱해 해당 그룹 배열에서
+  제거하고, 선택 목록(`selectedPolygons`)에서도 함께 제거한다.
+- `handleResultPolygonClick`의 `edit` 케이스에서 `manager.put()`으로 그리기 영역에 보낸 직후
+  `removeResultPolygon`을 호출해 결과 영역 중복 표시를 없앤다.
+- `pnpm dev`(포트 3000)에서 폴리곤을 그려 저장 → "폴리곤 수정" 모드로 전환 → 결과 영역의
+  폴리곤 클릭 → 결과 영역에서 사라지고 그리기 영역에 반영되는 것을 직접 확인.
