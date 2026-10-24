@@ -14,7 +14,7 @@
 | 02  | 그리기/분할선 취소 버튼 추가        | `DrawingManager.cancel()`을 호출하는 버튼을 `PolygonToolbar`에 노출, 활성 모드 상태 초기화      | 완료 (b4eac8e) |
 | 03  | 수정모드 전송 폴리곤 중복 표시 개선 | `polygonClickMode === 'edit'`로 그리기 영역에 보낸 결과 폴리곤을 결과 영역에서 제거/흐리게 처리 | 완료           |
 | 04  | 반응형 그리드 레이아웃              | `polygonBoard.css`에 768px 이하 브레이크포인트 추가, 좌/우 2단 → 세로 스택 전환                 | 완료           |
-| 05  | 원본 포팅 메뉴/페이지 제거          | `/polygon-legacy` 라우트·네비게이션·데모 목록 카드 제거, `src/pages/legacy/` 디렉터리 삭제      | 대기           |
+| 05  | 원본 포팅 메뉴/페이지 제거          | `/polygon-legacy` 라우트·네비게이션·데모 목록 카드 제거, `src/pages/legacy/` 디렉터리 삭제      | 완료           |
 
 이슈 본문의 체크리스트 4건에 1:1 대응(01~04)하고, 사용자 요청으로 05(원본 포팅 메뉴/파일 제거)를 추가했다.
 (결정: GitHub 서브이슈는 생성하지 않고 이 문서로만 추적, PR은 `Closes #4`로 연결)
@@ -70,3 +70,13 @@
   `height: 320px; flex-shrink: 0`을 명시.
 - 브라우저 뷰포트를 모바일(375×812)로 바꿔 세로 스택 순서/지도 높이를 확인하고, 데스크톱으로
   되돌려 기존 좌/우 2단 레이아웃이 그대로인지도 확인.
+
+### 05. 원본 포팅 메뉴/페이지 제거
+
+- `src/pages/legacy/`(`PolygonLegacyPage.tsx`, `deliveryRegion.css`), `src/routes/polygon-legacy.tsx`
+  삭제. `src/router.tsx`에서 `polygonLegacyRoute` 등록 제거.
+- `AppLayout`의 네비게이션 메뉴와 `routes/index.tsx`의 데모 목록 카드에서 "폴리곤 제어(원본 포팅)"
+  항목 제거.
+- `PolygonMapGuard.tsx`의 "두 페이지 간 useKakaoLoader 옵션을 맞춰야 한다"는 주석은 레거시
+  페이지가 사라지며 더 이상 적용되지 않아 함께 정리.
+- `pnpm lint` / `tsc --noEmit` / `pnpm test` 통과, 브라우저에서 메뉴·데모 카드가 사라진 것을 확인.
