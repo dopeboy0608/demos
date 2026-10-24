@@ -20,10 +20,16 @@ export function PolygonToolbar({ board }: PolygonToolbarProps) {
       <div
         style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}
       >
-        <Button type="primary" onClick={board.startPolygonDrawing}>
+        <Button
+          type={board.activeOverlayType === 'polygon' ? 'primary' : 'default'}
+          onClick={board.startPolygonDrawing}
+        >
           폴리곤 그리기
         </Button>
-        <Button type="primary" onClick={board.startLineDrawing}>
+        <Button
+          type={board.activeOverlayType === 'polyline' ? 'primary' : 'default'}
+          onClick={board.startLineDrawing}
+        >
           분할선 그리기
         </Button>
         <Button danger ghost onClick={board.executeSplit}>

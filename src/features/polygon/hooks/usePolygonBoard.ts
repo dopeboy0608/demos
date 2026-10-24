@@ -41,6 +41,8 @@ export function usePolygonBoard() {
   const [polygonClickMode, setPolygonClickMode] =
     useState<PolygonClickMode>('none');
   const [selectedPolygons, setSelectedPolygons] = useState<string[]>([]);
+  const [activeOverlayType, setActiveOverlayType] =
+    useState<DrawnOverlayType | null>(null);
 
   const mapRef = useRef<kakao.maps.Map | null>(null);
   const drawingManagerRef = useRef<DrawingManagerHandle | null>(null);
@@ -57,6 +59,28 @@ export function usePolygonBoard() {
     if (!manager) return;
     manager.cancel();
     manager.select('polyline');
+  }, []);
+
+  const cancelDrawing = useCallback(() => {
+    const manager = drawingManagerRef.current;
+    if (!manager) return;
+    manager.cancel();
+  }, []);
+
+  const handleDrawingSelect = useCallback(
+    (_manager: DrawingManagerHandle, event: kakao.maps.drawing.MouseEvent) => {
+      setActiveOverlayType(event.overlayType as DrawnOverlayType);
+    },
+    [],
+  );
+
+  const handleDrawingCancel = useCallback(() => {
+    setActiveOverlayType(null);
+  }, []);
+
+  // 그리기를 완료하면 DrawingManager가 선택을 자동 해제하므로 강조 상태도 함께 초기화한다.
+  const handleDrawingEnd = useCallback(() => {
+    setActiveOverlayType(null);
   }, []);
 
   const saveBasicPolygons = useCallback(() => {
@@ -215,8 +239,13 @@ export function usePolygonBoard() {
     polygonClickMode,
     setPolygonClickMode,
     selectedPolygons,
+    activeOverlayType,
     startPolygonDrawing,
     startLineDrawing,
+    cancelDrawing,
+    handleDrawingSelect,
+    handleDrawingCancel,
+    handleDrawingEnd,
     saveBasicPolygons,
     executeSplit,
     executePunch,
