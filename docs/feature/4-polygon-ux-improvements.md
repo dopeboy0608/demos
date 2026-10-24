@@ -1,0 +1,104 @@
+# #4 폴리곤 제어 화면 편의성 개선
+
+관련 이슈: [#4](https://github.com/dopeboy0608/demos/issues/4)
+브랜치: `feature/4-polygon-ux-improvements`
+참고 구현: `src/pages/PolygonControlPage.tsx`, `src/features/polygon/hooks/usePolygonBoard.ts`,
+`src/features/polygon/components/PolygonToolbar.tsx`, `src/features/polygon/components/ResultAreaPanel.tsx`,
+`src/features/polygon/polygonBoard.css`
+
+## 로드맵
+
+| #   | 제목                                | 범위                                                                                                    | 상태                    |
+| --- | ----------------------------------- | ------------------------------------------------------------------------------------------------------- | ----------------------- |
+| 01  | 활성 OverlayType 버튼 강조          | `usePolygonBoard`에 활성 그리기 모드 상태 추가, `PolygonToolbar`에서 해당 버튼 강조 표시                | 완료 (ed3465c)          |
+| 02  | 그리기/분할선 취소 버튼 추가        | `DrawingManager.cancel()`을 호출하는 버튼을 `PolygonToolbar`에 노출, 활성 모드 상태 초기화              | 완료 (b4eac8e)          |
+| 03  | 수정모드 전송 폴리곤 중복 표시 개선 | `polygonClickMode === 'edit'`로 그리기 영역에 보낸 결과 폴리곤을 결과 영역에서 제거/흐리게 처리         | 완료 (be9fccb)          |
+| 04  | 반응형 그리드 레이아웃              | `polygonBoard.css`에 768px 이하 브레이크포인트 추가, 좌/우 2단 → 세로 스택 전환                         | 완료 (940e268)          |
+| 05  | 원본 포팅 메뉴/페이지 제거          | `/polygon-legacy` 라우트·네비게이션·데모 목록 카드 제거, `src/pages/legacy/` 디렉터리 삭제              | 완료 (ab1f62f)          |
+| 06  | 툴바 버튼 용도별 그룹 분리          | `PolygonToolbar`의 버튼을 그리기/잘라내기/병합/결과 그룹으로 나눠 라벨·antd `Space.Compact`로 시각 분리 | 완료 (636804c, e16bc29) |
+
+이슈 본문의 체크리스트 4건에 1:1 대응(01~04)하고, 사용자 요청으로 05(원본 포팅 메뉴/파일 제거),
+01 검증 후 사용자 피드백으로 06(버튼 용도별 그룹 분리)을 추가했다.
+(결정: GitHub 서브이슈는 생성하지 않고 이 문서로만 추적, PR은 `Closes #4`로 연결)
+
+## 작업 방식
+
+- 각 항목 구현 후 커밋 전에 사용자 확인을 받는다(Phase C 체크포인트).
+- 01, 02는 같은 파일(`usePolygonBoard.ts`, `PolygonToolbar.tsx`)을 다루므로 연속 작업해도 되지만,
+  검증은 항목별로 따로 받는다.
+- 커밋 전 `pnpm lint:fix` / `pnpm format` 실행.
+
+## 진행 로그
+
+### 01. 활성 OverlayType 버튼 강조
+
+- `usePolygonBoard`에 `activeOverlayType` 상태와 `DrawingManager`의 `onSelect`/`onCancle`/`onDrawend`
+  이벤트에 연결할 핸들러(`handleDrawingSelect`/`handleDrawingCancel`/`handleDrawingEnd`)를 추가했다.
+  그리기 완료 시 DrawingManager가 선택을 자동 해제하므로 `onDrawend`에서도 상태를 초기화한다.
+- `PolygonToolbar`의 "폴리곤 그리기"/"분할선 그리기" 버튼이 `activeOverlayType`과 일치할 때
+  `type="primary"`로 강조되도록 변경.
+- 로컬 dev 서버(`pnpm dev`)에서 카카오맵 JS 키의 허용 도메인이 `localhost:3000`/`3001`로
+  등록돼 있는데(`docs/TROUBLE_SHOOTING.md` 2026-10-03 12:50 항목), 처음엔 두 포트 모두 다른
+  프로젝트(Drone-OpenSky) dev 서버가 점유 중이라 포트 3002로 떠서 `ERR_BLOCKED_BY_ORB`가
+  발생했다. 사용자가 포트 3000 점유 프로세스를 종료해줘서 `pnpm dev --port 3000`으로 재기동 후
+  브라우저로 "폴리곤 그리기"/"분할선 그리기" 버튼 강조 및 그리기 완료 시 강조 해제까지 직접
+  확인했다. `pnpm lint` / `tsc --noEmit` / `pnpm test` 모두 통과.
+- 커밋: `ed3465c`
+
+### 02. 그리기/분할선 취소 버튼 추가
+
+- `usePolygonBoard`의 `cancelDrawing`(01에서 추가한 `handleDrawingCancel`과 연결된
+  `manager.cancel()` 래퍼)을 `PolygonToolbar`의 새 "그리기 취소" 버튼에 연결.
+- `activeOverlayType`이 없을 때는 버튼을 `disabled`로 비활성화.
+- `pnpm dev`(포트 3000)에서 폴리곤 그리기 모드 진입 → 취소 버튼 활성화 → 클릭 시 모드 해제 및
+  버튼 비활성화까지 직접 확인.
+
+### 03. 수정모드 전송 폴리곤 중복 표시 개선
+
+- `usePolygonBoard`에 `removeResultPolygon(polygonId)`을 추가. 결과 폴리곤 id는
+  `${group}_${index}`(punch만 예외로 `punch_polygon`) 형식이라 id를 파싱해 해당 그룹 배열에서
+  제거하고, 선택 목록(`selectedPolygons`)에서도 함께 제거한다.
+- `handleResultPolygonClick`의 `edit` 케이스에서 `manager.put()`으로 그리기 영역에 보낸 직후
+  `removeResultPolygon`을 호출해 결과 영역 중복 표시를 없앤다.
+- `pnpm dev`(포트 3000)에서 폴리곤을 그려 저장 → "폴리곤 수정" 모드로 전환 → 결과 영역의
+  폴리곤 클릭 → 결과 영역에서 사라지고 그리기 영역에 반영되는 것을 직접 확인.
+
+### 04. 반응형 그리드 레이아웃
+
+- `polygonBoard.css`에 `max-width: 768px` 미디어쿼리를 추가. `.polygon-board-grid`를 flex
+  column으로 전환하고 `order`로 그리기 헤더 → 그리기 지도 → 결과 헤더 → 결과 지도 순 세로 스택을
+  만들었다(JSX 구조는 바꾸지 않고 CSS만으로 순서 재배치).
+- `.delivery-region-test__map-wrapper`는 모바일에서 `height:100%`가 0으로 collapse되므로
+  `height: 320px; flex-shrink: 0`을 명시.
+- 브라우저 뷰포트를 모바일(375×812)로 바꿔 세로 스택 순서/지도 높이를 확인하고, 데스크톱으로
+  되돌려 기존 좌/우 2단 레이아웃이 그대로인지도 확인.
+
+### 05. 원본 포팅 메뉴/페이지 제거
+
+- `src/pages/legacy/`(`PolygonLegacyPage.tsx`, `deliveryRegion.css`), `src/routes/polygon-legacy.tsx`
+  삭제. `src/router.tsx`에서 `polygonLegacyRoute` 등록 제거.
+- `AppLayout`의 네비게이션 메뉴와 `routes/index.tsx`의 데모 목록 카드에서 "폴리곤 제어(원본 포팅)"
+  항목 제거.
+- `PolygonMapGuard.tsx`의 "두 페이지 간 useKakaoLoader 옵션을 맞춰야 한다"는 주석은 레거시
+  페이지가 사라지며 더 이상 적용되지 않아 함께 정리.
+- `pnpm lint` / `tsc --noEmit` / `pnpm test` 통과, 브라우저에서 메뉴·데모 카드가 사라진 것을 확인.
+
+### 06. 툴바 버튼 용도별 그룹 분리
+
+- 01에서 버튼 활성 상태 강조는 됐지만, 사용자가 용도별(그리기/잘라내기/병합/결과)로도 버튼을
+  묶어 달라고 요청.
+- `PolygonToolbar`에 `ToolbarGroup`(라벨 + 테두리를 가진 래퍼) 컴포넌트를 추가하고, 기존 버튼을
+  "그리기"(폴리곤 그리기/분할선 그리기/그리기 취소), "잘라내기"(선/폴리곤으로 잘라내기),
+  "병합"(합집합/교집합/교차점 제거/차집합), "결과"(폴리곤 저장/좌표 콘솔 출력) 4개 그룹으로
+  재구성. 로직은 그대로, 레이아웃만 변경.
+- 데스크톱·모바일(375×812) 양쪽에서 그룹 테두리/줄바꿈과 기존 버튼 동작(활성 강조, 취소
+  disabled)이 유지되는지 직접 확인.
+- **리팩터(같은 세션 후속 피드백)**: 라벨이 추가되며 각 그룹이 "라벨+버튼" 2줄 박스가 되어
+  전체 높이가 늘어났다는 피드백을 받아, 커스텀 테두리 박스 대신 antd `Flex` + `Typography.Text`
+  (라벨을 버튼 옆에 인라인 배치) + `Space.Compact`(버튼을 세그먼트처럼 테두리 공유하며 붙임) +
+  `Divider`(그룹 간 구분)로 재구성해 라벨 한 줄만큼의 높이 증가를 없앴다. 버튼 라벨도
+  그룹명과 중복되는 부분("폴리곤", "실행" 등)을 줄여 더 짧게 정리.
+  - `Divider`를 그룹 바깥에 독립적으로 두면 좁은 화면에서 flex-wrap 시 구분선만 다음 줄로
+    떨어져 혼자 남는 문제가 있어, `ToolbarGroup`의 `withLeadingDivider` prop으로 구분선을
+    그룹 내부(같은 flex 아이템)에 포함시켜 항상 그룹과 함께 줄바꿈되도록 수정.
+  - 데스크톱·모바일 양쪽에서 높이 감소, 구분선 줄바꿈, 버튼 강조/비활성화 동작을 다시 확인.

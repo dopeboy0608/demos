@@ -38,6 +38,9 @@ export function DrawingAreaMap({ board }: DrawingAreaProps) {
         ref={board.drawingManagerRef}
         drawingMode={['polyline', 'polygon']}
         guideTooltip={['draw', 'drag', 'edit']}
+        onSelect={board.handleDrawingSelect}
+        onCancle={board.handleDrawingCancel}
+        onDrawend={board.handleDrawingEnd}
         markerOptions={{ draggable: true, removable: true }}
         polylineOptions={{
           draggable: true,
