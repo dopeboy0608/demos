@@ -17,6 +17,9 @@ export default defineConfig({
   output: {
     assetPrefix: basePath,
   },
+  html: {
+    title: 'Demos',
+  },
   server: {
     base: basePath,
   },
