@@ -46,16 +46,16 @@ CLAUDE.md "디렉터리 구조" 컨벤션을 따르는 단일 프론트엔드 �
 - [x] T003 `src/features/polygon/helper/types.ts`에 data-model.md의 `Polygon`
       (`id: string`, `panelId: 'left' | 'right'`, `path: { lat: number; lng: number }[]`
       — 최소 길이 3, `selected: boolean`, `source: 'drawn' | 'union' | 'intersection' |
-    'xor' | 'difference' | 'split'`)와 `MapPanel`(`id: 'left' | 'right'`,
+'xor' | 'difference' | 'split'`)와 `MapPanel`(`id: 'left' | 'right'`,
       `drawingMode: boolean`, `polygons: Polygon[]`, `selectedIds: string[]`) 타입 정의
 - [x] T004 `src/features/polygon/usePolygonStore.ts`에 Zustand 스토어 구현: `left`/`right`
       두 `MapPanel` 상태를 가지며 `setDrawingMode(panelId, boolean)`,
       `addPolygon(panelId, path)`(`path.length < 3`이면 생성하지 않음 — data-model.md
       검증 규칙), `toggleSelect(panelId, polygonId)`, `removePolygons(panelId,
-    polygonIds)`, `replaceWithResult(panelId, removedIds, newPolygon)` 액션 포함
+polygonIds)`, `replaceWithResult(panelId, removedIds, newPolygon)` 액션 포함
       (depends on T003)
 - [x] T005 [P] `src/features/polygon/components/PolygonMapGuard.tsx` 구현: `import.meta
-    .env.PUBLIC_KAKAO_MAP_API_KEY`가 비어 있으면 지도 대신 안내 메시지를 렌더링하고,
+.env.PUBLIC_KAKAO_MAP_API_KEY`가 비어 있으면 지도 대신 안내 메시지를 렌더링하고,
       값이 있으면 `children`을 그대로 렌더링 (FR-011)
 - [x] T006 TanStack Router 설정: `src/routes/polygon.tsx`에 `/polygon` 라우트 정의를
       추가하고, `src/App.tsx`에서 라우터 트리를 생성해 `RouterProvider`로 렌더링하도록
@@ -105,7 +105,7 @@ CLAUDE.md "디렉터리 구조" 컨벤션을 따르는 단일 프론트엔드 �
 ### Implementation for User Story 2
 
 - [x] T012 [US2] `src/features/polygon/hooks/usePolygonMapPanel.ts`에 `toggleSelect
-    (polygonId)` 핸들러 추가 (T004의 `toggleSelect` 액션 연결)
+(polygonId)` 핸들러 추가 (T004의 `toggleSelect` 액션 연결)
 - [x] T013 [US2] `src/features/polygon/components/PolygonMapPanel.tsx`의 `Polygon`
       컴포넌트에 `onClick={() => toggleSelect(polygon.id)}`와 `selected` 여부에 따른
       강조 스타일(`strokeColor`/`fillColor` 변경)을 적용 (depends on T012)
