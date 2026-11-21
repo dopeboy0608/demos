@@ -1,7 +1,22 @@
 import { Button } from 'antd';
 
 import { useStageGame } from '../hooks/useStageGame';
-import { WALL_HEIGHT, WALL_WIDTH } from '../helper/stageConfig';
+import { directionToRotationDeg } from '../helper/directionUtil';
+import {
+  BACKGROUND_HEIGHT,
+  BACKGROUND_OFFSET,
+  BACKGROUND_WIDTH,
+  DUST_HEIGHT,
+  DUST_IMAGE,
+  DUST_WIDTH,
+  ICON_SIZE,
+  ROBOT_HEIGHT,
+  ROBOT_IMAGE,
+  ROBOT_WIDTH,
+  SPEED_ICON_IMAGE,
+  WALL_HEIGHT,
+  WALL_WIDTH,
+} from '../helper/stageConfig';
 import type { StageConfig } from '../helper/stageConfig';
 
 import '../roboking.css';
@@ -31,6 +46,17 @@ export function GameStage({
           <span>SCORE: {game.scorePercent}%</span>
         </div>
         <div className="roboking-game-field">
+          <img
+            src={config.backgroundImage}
+            alt=""
+            className="roboking-stage-bg"
+            style={{
+              left: BACKGROUND_OFFSET.x,
+              top: BACKGROUND_OFFSET.y,
+              width: BACKGROUND_WIDTH,
+              height: BACKGROUND_HEIGHT,
+            }}
+          />
           {config.walls.map((wall) => (
             <div
               key={wall.name}
@@ -43,31 +69,45 @@ export function GameStage({
             />
           ))}
           {game.remainingDust.map((dust) => (
-            <div
+            <img
               key={dust.id}
+              src={DUST_IMAGE}
+              alt=""
               className="roboking-dust"
+              width={DUST_WIDTH}
+              height={DUST_HEIGHT}
               style={{ left: dust.x, top: dust.y }}
             />
           ))}
           {game.remainingEventDust.map((dust) => (
-            <div
+            <img
               key={dust.id}
+              src={DUST_IMAGE}
+              alt=""
               className="roboking-event-dust"
+              width={DUST_WIDTH}
+              height={DUST_HEIGHT}
               style={{ left: dust.x, top: dust.y }}
             />
           ))}
           {game.cornerIconVisible && (
-            <div
+            <img
+              src={config.eventItem.image}
+              alt={config.eventItem.name}
               className="roboking-event-item"
+              width={ICON_SIZE}
+              height={ICON_SIZE}
               style={{ left: config.eventItem.x, top: config.eventItem.y }}
-              title={config.eventItem.name}
             />
           )}
           {game.speedIconVisible && (
-            <div
+            <img
+              src={SPEED_ICON_IMAGE}
+              alt="speed_icon"
               className="roboking-speed-item"
+              width={ICON_SIZE}
+              height={ICON_SIZE}
               style={{ left: config.speedIcon.x, top: config.speedIcon.y }}
-              title="speed_icon"
             />
           )}
           {game.dogPos && (
@@ -76,13 +116,21 @@ export function GameStage({
               style={{ left: game.dogPos.x, top: game.dogPos.y }}
             />
           )}
-          <div
+          <img
+            src={ROBOT_IMAGE}
+            alt="robot"
+            width={ROBOT_WIDTH}
+            height={ROBOT_HEIGHT}
             className={
               game.isSpeedActive
                 ? 'roboking-robot roboking-robot-speed'
                 : 'roboking-robot'
             }
-            style={{ left: game.robotPos.x, top: game.robotPos.y }}
+            style={{
+              left: game.robotPos.x,
+              top: game.robotPos.y,
+              transform: `translate(-50%, -50%) rotate(${directionToRotationDeg(game.direction)}deg)`,
+            }}
           />
         </div>
 

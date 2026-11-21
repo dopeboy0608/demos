@@ -21,6 +21,8 @@ export interface EventItemConfig {
   name: string;
   x: number;
   y: number;
+  /** 이벤트 아이템 스프라이트(주방·거실은 corner_icon.png, 침실은 pet_icon_img.png). */
+  image: string;
 }
 
 /**
@@ -40,6 +42,8 @@ export interface DogConfig {
 export interface StageConfig {
   /** 클리어에 필요한 먼지 총량(`dustNum`). bed처럼 이벤트 먼지가 나중에 늘어나도 고정값이다. */
   totalDust: number;
+  /** 실제 FLA에서 추출한 배경 이미지(776x714, stage_mc.xml 기준 tx=19,ty=228에 배치). */
+  backgroundImage: string;
   robotStart: Point;
   walls: WallConfig[];
   dust: Point[];
@@ -49,6 +53,21 @@ export interface StageConfig {
   speedIcon: Point;
   dog?: DogConfig;
 }
+
+/** 배경 이미지가 무대 안에서 차지하는 영역 — 세 스테이지가 동일한 배치를 쓴다. */
+export const BACKGROUND_OFFSET: Point = { x: 19, y: 228 };
+export const BACKGROUND_WIDTH = 776;
+export const BACKGROUND_HEIGHT = 714;
+
+/** 세 스테이지가 공유하는 스프라이트(크기는 원본 PNG 그대로). */
+export const ROBOT_IMAGE = '/roboking/img/roboking.png';
+export const ROBOT_WIDTH = 48;
+export const ROBOT_HEIGHT = 52;
+export const DUST_IMAGE = '/roboking/img/dust_1.png';
+export const DUST_WIDTH = 23;
+export const DUST_HEIGHT = 25;
+export const SPEED_ICON_IMAGE = '/roboking/img/speed_icon.png';
+export const ICON_SIZE = 39;
 
 /** FLA `mc/wall_mc`의 로컬 크기(twips 1100x3099 → px 55x155). */
 export const WALL_WIDTH = 55;

@@ -5,6 +5,7 @@ import type { StageConfig } from './stageConfig';
 // 화면 밖에 미리 심어둔 event_dust0~14를 Dog 위치로 옮기는 방식이라 고정 좌표가 없다.
 export const bedStageConfig: StageConfig = {
   totalDust: 90,
+  backgroundImage: '/roboking/img/stage3_game_bg.png',
   robotStart: { x: 134, y: 729 },
   walls: [
     {
@@ -257,7 +258,12 @@ export const bedStageConfig: StageConfig = {
     { x: 536.4, y: 405.15 },
   ],
   eventDust: [],
-  eventItem: { name: 'pet_icon', x: 209, y: 491 },
+  eventItem: {
+    name: 'pet_icon',
+    x: 209,
+    y: 491,
+    image: '/roboking/img/pet_icon_img.png',
+  },
   speedIcon: { x: 415, y: 600 },
   dog: {
     start: { x: 570.5, y: 578.55 },

@@ -4,6 +4,7 @@ import type { StageConfig } from './stageConfig';
 // LIBRARY/stage_mc.xml(아이템·로봇 시작 위치)에서 추출한 실제 좌표.
 export const livingStageConfig: StageConfig = {
   totalDust: 121,
+  backgroundImage: '/roboking/img/stage2_game_bg.png',
   robotStart: { x: 148, y: 721.4 },
   walls: [
     {
@@ -330,6 +331,11 @@ export const livingStageConfig: StageConfig = {
     { x: 438.45, y: 494 },
     { x: 283.9, y: 497.5 },
   ],
-  eventItem: { name: 'carpet_icon', x: 345, y: 563 },
+  eventItem: {
+    name: 'carpet_icon',
+    x: 345,
+    y: 563,
+    image: '/roboking/img/carpet_icon_img.png',
+  },
   speedIcon: { x: 548, y: 505 },
 };
