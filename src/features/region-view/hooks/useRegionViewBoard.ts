@@ -7,6 +7,7 @@ import {
   fetchRegionGroupList,
   fetchRegionGroupLocation,
   fetchRegionLocation,
+  fetchZipcodeExcelBlob,
   type LocationSearchPayload,
   type RegionGroupListItem,
   type RegionViewSearchParams,
@@ -16,6 +17,7 @@ import {
   DEFAULT_MAP_ZOOM_LEVEL,
   SEARCH_RESULT_ZOOM_LEVEL,
 } from '../helper/constants';
+import { downloadBlob } from '../helper/fileDownload';
 import {
   type ParsedDraftPolygon,
   parseRegionViewDraftPolygon,
@@ -170,6 +172,25 @@ export function useRegionViewBoard() {
     [moveMapAndShowMarker],
   );
 
+  const handleDownloadZipcodeExcel = useCallback(
+    (pdd: string) => {
+      const regionGroupCodes = regionGroupList.map(
+        (item) => item.regionGroupCode,
+      );
+
+      modal.confirm({
+        icon: null,
+        width: 300,
+        content: `${regionGroupCodes.join(', ')} 배송 센터의 우편번호를 엑셀 파일로 다운로드 받으시겠습니까?`,
+        onOk: async () => {
+          const blob = await fetchZipcodeExcelBlob({ pdd, regionGroupCodes });
+          downloadBlob(blob, `우편번호_목록_배송예정일-${pdd}.csv`);
+        },
+      });
+    },
+    [regionGroupList, modal],
+  );
+
   const handleSearchResult = useCallback(
     ({
       searchType,
@@ -202,6 +223,7 @@ export function useRegionViewBoard() {
     handleChangeZoomLevel,
     handleLocationSearchClick,
     handleSearchResult,
+    handleDownloadZipcodeExcel,
     modalContextHolder,
   };
 }

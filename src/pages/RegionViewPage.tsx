@@ -37,6 +37,7 @@ export function RegionViewPage() {
             regionGroupList={board.regionGroupList}
             onSearchSubmit={board.handleSearchSubmit}
             onLocationSearchClick={board.handleLocationSearchClick}
+            onDownloadZipcodeExcel={board.handleDownloadZipcodeExcel}
           />
         </div>
       </div>

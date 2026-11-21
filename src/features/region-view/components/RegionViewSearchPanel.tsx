@@ -1,5 +1,5 @@
-import { CheckOutlined } from '@ant-design/icons';
-import { Button, Collapse, message, Select, Tag, Typography } from 'antd';
+import { CheckOutlined, CloudDownloadOutlined } from '@ant-design/icons';
+import { Button, Collapse, message, Row, Select, Tag, Typography } from 'antd';
 import { useState } from 'react';
 import type {
   LocationSearchPayload,
@@ -28,6 +28,7 @@ interface RegionViewSearchPanelProps {
     payload: string | LocationSearchPayload,
     searchType?: 'SUB_DIVISION' | 'MICRO_DIVISION',
   ) => void;
+  onDownloadZipcodeExcel: (pdd: string) => void;
 }
 
 export function RegionViewSearchPanel({
@@ -36,6 +37,7 @@ export function RegionViewSearchPanel({
   regionGroupList,
   onSearchSubmit,
   onLocationSearchClick,
+  onDownloadZipcodeExcel,
 }: RegionViewSearchPanelProps) {
   const [serviceType, setServiceType] = useState<string>(SERVICE_TYPE.DAWN);
 
@@ -156,9 +158,23 @@ export function RegionViewSearchPanel({
         {
           key: '2',
           label: (
-            <Typography.Text style={{ fontWeight: 500 }}>
-              상세 권역
-            </Typography.Text>
+            <Row justify="space-between" align="middle">
+              <Typography.Text style={{ fontWeight: 500 }}>
+                상세 권역
+              </Typography.Text>
+              <Button
+                size="small"
+                type="primary"
+                shape="round"
+                disabled={!regionGroupList.length}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDownloadZipcodeExcel(pdd);
+                }}
+              >
+                <CloudDownloadOutlined /> 우편번호 다운로드
+              </Button>
+            </Row>
           ),
           collapsible: 'disabled',
           children: (

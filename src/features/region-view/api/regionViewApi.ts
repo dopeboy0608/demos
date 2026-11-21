@@ -284,3 +284,19 @@ export function fetchOmsAddressLocation(
   if (!fullAddress.trim()) return Promise.resolve(null);
   return Promise.resolve({ position: { lat: 37.5665, lng: 126.9784 } });
 }
+
+export interface ZipcodeExcelParams {
+  pdd: string;
+  regionGroupCodes: string[];
+}
+
+// 우편번호 엑셀 다운로드 목업 — 실제 API 연동 시 서버가 내려주는 blob으로 교체한다.
+export function fetchZipcodeExcelBlob(
+  params: ZipcodeExcelParams,
+): Promise<Blob> {
+  const rows = params.regionGroupCodes.map(
+    (code) => `${code},${MOCK_REGION_META[code]?.zipCodeCount ?? 0}`,
+  );
+  const csv = ['배송센터,우편번호수', ...rows].join('\n');
+  return Promise.resolve(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+}
