@@ -254,4 +254,5 @@ export const kitchenStageConfig: StageConfig = {
     { x: 485.55, y: 713.9 },
   ],
   eventItem: { name: 'corner_icon', x: 234, y: 494 },
+  speedIcon: { x: 435, y: 631 },
 };

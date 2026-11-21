@@ -8,10 +8,25 @@ type RobokingScreen = 'cover' | 'kitchen';
 
 export function RobokingPage() {
   const [screen, setScreen] = useState<RobokingScreen>('cover');
+  const [kitchenAttempt, setKitchenAttempt] = useState(0);
 
   if (screen === 'kitchen') {
-    return <GameStage config={kitchenStageConfig} />;
+    return (
+      <GameStage
+        key={kitchenAttempt}
+        config={kitchenStageConfig}
+        onRetry={() => setKitchenAttempt((prev) => prev + 1)}
+        onExitToMain={() => setScreen('cover')}
+      />
+    );
   }
 
-  return <MainCover onStart={() => setScreen('kitchen')} />;
+  return (
+    <MainCover
+      onStart={() => {
+        setKitchenAttempt((prev) => prev + 1);
+        setScreen('kitchen');
+      }}
+    />
+  );
 }
