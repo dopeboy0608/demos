@@ -4,6 +4,7 @@ export interface RegionViewSearchParams {
   pdd: string;
   regionGroupCodes: string[];
   serviceType: string;
+  sortingTypeCode: string;
 }
 
 export interface SubRegionItem {
@@ -201,6 +202,50 @@ export function fetchDraftPolygons(
   return Promise.resolve(
     params.regionGroupCodes.flatMap((code) =>
       MOCK_POLYGONS[code] ? [MOCK_POLYGONS[code]] : [],
+    ),
+  );
+}
+
+// 불가지역(배송 불가 영역) 목업 폴리곤 — 검색된 센터 영역 안쪽에 작은 영역 하나를 겹쳐 둔다.
+const MOCK_IMPOSSIBLE_POLYGONS: Record<string, RawDraftPolygon> = {
+  A: {
+    polygonId: 'impossible-A',
+    geom: {
+      coordinates: [
+        [
+          [
+            [126.965, 37.585],
+            [126.975, 37.585],
+            [126.975, 37.59],
+            [126.965, 37.59],
+          ],
+        ],
+      ],
+    },
+  },
+  B: {
+    polygonId: 'impossible-B',
+    geom: {
+      coordinates: [
+        [
+          [
+            [127.0, 37.565],
+            [127.01, 37.565],
+            [127.01, 37.57],
+            [127.0, 37.57],
+          ],
+        ],
+      ],
+    },
+  },
+};
+
+export function fetchImpossiblePolygons(
+  params: RegionViewSearchParams,
+): Promise<RawDraftPolygon[]> {
+  return Promise.resolve(
+    params.regionGroupCodes.flatMap((code) =>
+      MOCK_IMPOSSIBLE_POLYGONS[code] ? [MOCK_IMPOSSIBLE_POLYGONS[code]] : [],
     ),
   );
 }

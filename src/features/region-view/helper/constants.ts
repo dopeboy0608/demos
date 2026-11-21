@@ -45,3 +45,8 @@ export const SEARCH_RESULT_ZOOM_LEVEL: Record<string, number> = {
   [LOCATION_SEARCH_TYPES.ZIPCODE]: 3,
   [LOCATION_SEARCH_TYPES.LAT_LNG]: 1,
 };
+
+export const REGION_SUB_SORTING_OPTIONS = [
+  { label: '일반', value: 'NORMAL' },
+  { label: '상온 only', value: 'ROOM_ONLY' },
+];

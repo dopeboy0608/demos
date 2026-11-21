@@ -15,12 +15,20 @@ export function RegionViewPage() {
           mapCenter={board.mapCenter}
           mapZoomLevel={board.mapZoomLevel}
           draftPolygonList={board.draftPolygonList}
+          impossiblePolygonList={board.impossiblePolygonList}
+          isImpossibleView={board.isImpossibleView}
           isSearchResultMarker={board.isSearchResultMarker}
           onChangeZoomLevel={board.handleChangeZoomLevel}
           onUpdatedMap={board.handleUpdatedMap}
         />
         <div className="region-view__top-bar">
-          <RegionViewTopBar onSearchResult={board.handleSearchResult} />
+          <RegionViewTopBar
+            sortingTypeCode={board.sortingTypeCode}
+            isImpossibleView={board.isImpossibleView}
+            onSearchResult={board.handleSearchResult}
+            onChangeSortingType={board.handleChangeSortingType}
+            onChangeImpossibleView={board.handleChangeImpossibleView}
+          />
         </div>
         <div className="region-view__search-panel">
           <RegionViewSearchPanel

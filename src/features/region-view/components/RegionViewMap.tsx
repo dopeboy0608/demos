@@ -11,6 +11,8 @@ interface RegionViewMapProps {
   mapCenter: { lat: number; lng: number };
   mapZoomLevel: number;
   draftPolygonList: ParsedDraftPolygon[];
+  impossiblePolygonList: ParsedDraftPolygon[];
+  isImpossibleView: boolean;
   isSearchResultMarker: boolean;
   onChangeZoomLevel: (level: number) => void;
   onUpdatedMap: () => void;
@@ -20,6 +22,8 @@ export function RegionViewMap({
   mapCenter,
   mapZoomLevel,
   draftPolygonList,
+  impossiblePolygonList,
+  isImpossibleView,
   isSearchResultMarker,
   onChangeZoomLevel,
   onUpdatedMap,
@@ -51,6 +55,22 @@ export function RegionViewMap({
             strokeStyle="solid"
             fillColor={region.polygonColor}
             fillOpacity={0.4}
+          />
+        );
+      })}
+
+      {impossiblePolygonList.map((region) => {
+        const key = region.polygonId ?? region.code ?? '';
+        return (
+          <Polygon
+            key={`impossible-polygon-${key}`}
+            path={region.polygonPoints}
+            strokeWeight={1}
+            strokeColor="#000000"
+            strokeOpacity={0}
+            strokeStyle="longdash"
+            fillColor="#931818"
+            fillOpacity={isImpossibleView ? 0.7 : 0}
           />
         );
       })}

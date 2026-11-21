@@ -3,6 +3,7 @@ import { useCallback, useRef, useState } from 'react';
 
 import {
   fetchDraftPolygons,
+  fetchImpossiblePolygons,
   fetchRegionGroupList,
   fetchRegionGroupLocation,
   fetchRegionLocation,
@@ -20,11 +21,16 @@ import {
   parseRegionViewDraftPolygon,
 } from '../helper/regionViewParser';
 
+type SearchFormParams = Omit<RegionViewSearchParams, 'sortingTypeCode'>;
+
 export function useRegionViewBoard() {
   const [modal, modalContextHolder] = Modal.useModal();
 
   const [isLoading, setIsLoading] = useState(false);
   const [draftPolygonList, setDraftPolygonList] = useState<
+    ParsedDraftPolygon[]
+  >([]);
+  const [impossiblePolygonList, setImpossiblePolygonList] = useState<
     ParsedDraftPolygon[]
   >([]);
   const [regionGroupList, setRegionGroupList] = useState<RegionGroupListItem[]>(
@@ -33,6 +39,9 @@ export function useRegionViewBoard() {
   const [hasSearched, setHasSearched] = useState(false);
   const [hasEmptyResult, setHasEmptyResult] = useState(false);
 
+  const [sortingTypeCode, setSortingTypeCode] = useState('NORMAL');
+  const [isImpossibleView, setIsImpossibleView] = useState(true);
+
   const [mapCenter, setMapCenter] = useState(CITY_HALL);
   const [mapZoomLevel, setMapZoomLevel] = useState(DEFAULT_MAP_ZOOM_LEVEL);
   const [isSearchResultMarker, setIsSearchResultMarker] = useState(false);
@@ -40,15 +49,21 @@ export function useRegionViewBoard() {
   const searchParamsRef = useRef<RegionViewSearchParams | null>(null);
   const existingGroupCodesRef = useRef<string[]>([]);
 
-  const fetchPolygons = useCallback(async () => {
+  const fetchMapData = useCallback(async () => {
     if (!searchParamsRef.current) return;
-    const raw = await fetchDraftPolygons(searchParamsRef.current);
+    const [rawDraft, rawImpossible] = await Promise.all([
+      fetchDraftPolygons(searchParamsRef.current),
+      fetchImpossiblePolygons(searchParamsRef.current),
+    ]);
     setDraftPolygonList(
-      parseRegionViewDraftPolygon(raw, existingGroupCodesRef.current),
+      parseRegionViewDraftPolygon(rawDraft, existingGroupCodesRef.current),
+    );
+    setImpossiblePolygonList(
+      parseRegionViewDraftPolygon(rawImpossible, [], false),
     );
   }, []);
 
-  const handleSearchSubmit = useCallback(
+  const runSearch = useCallback(
     async (params: RegionViewSearchParams) => {
       setIsLoading(true);
       searchParamsRef.current = params;
@@ -74,20 +89,41 @@ export function useRegionViewBoard() {
         setRegionGroupList(nonEmptyGroups);
         setHasEmptyResult(nonEmptyGroups.length === 0);
         setHasSearched(true);
-        await fetchPolygons();
+        await fetchMapData();
       } finally {
         setIsLoading(false);
       }
     },
-    [fetchPolygons, modal],
+    [fetchMapData, modal],
   );
+
+  const handleSearchSubmit = useCallback(
+    (formParams: SearchFormParams) =>
+      runSearch({ ...formParams, sortingTypeCode }),
+    [runSearch, sortingTypeCode],
+  );
+
+  // 이미 검색을 한 번 이상 실행한 상태에서만 동일 조건 + 새 분류유형으로 재검색한다.
+  const handleChangeSortingType = useCallback(
+    (code: string) => {
+      setSortingTypeCode(code);
+      if (searchParamsRef.current) {
+        runSearch({ ...searchParamsRef.current, sortingTypeCode: code });
+      }
+    },
+    [runSearch],
+  );
+
+  const handleChangeImpossibleView = useCallback((value: boolean) => {
+    setIsImpossibleView(value);
+  }, []);
 
   // 목업 데이터는 즉시 resolve되어 성능 이슈가 없으므로, 실제 API 연동 때 쓰던 디바운스는 생략한다.
   const handleUpdatedMap = useCallback(() => {
     if (hasSearched) {
-      fetchPolygons();
+      fetchMapData();
     }
-  }, [hasSearched, fetchPolygons]);
+  }, [hasSearched, fetchMapData]);
 
   const handleChangeZoomLevel = useCallback((level: number) => {
     setMapZoomLevel(level);
@@ -150,13 +186,18 @@ export function useRegionViewBoard() {
   return {
     isLoading,
     draftPolygonList,
+    impossiblePolygonList,
     regionGroupList,
     hasSearched,
     hasEmptyResult,
+    sortingTypeCode,
+    isImpossibleView,
     mapCenter,
     mapZoomLevel,
     isSearchResultMarker,
     handleSearchSubmit,
+    handleChangeSortingType,
+    handleChangeImpossibleView,
     handleUpdatedMap,
     handleChangeZoomLevel,
     handleLocationSearchClick,
