@@ -1,3 +1,5 @@
+import { REGION_GROUP_PROFILES } from '../helper/constants';
+import { createNaturalPolygon } from '../helper/naturalPolygon';
 import type { RawDraftPolygon } from '../helper/regionViewParser';
 
 export interface RegionViewSearchParams {
@@ -38,147 +40,104 @@ export interface LocationResult {
 }
 
 // TODO(API) 실제 백엔드 연동 시 이 파일의 함수들을 교체한다. 시그니처(params → Promise)는 그대로 유지.
+// 아래 MOCK_* 는 모두 helper/constants.ts의 REGION_GROUP_PROFILES(단일 소스)에서 파생한다.
+
 const MOCK_REGION_META: Record<
   string,
   { zipCodeCount: number; regionCount: number; subRegionCount: number }
-> = {
-  A: { zipCodeCount: 128, regionCount: 4, subRegionCount: 12 },
-  B: { zipCodeCount: 96, regionCount: 3, subRegionCount: 9 },
-  C: { zipCodeCount: 0, regionCount: 0, subRegionCount: 0 },
-  D: { zipCodeCount: 64, regionCount: 2, subRegionCount: 6 },
-  E: { zipCodeCount: 40, regionCount: 2, subRegionCount: 4 },
-};
+> = Object.fromEntries(
+  REGION_GROUP_PROFILES.map((profile) => [
+    profile.code,
+    {
+      zipCodeCount: profile.zipCodeCount,
+      regionCount: profile.regionCount,
+      subRegionCount: profile.subRegionCount,
+    },
+  ]),
+);
 
 // C는 "설정된 지역이 없는 센터" 시나리오(FR-10)를 재현하기 위해 의도적으로 regions를 비워둔다.
-const MOCK_REGIONS: Record<string, RegionItem[]> = {
-  A: [
-    {
-      regionCode: 'A01',
-      sortingTypeCode: 'NORMAL',
-      subRegions: [
-        { subRegionCode: 'A01-1', deliveryRounds: ['1회차', '2회차'] },
-        { subRegionCode: 'A01-2', deliveryRounds: ['1회차'] },
-      ],
-    },
-    {
-      regionCode: 'A02',
-      sortingTypeCode: 'ROOM_ONLY',
-      subRegions: [{ subRegionCode: 'A02-1', deliveryRounds: ['1회차'] }],
-    },
-  ],
-  B: [
-    {
-      regionCode: 'B01',
-      sortingTypeCode: 'NORMAL',
-      subRegions: [
-        { subRegionCode: 'B01-1', deliveryRounds: ['1회차'] },
-        { subRegionCode: 'B01-2', deliveryRounds: [] },
-      ],
-    },
-  ],
-  C: [],
-  D: [
-    {
-      regionCode: 'D01',
-      sortingTypeCode: 'NORMAL',
-      subRegions: [{ subRegionCode: 'D01-1', deliveryRounds: ['1회차'] }],
-    },
-  ],
-  E: [
-    {
-      regionCode: 'E01',
-      sortingTypeCode: 'NORMAL',
-      subRegions: [{ subRegionCode: 'E01-1', deliveryRounds: ['1회차'] }],
-    },
-  ],
-};
+function buildRegions(code: string, index: number): RegionItem[] {
+  if (code === 'C') return [];
 
-const MOCK_POLYGONS: Record<string, RawDraftPolygon> = {
-  A: {
-    regionGroupCode: 'A',
-    geom: {
-      coordinates: [
-        [
-          [
-            [126.95, 37.58],
-            [126.99, 37.58],
-            [126.99, 37.6],
-            [126.95, 37.6],
-          ],
-        ],
-      ],
+  const normalSubRegionCount = 1 + (index % 2);
+  const normal: RegionItem = {
+    regionCode: `${code}01`,
+    sortingTypeCode: 'NORMAL',
+    subRegions: Array.from({ length: normalSubRegionCount }, (_, i) => ({
+      subRegionCode: `${code}01-${i + 1}`,
+      deliveryRounds: i === 0 ? ['1회차', '2회차'] : ['1회차'],
+    })),
+  };
+
+  // 짝수 인덱스 센터만 상온 only 구간도 함께 갖도록 해 다양성을 준다.
+  if (index % 2 !== 0) return [normal];
+
+  const roomOnly: RegionItem = {
+    regionCode: `${code}02`,
+    sortingTypeCode: 'ROOM_ONLY',
+    subRegions: [{ subRegionCode: `${code}02-1`, deliveryRounds: ['1회차'] }],
+  };
+
+  return [normal, roomOnly];
+}
+
+const MOCK_REGIONS: Record<string, RegionItem[]> = Object.fromEntries(
+  REGION_GROUP_PROFILES.map((profile, index) => [
+    profile.code,
+    buildRegions(profile.code, index),
+  ]),
+);
+
+const MOCK_POLYGONS: Record<string, RawDraftPolygon> = Object.fromEntries(
+  REGION_GROUP_PROFILES.map((profile, index) => [
+    profile.code,
+    {
+      regionGroupCode: profile.code,
+      geom: { coordinates: createNaturalPolygon(profile.center, index) },
     },
-  },
-  B: {
-    regionGroupCode: 'B',
-    geom: {
-      coordinates: [
-        [
-          [
-            [126.99, 37.56],
-            [127.03, 37.56],
-            [127.03, 37.58],
-            [126.99, 37.58],
-          ],
-        ],
-      ],
-    },
-  },
-  D: {
-    regionGroupCode: 'D',
-    geom: {
-      coordinates: [
-        [
-          [
-            [126.95, 37.54],
-            [126.99, 37.54],
-            [126.99, 37.56],
-            [126.95, 37.56],
-          ],
-        ],
-      ],
-    },
-  },
-  E: {
-    regionGroupCode: 'E',
-    geom: {
-      coordinates: [
-        [
-          [
-            [126.99, 37.52],
-            [127.03, 37.52],
-            [127.03, 37.54],
-            [126.99, 37.54],
-          ],
-        ],
-      ],
-    },
-  },
-};
+  ]),
+);
 
 // 센터 단위 위치보기(중심점)
-const MOCK_CENTER_POSITIONS: Record<string, { lat: number; lng: number }> = {
-  A: { lat: 37.59, lng: 126.97 },
-  B: { lat: 37.57, lng: 127.01 },
-  D: { lat: 37.55, lng: 126.97 },
-  E: { lat: 37.53, lng: 127.01 },
-};
+const MOCK_CENTER_POSITIONS: Record<string, { lat: number; lng: number }> =
+  Object.fromEntries(
+    REGION_GROUP_PROFILES.map((profile) => [profile.code, profile.center]),
+  );
 
-// 소분류/세분류 단위 위치보기(코드별 좌표)
-const MOCK_CODE_POSITIONS: Record<string, { lat: number; lng: number }> = {
-  A01: { lat: 37.592, lng: 126.965 },
-  'A01-1': { lat: 37.593, lng: 126.963 },
-  'A01-2': { lat: 37.591, lng: 126.967 },
-  A02: { lat: 37.598, lng: 126.985 },
-  'A02-1': { lat: 37.599, lng: 126.986 },
-  B01: { lat: 37.572, lng: 127.005 },
-  'B01-1': { lat: 37.573, lng: 127.003 },
-  'B01-2': { lat: 37.571, lng: 127.007 },
-  D01: { lat: 37.552, lng: 126.965 },
-  'D01-1': { lat: 37.553, lng: 126.963 },
-  E01: { lat: 37.532, lng: 127.005 },
-  'E01-1': { lat: 37.533, lng: 127.003 },
-};
+// 소분류/세분류 단위 위치보기(코드별 좌표) — 센터 중심에서 조금씩 떨어진 좌표로 생성한다.
+function buildCodePositions(
+  center: { lat: number; lng: number },
+  regions: RegionItem[],
+): Record<string, { lat: number; lng: number }> {
+  const positions: Record<string, { lat: number; lng: number }> = {};
+
+  regions.forEach((region, regionIndex) => {
+    const regionOffset = 0.002 * (regionIndex + 1);
+    positions[region.regionCode] = {
+      lat: center.lat + regionOffset,
+      lng: center.lng - regionOffset,
+    };
+
+    region.subRegions.forEach((subRegion, subRegionIndex) => {
+      const subOffset = regionOffset + 0.001 * (subRegionIndex + 1);
+      positions[subRegion.subRegionCode] = {
+        lat: center.lat + subOffset,
+        lng: center.lng - subOffset,
+      };
+    });
+  });
+
+  return positions;
+}
+
+const MOCK_CODE_POSITIONS: Record<string, { lat: number; lng: number }> =
+  Object.assign(
+    {},
+    ...REGION_GROUP_PROFILES.map((profile) =>
+      buildCodePositions(profile.center, MOCK_REGIONS[profile.code]),
+    ),
+  );
 
 export function fetchRegionGroupList(
   params: RegionViewSearchParams,

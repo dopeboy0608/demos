@@ -152,3 +152,25 @@ been removed.`과 `Non-relative paths are not allowed.` 에러로 `@/*` 경로 �
   계속 안정적인 "원본 배열 인덱스"로 바꿈(수집된 항목은 필터링만 하고 인덱스는 그대로
   유지). 좌표가 겹쳐도 인덱스는 유일하므로 재발하지 않음.
 - 관련 이슈/PR: #12, #20
+
+## 2026-11-21 20:10 — 권역조회 지도에서 줌인(확대)이 되지 않음
+
+- 증상: `/region-view` 지도에서 마우스 휠로 줌아웃(축소)은 간헐적으로 동작하지만, 줌인(확대)은
+  전혀 동작하지 않음. 더블클릭 줌도 동작하지 않음. 브라우저 자동화로 재현했을 때 줌아웃 폭이
+  스크롤 틱 수와 일치하지 않는 등 노이즈가 있어 처음엔 테스트 도구 문제로 의심했음.
+- 원인: `react-kakao-maps-sdk@1.2.2`의 `Map.js` 구현 버그. `maxLevel`/`minLevel` prop을 실제
+  카카오맵 API에 연결하는 부분에서 이름이 서로 뒤바뀌어 있음.
+  ```js
+  useKakaoMapsSetEffect(map, 'setMinLevel', maxLevel); // maxLevel prop → setMinLevel로 연결
+  useKakaoMapsSetEffect(map, 'setMaxLevel', minLevel); // minLevel prop → setMaxLevel로 연결
+  ```
+  `RegionViewMap`이 `maxLevel={12}`만 지정했기 때문에 실제로는 `map.setMinLevel(12)`가
+  호출되어 레벨 12 미만(더 확대된 상태)으로 줄어들 수 없었음. `minLevel`은 지정하지 않아
+  `setMaxLevel(undefined)`가 호출되어 축소 상한이 걸리지 않았고, 이 비대칭 때문에 줄어들
+  때만 간헐적으로 동작하는 것처럼 보였음. `map.setLevel()`을 직접 호출해도 레벨이 전혀
+  바뀌지 않는 것으로 라이브러리 레벨 제약 버그임을 확정(스크롤 제스처나 브라우저 자동화
+  타이밍 문제가 아님).
+- 해결/결론: `minLevel`/`maxLevel` prop(라이브러리 버그로 신뢰할 수 없음) 대신 `onCreate`
+  콜백에서 생성된 카카오맵 인스턴스에 `map.setMaxLevel(12)`를 직접 호출해 우회함. prop
+  바인딩을 거치지 않아 라이브러리가 향후 버그를 고쳐도 영향받지 않음.
+- 관련 이슈/PR: #37

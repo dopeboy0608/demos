@@ -42,7 +42,10 @@ export function RegionViewSubRegionResult({
           ),
           extra: (
             <Button
+              shape="circle"
               size="small"
+              title="위치보기"
+              icon={<PushpinOutlined />}
               onClick={(e) => {
                 e.stopPropagation();
                 onLocationSearchClick(
@@ -55,9 +58,7 @@ export function RegionViewSubRegionResult({
                   'SUB_DIVISION',
                 );
               }}
-            >
-              <PushpinOutlined /> 위치 보기
-            </Button>
+            />
           ),
           children: (
             <div>
@@ -78,7 +79,10 @@ export function RegionViewSubRegionResult({
                       : '정보없음'}
                   </span>
                   <Button
+                    shape="circle"
                     size="small"
+                    title="위치보기"
+                    icon={<PushpinOutlined />}
                     onClick={() =>
                       onLocationSearchClick(
                         {
@@ -90,9 +94,7 @@ export function RegionViewSubRegionResult({
                         'MICRO_DIVISION',
                       )
                     }
-                  >
-                    <PushpinOutlined /> 위치 보기
-                  </Button>
+                  />
                 </div>
               ))}
             </div>
