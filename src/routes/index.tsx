@@ -12,6 +12,12 @@ const DEMOS = [
     description:
       '지도 2개에서 폴리곤을 그리고 선택·합치기(union/intersection/xor/difference)·분할하는 데모 화면',
   },
+  {
+    to: '/roboking' as const,
+    title: 'LG 로보킹 (Flash 이관)',
+    description:
+      'Flash로 만들어진 LG 로보킹 청소 게임을 이관하는 데모. 현재는 메인 화면(랭킹/당첨자/게임방법/영상)만 구현됨',
+  },
 ];
 
 export const indexRoute = createRoute({
