@@ -6,12 +6,14 @@ import { indexRoute } from './routes/index';
 import { polygonRoute } from './routes/polygon';
 import { robokingRoute } from './routes/roboking';
 import { robokingPocRoute } from './routes/roboking-poc';
+import { regionViewRoute } from './routes/region-view';
 
 const routeTree = rootRoute.addChildren([
   indexRoute,
   polygonRoute,
   robokingRoute,
   robokingPocRoute,
+  regionViewRoute,
 ]);
 
 export const router = createRouter({
