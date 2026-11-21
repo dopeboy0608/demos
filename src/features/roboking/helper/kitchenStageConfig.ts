@@ -3,6 +3,7 @@ import type { StageConfig } from './stageConfig';
 // stage_kitchen.fla(XFL)의 LIBRARY/mc/wall.xml, mc/dust_mc.xml, mc/event_dust_mc.xml,
 // LIBRARY/stage_mc.xml(아이템·로봇 시작 위치)에서 추출한 실제 좌표.
 export const kitchenStageConfig: StageConfig = {
+  totalDust: 81,
   robotStart: { x: 185.2, y: 728.4 },
   walls: [
     {

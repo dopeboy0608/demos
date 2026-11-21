@@ -1,6 +1,6 @@
 import { Button } from 'antd';
 
-import { useKitchenGame } from '../hooks/useKitchenGame';
+import { useStageGame } from '../hooks/useStageGame';
 import { WALL_HEIGHT, WALL_WIDTH } from '../helper/stageConfig';
 import type { StageConfig } from '../helper/stageConfig';
 
@@ -8,12 +8,20 @@ import '../roboking.css';
 
 interface GameStageProps {
   config: StageConfig;
+  clearLabel: string;
+  onClear: () => void;
   onRetry: () => void;
   onExitToMain: () => void;
 }
 
-export function GameStage({ config, onRetry, onExitToMain }: GameStageProps) {
-  const game = useKitchenGame(config);
+export function GameStage({
+  config,
+  clearLabel,
+  onClear,
+  onRetry,
+  onExitToMain,
+}: GameStageProps) {
+  const game = useStageGame(config);
 
   return (
     <div className="roboking-stage">
@@ -36,14 +44,14 @@ export function GameStage({ config, onRetry, onExitToMain }: GameStageProps) {
           ))}
           {game.remainingDust.map((dust) => (
             <div
-              key={`dust-${dust.x}-${dust.y}`}
+              key={dust.id}
               className="roboking-dust"
               style={{ left: dust.x, top: dust.y }}
             />
           ))}
           {game.remainingEventDust.map((dust) => (
             <div
-              key={`event-dust-${dust.x}-${dust.y}`}
+              key={dust.id}
               className="roboking-event-dust"
               style={{ left: dust.x, top: dust.y }}
             />
@@ -60,6 +68,12 @@ export function GameStage({ config, onRetry, onExitToMain }: GameStageProps) {
               className="roboking-speed-item"
               style={{ left: config.speedIcon.x, top: config.speedIcon.y }}
               title="speed_icon"
+            />
+          )}
+          {game.dogPos && (
+            <div
+              className="roboking-dog"
+              style={{ left: game.dogPos.x, top: game.dogPos.y }}
             />
           )}
           <div
@@ -91,8 +105,8 @@ export function GameStage({ config, onRetry, onExitToMain }: GameStageProps) {
           <div className="roboking-popup-overlay">
             <div className="roboking-popup">
               <p>STAGE CLEAR! (SCORE {game.scorePercent}%)</p>
-              <Button type="primary" onClick={onExitToMain}>
-                메인으로
+              <Button type="primary" onClick={onClear}>
+                {clearLabel}
               </Button>
             </div>
           </div>

@@ -23,18 +23,40 @@ export interface EventItemConfig {
   y: number;
 }
 
+/**
+ * 침실 전용 `bed/Dog.as`. 5초 후 등장해 2초마다 자기 위치에 이벤트 먼지를
+ * 하나씩 떨어뜨리고(최대 `maxDust`개), 벽에 닿으면 방향을 무작위로 바꾼다.
+ * 원본은 이벤트 먼지를 화면 밖에 미리 심어두고 그 위치만 옮기지만, 여기서는
+ * 떨어뜨린 시점의 Dog 좌표를 그대로 새 이벤트 먼지 좌표로 추가한다.
+ */
+export interface DogConfig {
+  start: Point;
+  speed: number;
+  showDelayMs: number;
+  dustIntervalMs: number;
+  maxDust: number;
+}
+
 export interface StageConfig {
+  /** 클리어에 필요한 먼지 총량(`dustNum`). bed처럼 이벤트 먼지가 나중에 늘어나도 고정값이다. */
+  totalDust: number;
   robotStart: Point;
   walls: WallConfig[];
   dust: Point[];
+  /** 초기 이벤트 먼지 배치. bed는 Dog가 나중에 채우므로 빈 배열로 시작한다. */
   eventDust: Point[];
   eventItem: EventItemConfig;
   speedIcon: Point;
+  dog?: DogConfig;
 }
 
 /** FLA `mc/wall_mc`의 로컬 크기(twips 1100x3099 → px 55x155). */
 export const WALL_WIDTH = 55;
 export const WALL_HEIGHT = 155;
+
+/** 원본 Flash 무대 크기. */
+export const STAGE_WIDTH = 810;
+export const STAGE_HEIGHT = 1000;
 
 /** `kitchen/StageMain.as`에서 그대로 옮긴 게임 규칙 상수. */
 export const GAME_RULES = {
