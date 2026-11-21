@@ -180,3 +180,49 @@
   border: 2px solid #fff;
   transform: translate(-50%, -50%);
 }
+
+/* 03. XFL 변환기 PoC — 변환된 GSAP 타임라인을 눈으로 확인하기 위한 디버그 화면. */
+.roboking-poc {
+  display: flex;
+  gap: 32px;
+  padding: 24px;
+  color: #fff;
+  background: #0b1e33;
+  min-height: 100%;
+}
+
+.roboking-poc-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.roboking-poc-stage {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.roboking-poc-corner-icon {
+  position: absolute;
+  top: 80px;
+  left: 80px;
+  width: 39px;
+  height: 39px;
+  border-radius: 6px;
+  background: #4caf50;
+}
+
+.roboking-poc-aura {
+  position: absolute;
+  top: 56px;
+  left: 56px;
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: rgba(255, 220, 0, 0.6);
+}
