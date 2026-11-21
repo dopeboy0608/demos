@@ -13,7 +13,7 @@ function pseudoRandom(seed: number, salt: number): number {
 export function createNaturalPolygon(
   center: { lat: number; lng: number },
   seed: number,
-  baseRadius = 0.02,
+  baseRadius: number,
 ): number[][][][] {
   const points: number[][] = [];
 

@@ -1,4 +1,7 @@
-import { REGION_GROUP_PROFILES } from '../helper/constants';
+import {
+  CENTER_POLYGON_BASE_RADIUS,
+  REGION_GROUP_PROFILES,
+} from '../helper/constants';
 import { createNaturalPolygon } from '../helper/naturalPolygon';
 import type { RawDraftPolygon } from '../helper/regionViewParser';
 
@@ -94,7 +97,13 @@ const MOCK_POLYGONS: Record<string, RawDraftPolygon> = Object.fromEntries(
     profile.code,
     {
       regionGroupCode: profile.code,
-      geom: { coordinates: createNaturalPolygon(profile.center, index) },
+      geom: {
+        coordinates: createNaturalPolygon(
+          profile.center,
+          index,
+          CENTER_POLYGON_BASE_RADIUS,
+        ),
+      },
     },
   ]),
 );

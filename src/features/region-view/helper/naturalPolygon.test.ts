@@ -2,9 +2,15 @@ import { describe, expect, it } from 'vitest';
 
 import { createNaturalPolygon } from './naturalPolygon';
 
+const TEST_RADIUS = 0.08;
+
 describe('createNaturalPolygon', () => {
   it('중심좌표 기준으로 닫힌 다각형(첫 점 = 마지막 점)을 생성한다', () => {
-    const result = createNaturalPolygon({ lat: 37.5, lng: 127.0 }, 0);
+    const result = createNaturalPolygon(
+      { lat: 37.5, lng: 127.0 },
+      0,
+      TEST_RADIUS,
+    );
     const ring = result[0][0];
 
     expect(ring[0]).toEqual(ring[ring.length - 1]);
@@ -12,15 +18,15 @@ describe('createNaturalPolygon', () => {
   });
 
   it('동일한 center/seed로 호출하면 항상 동일한 결과를 반환한다 (결정적)', () => {
-    const a = createNaturalPolygon({ lat: 37.5, lng: 127.0 }, 5);
-    const b = createNaturalPolygon({ lat: 37.5, lng: 127.0 }, 5);
+    const a = createNaturalPolygon({ lat: 37.5, lng: 127.0 }, 5, TEST_RADIUS);
+    const b = createNaturalPolygon({ lat: 37.5, lng: 127.0 }, 5, TEST_RADIUS);
 
     expect(a).toEqual(b);
   });
 
   it('seed가 다르면 서로 다른 모양을 생성한다 (단순 사각형이 아님)', () => {
-    const a = createNaturalPolygon({ lat: 37.5, lng: 127.0 }, 1);
-    const b = createNaturalPolygon({ lat: 37.5, lng: 127.0 }, 2);
+    const a = createNaturalPolygon({ lat: 37.5, lng: 127.0 }, 1, TEST_RADIUS);
+    const b = createNaturalPolygon({ lat: 37.5, lng: 127.0 }, 2, TEST_RADIUS);
 
     expect(a).not.toEqual(b);
   });

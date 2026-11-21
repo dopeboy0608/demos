@@ -2,6 +2,10 @@ export const CITY_HALL = { lat: 37.566634, lng: 126.97836 };
 
 export const DEFAULT_MAP_ZOOM_LEVEL = 12;
 
+// 센터 기본 영역(폴리곤) 반경. 위도 37.5° 부근 기준 0.08° ≈ 8~9km로, 서울 "구" 단위 이상
+// 크기를 목표로 한다(#47, #48).
+export const CENTER_POLYGON_BASE_RADIUS = 0.08;
+
 export const SERVICE_TYPE = { DAWN: 'DAWN', DAY: 'DAY' } as const;
 
 export const SERVICE_TYPE_OPTIONS = [
