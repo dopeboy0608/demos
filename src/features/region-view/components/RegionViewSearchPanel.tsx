@@ -1,6 +1,63 @@
-import { Collapse, Typography } from 'antd';
+import { CheckOutlined } from '@ant-design/icons';
+import { Button, Collapse, message, Select, Tag, Typography } from 'antd';
+import { useState } from 'react';
+import {
+  DELIVERY_DATE_RANGE_DAYS,
+  DELIVERY_DATE_TOMORROW_HOUR,
+  SERVICE_TYPE,
+  SERVICE_TYPE_OPTIONS,
+  TEMP_REGION_GROUP_OPTIONS,
+} from '../helper/constants';
+import { createDeliveryDateOptions } from '../helper/deliveryDateOptions';
 
 export function RegionViewSearchPanel() {
+  const [serviceType, setServiceType] = useState<string>(SERVICE_TYPE.DAWN);
+
+  const pddOptions = createDeliveryDateOptions(
+    new Date(),
+    DELIVERY_DATE_RANGE_DAYS,
+    DELIVERY_DATE_TOMORROW_HOUR,
+  );
+  const [pdd, setPdd] = useState(pddOptions[0].value);
+
+  const [regionGroupCodes, setRegionGroupCodes] = useState<string[]>([]);
+  const [regionGroupError, setRegionGroupError] = useState(false);
+
+  const regionGroupOptions = TEMP_REGION_GROUP_OPTIONS.filter(
+    (option) => option.serviceType === serviceType,
+  );
+  const isAllSelected =
+    regionGroupOptions.length > 0 &&
+    regionGroupCodes.length === regionGroupOptions.length;
+
+  const handleChangeServiceType = (value: string) => {
+    setServiceType(value);
+    setRegionGroupCodes([]);
+  };
+
+  const handleAllSelect = (checked: boolean) => {
+    setRegionGroupCodes(
+      checked ? regionGroupOptions.map((option) => option.code) : [],
+    );
+  };
+
+  const handleRegionGroupTagChange = (code: string, checked: boolean) => {
+    setRegionGroupCodes((prev) =>
+      checked ? [...prev, code] : prev.filter((c) => c !== code),
+    );
+  };
+
+  const handleSubmit = () => {
+    if (!regionGroupCodes.length) {
+      setRegionGroupError(true);
+      message.error('배송 센터를 선택해 주세요.');
+      return;
+    }
+
+    setRegionGroupError(false);
+    // TODO(API) 03에서 검색 조건으로 실제 데이터 조회를 연결한다.
+  };
+
   return (
     <Collapse
       defaultActiveKey={['1', '2']}
@@ -16,7 +73,57 @@ export function RegionViewSearchPanel() {
           collapsible: 'disabled',
           children: (
             <div style={{ padding: 4 }}>
-              검색 조건 입력은 다음 서브태스크에서 추가됩니다.
+              <div style={{ marginBottom: 12 }}>
+                <Typography.Text>서비스 유형</Typography.Text>
+                <Select
+                  style={{ width: '100%' }}
+                  value={serviceType}
+                  options={SERVICE_TYPE_OPTIONS}
+                  onChange={handleChangeServiceType}
+                />
+              </div>
+              <div style={{ marginBottom: 12 }}>
+                <Typography.Text>배송 예정일</Typography.Text>
+                <Select
+                  style={{ width: '100%' }}
+                  value={pdd}
+                  options={pddOptions}
+                  onChange={setPdd}
+                />
+              </div>
+              <div style={{ marginBottom: 12 }}>
+                <Typography.Text>배송 센터</Typography.Text>
+                <div
+                  style={{
+                    height: 130,
+                    overflowY: 'auto',
+                    border: `1px solid ${regionGroupError ? 'red' : '#d9d9d9'}`,
+                    borderRadius: 4,
+                    padding: 4,
+                  }}
+                >
+                  <Tag.CheckableTag
+                    checked={isAllSelected}
+                    onChange={handleAllSelect}
+                  >
+                    <CheckOutlined /> 전체선택
+                  </Tag.CheckableTag>
+                  {regionGroupOptions.map((option) => (
+                    <Tag.CheckableTag
+                      key={option.code}
+                      checked={regionGroupCodes.includes(option.code)}
+                      onChange={(checked) =>
+                        handleRegionGroupTagChange(option.code, checked)
+                      }
+                    >
+                      <CheckOutlined /> {option.code}
+                    </Tag.CheckableTag>
+                  ))}
+                </div>
+              </div>
+              <Button type="primary" block onClick={handleSubmit}>
+                검색
+              </Button>
             </div>
           ),
         },
