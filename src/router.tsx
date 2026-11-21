@@ -4,8 +4,13 @@ import { toRouterBasepath } from './config/basepath';
 import { rootRoute } from './routes/__root';
 import { indexRoute } from './routes/index';
 import { polygonRoute } from './routes/polygon';
+import { regionViewRoute } from './routes/region-view';
 
-const routeTree = rootRoute.addChildren([indexRoute, polygonRoute]);
+const routeTree = rootRoute.addChildren([
+  indexRoute,
+  polygonRoute,
+  regionViewRoute,
+]);
 
 export const router = createRouter({
   routeTree,
