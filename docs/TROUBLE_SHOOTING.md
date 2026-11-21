@@ -50,6 +50,28 @@ been removed.`과 `Non-relative paths are not allowed.` 에러로 `@/*` 경로 �
   도메인)도 별도로 등록이 필요함.
 - 관련 이슈/PR: #1
 
+## 2026-11-21 09:19 — spec-kit 전체 파이프라인 폐지, `feature-strategy` 기반으로 AI 워크플로우 재구축
+
+- 증상: spec-kit 풀 파이프라인(`/speckit-specify`→...→`/speckit-implement`)은 `specs/001-polygon-control`
+  1회만 쓰였고, 실제로는 `docs/spec/` 경량 스펙과 `docs/feature/` 로드맵 방식이 더 많이
+  쓰였다. 그런데 `docs/feature/` 방식은 어떤 규칙 문서에도 문서화되지 않은 채 암묵적으로만
+  쓰이고 있었고, CLAUDE.md의 "새 기능마다 `docs/spec` 작성" 규칙은 실제 운영과 어긋났다.
+- 원인: 초기 구축 당시 들여온 spec-kit 워크플로우가 이 프로젝트 규모(개인용 데모, 1인 작업)에
+  비해 과했다. 전역 플러그인 `dopeboy0608-skills`에 더 가벼운 `ai-workflow-init`/
+  `ai-workflow-setup`/`feature-strategy` 스킬이 이미 있어 이를 기준으로 재정의하는 쪽이
+  실제 운영 방식과 맞았다.
+- 해결/결론: `main-bak` 브랜치로 기존 상태를 백업한 뒤, `CLAUDE.md`/`docs/ARCHITECTURE.md`/
+  `AGENTS.md`/spec-kit 관련 스킬 13개/`.specify/`/`docs/spec/TEMPLATE.md`를 제거했다.
+  `/ai-workflow-init`→`/ai-workflow-setup`(둘 다 명시 호출 전용 스킬이라 사용자가 직접
+  실행)으로 새 `CLAUDE.md`/`docs/ARCHITECTURE.md`/`.claude/skills/issue-start/`를 생성했고,
+  큰 작업은 `docs/feature/<이슈번호>-<slug>.md` 로드맵 + GitHub 서브이슈로 관리하는
+  `feature-strategy`로 통일했다. 기존 `docs/TROUBLE_SHOOTING.md`, `docs/feature/`, `specs/`,
+  개발환경 파일(`package.json`, `src/` 등)은 그대로 보존했고 `pnpm lint`/`test`/`build`로
+  무변경을 확인했다. AGENTS.md는 Cursor 등 다른 에이전트용 미러 파일이었으나 유지 비용이
+  크다고 판단해 완전히 삭제(CLAUDE.md 단일 출처로 통합)했고, Playwright 브라우저 디버깅
+  방침은 새 템플릿 개념과 맞지 않아 복원하지 않기로 했다.
+- 관련 이슈/PR: #10
+
 ## 2026-10-03 13:10 — `/polygon`과 `/polygon-legacy`를 오가면 먼저 로드된 페이지의 그리기가 깨짐
 
 - 증상: 카카오맵 도메인 등록 후에도, `/polygon`을 먼저 연 다음 `/polygon-legacy`로 이동하면

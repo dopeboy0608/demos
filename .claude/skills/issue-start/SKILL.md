@@ -1,58 +1,46 @@
 ---
-name: speckit-start
-description: spec-kit 경로로 정해진 이슈를 specify→(clarify)→plan→tasks→implement 순서로, 단계마다 사용자 확인을 받으며 진행하는 오케스트레이션 스킬. 시작 전에 해당 이슈/브랜치에 이미 작성된 spec/plan/tasks 문서가 있는지 확인해 이어서 진행할 단계를 사용자에게 확인받는다. 보통 `issue-start`가 B 경로를 선택했을 때 호출하지만, spec-kit으로 바로 시작하고 싶을 때 직접 호출해도 된다.
-argument-hint: 이슈 번호와 핵심 내용 (예: "이슈 #24: 지도 표시 고도화 — ...")
+name: issue-start
+description: 이슈 작업을 시작할 때의 표준 진입점. 이슈 번호를 받아 내용을 읽고 "작은 작업(바로 구현)" 또는 "큰 작업(전략 스킬)"을 이유와 함께 추천하며, 사용자 확인 후 브랜치를 만든다. "이슈 #N 시작", "이슈 착수" 같은 표현이나 명시적인 /issue-start 호출로 트리거된다.
+argument-hint: 이슈 번호 (예: 24)
 ---
 
-# speckit-start
+# issue-start
 
-spec-kit 5단계(`/speckit-specify`, `/speckit-clarify`, `/speckit-plan`, `/speckit-tasks`,
-`/speckit-implement`)를 한 번에 쭉 밀어붙이지 않고, 각 단계 결과를 보여준 뒤 다음 단계로
-넘어가기 전 사용자 확인을 받는다.
-
-## 사전 조건
-
-- `.specify/`가 이 레포에 초기화돼 있어야 한다(스킵 없이 바로 실패하면 사용자에게 `specify init --here --integration claude` 안내).
-- 브랜치/`in-progress` 라벨이 아직 없다면(주로 `issue-start`를 거치지 않고 이 스킬을 바로 호출한 경우) 먼저 CLAUDE.md "GitHub 이슈 관리" 컨벤션대로 만든다. `issue-start`를 거쳐 왔다면 이미 돼 있으니 다시 만들지 않는다.
-
-## 재개 확인 (0단계)
-
-절차를 시작하기 전에, 이 이슈/브랜치로 이미 진행된 적이 있는지 먼저 확인한다 — 같은 이슈를 이슈
-번호로 다시 착수했을 때 이미 써둔 spec/plan/tasks 문서를 무시하고 처음부터 다시 진행하는 것을
-막기 위함이다.
-
-- `specs/` 아래에서 현재 이슈 번호 또는 브랜치 슬러그와 일치하는 디렉터리를 찾는다.
-- 해당 디렉터리가 있으면 `spec.md`, `plan.md`, `tasks.md` 각각의 존재 여부로 어느 단계까지 끝났는지
-  판단한다:
-  - `tasks.md`까지 있으면 → Tasks 완료, 다음은 Implement
-  - `plan.md`까지 있으면 → Plan 완료, 다음은 Tasks
-  - `spec.md`만 있으면 → Specify 완료, 다음은 Plan(또는 Clarify)
-  - 아무것도 없으면 → 처음부터(1단계 Specify)
-- 판단 결과와 각 문서의 마지막 수정 시각을 보여주고 "O단계부터 이어갈까요, 아니면 Specify부터 다시
-  검토할까요?"라고 확인받는다. 최종 선택은 항상 사용자가 한다 — 이미 끝난 단계라도 사용자가
-  "다시 보자"고 하면 그 단계부터 재실행한다.
-- 이 판단이 애매하면(디렉터리를 여러 개 찾았거나 문서가 비어 있는 등) 추측하지 않고 사용자에게
-  직접 묻는다.
+이슈가 등록된 뒤의 표준 진입점. 작업 분기 기준은 [docs/ARCHITECTURE.md "작업 분기 기준"](../../../docs/ARCHITECTURE.md#작업-분기-기준)에 있으며, 이 스킬은 그 기준을 적용만 한다. 기준이 바뀌면 ARCHITECTURE.md를 먼저 수정한다.
 
 ## 절차
 
-1. **Specify**: `Skill(skill: "speckit-specify", args: <이슈 번호와 내용>)`. 결과(spec 디렉터리, 체크리스트 통과 여부)를 짧게 보고한다.
-   - 체크리스트에 `[NEEDS CLARIFICATION]`이 남아 있으면 `speckit-specify` 자체가 질문을 던지므로 그 답을 받아 반영한다.
-   - 스펙 내용 중 판단이 필요한 부분(그룹 분류, 스코프 축소 등)은 스펙을 쓰는 도중이라도 사용자에게 먼저 확인한다 — spec.md 자체를 여러 라운드에 걸쳐 다듬어도 된다.
-   - 완료 후: "계속 `/speckit-plan`으로 진행할까요?" 확인받는다.
-2. **Plan**: 확인받으면 `Skill(skill: "speckit-plan")`. `plan.md`/`research.md`/`data-model.md`(필요시)/`quickstart.md`를 생성한다. Technical Context의 "Testing" 항목에서 이 기능 중 TDD 대상(ARCHITECTURE.md "TDD 적용 기준")과 수동 검증 대상을 명확히 구분해 적는다.
-   - 완료 후: "계속 `/speckit-tasks`로 진행할까요?" 확인받는다.
-3. **Tasks**: 확인받으면 `Skill(skill: "speckit-tasks")`. 태스크 개수, User Story별 분류, MVP 범위를 짧게 보고한다.
-   - 완료 후: "계속 `/speckit-implement`로 진행할까요?" 확인받는다.
-4. **Implement**: 확인받으면 `Skill(skill: "speckit-implement")`.
-   - TDD 대상 함수는 실패하는 테스트 먼저 작성(red) → 구현(green) 순서를 지킨다.
-   - 구현 후 CLAUDE.md "명령어"의 포맷/린트/테스트/빌드 명령을 실행해 통과를 확인한다.
-   - 브라우저/실기기 확인이 필요한 태스크(UI 렌더링, 클릭 인터랙션 등)는 이 세션에 브라우저 도구가 없다면 체크하지 않고 quickstart.md 절차를 사용자에게 안내한다 — 확인 없이 완료로 보고하지 않는다.
-5. **완료 보고**: 변경 파일 요약, 자동 검증 결과, 남은 수동 검증 항목을 정리해 보고한다. **커밋/PR/머지는 자동으로 하지 않는다** — CLAUDE.md 규칙대로 사용자가 명시적으로 요청할 때만 진행한다.
+1. **이슈 번호**: `$ARGUMENTS`에 번호가 없으면 사용자에게 물어본다.
+2. **이슈 읽기**: `gh issue view <N> --json number,title,body,labels,state` 명령으로 제목, 본문,
+   라벨을 읽는다. 이 값을 이슈 번호/제목/본문 요약 형태로 전략 스킬에 넘길 수 있게 준비한다.
+3. **판단**: "작업 분기 기준"의 신호를 이슈에 적용해 하나를 추천한다.
+   - **A. 작은 작업** (바로 구현)
+   - **B. 큰 작업** (전략 스킬)
+   - 이슈가 두 신호를 동시에 가지면, 핵심 리스크에 더 가까운 신호로 판단하고 이유를 짧게 설명한다.
+4. **추천 및 확인**: 이유를 1~2문장으로 설명하고 추천 답을 제시한 뒤, 사용자가 A/B를 직접
+   선택하게 한다. 사용자가 다르게 선택하면 그 선택을 따른다 — 추천은 힌트일 뿐이다.
+5. **공통 준비** (두 경로 모두), CLAUDE.md "GitHub 이슈 관리"를 따른다:
+   - `gh issue edit <N> --add-label in-progress` (먼저 확인받고 실행)
+   - 저장소의 기본 브랜치에서 브랜치를 만든다(이 저장소는 기본 브랜치로 `main`을 사용한다):
+     `git checkout main && git pull origin main --ff-only` (origin 리모트가 없으면 pull은 건너뜀)
+     `&& git checkout -b <타입>/<N>-<설명>`. 타입은 이슈 라벨에서 가져온다(`bug`→`bug/`,
+     `feature`→`feature/`, `chore`→`chore/`, `docs`→`docs/`).
+   - **경로 A**: 지금 바로 브랜치를 만든다. **경로 B**: 여기서는 브랜치를 만들지 않는다 — 전략
+     스킬이 구현 단계에 도달할 때 CLAUDE.md의 전략 규칙에 따라 스토리 브랜치 하나만 만든다.
+6. **분기**:
+   - **A**: 스킬을 호출하지 않는다. 이 대화에서 이슈 내용을 바탕으로 바로 구현을 시작한다. 이후
+     CLAUDE.md "명령어" 섹션의 포맷/린트/테스트 명령을 실행해 통과를 확인한다. 커밋/PR/머지는
+     사용자가 명시적으로 요청할 때만 진행한다.
+   - **B**: 전략 스킬은 명시 호출 전용(`disable-model-invocation`)이므로 Skill 도구로
+     `feature-strategy`를 호출할 수 없고 그 절차를 흉내내서도 안 된다. 대신 핸드오프한다: 사용자가
+     승인한 공통 준비를 마친 뒤, 이슈 번호·제목·본문 요약과 이미 알고 있는 사실(기존 서브이슈,
+     목/API 상태 등)을 담아 바로 붙여넣을 수 있는 명령 한 줄을 출력한다. 예:
+     `/feature-strategy Issue #24: <제목> — <본문 요약>`. 플러그인 설치 형태에서는
+     `/dopeboy0608-skills:feature-strategy`로 호출한다고 안내하고, 라벨/브랜치 작업은 이미 끝났다고
+     알려준다. 사용자가 명령을 찾을 수 없다고 하면 `ai-workflow-setup`을 실행하라고 안내하고(이
+     스킬이 플러그인 설치 여부를 확인한다) 중단한다.
 
 ## 하지 않는 것
 
-- 사용자 확인 없이 다음 단계로 넘어가지 않는다(0~4단계 사이 매번 확인).
-- 재개 확인(0단계) 결과를 추측으로 넘기지 않는다 — 애매하면 반드시 사용자에게 묻는다.
-- 커밋을 스스로 트리거하지 않는다.
-- `/speckit-clarify`, `/speckit-checklist`, `/speckit-analyze` 같은 선택적 스킬은 필요하다고 판단될 때만 제안하고, 기본 흐름에 강제로 끼워넣지 않는다.
+- 커밋, PR 생성, 머지를 스스로 하지 않는다 — 항상 사용자의 요청을 기다린다.
+- 작업 분기 기준 자체를 이 파일에 나열하지 않는다 — ARCHITECTURE.md가 단일 출처다.
