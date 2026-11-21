@@ -1,14 +1,78 @@
-import { Map as KakaoMap } from 'react-kakao-maps-sdk';
+import {
+  CustomOverlayMap,
+  Map as KakaoMap,
+  Polygon,
+} from 'react-kakao-maps-sdk';
 
-import { CITY_HALL, DEFAULT_MAP_ZOOM_LEVEL } from '../helper/constants';
+import type { ParsedDraftPolygon } from '../helper/regionViewParser';
 
-export function RegionViewMap() {
+interface RegionViewMapProps {
+  mapCenter: { lat: number; lng: number };
+  mapZoomLevel: number;
+  draftPolygonList: ParsedDraftPolygon[];
+  onChangeZoomLevel: (level: number) => void;
+  onUpdatedMap: () => void;
+}
+
+export function RegionViewMap({
+  mapCenter,
+  mapZoomLevel,
+  draftPolygonList,
+  onChangeZoomLevel,
+  onUpdatedMap,
+}: RegionViewMapProps) {
+  const handleZoomChanged = (map: kakao.maps.Map) => {
+    onChangeZoomLevel(map.getLevel());
+    onUpdatedMap();
+  };
+
   return (
     <KakaoMap
-      center={CITY_HALL}
-      level={DEFAULT_MAP_ZOOM_LEVEL}
+      center={mapCenter}
+      level={mapZoomLevel}
       maxLevel={12}
       style={{ width: '100%', height: '100%' }}
-    />
+      onZoomChanged={handleZoomChanged}
+      onDragEnd={onUpdatedMap}
+    >
+      {draftPolygonList.map((region) => {
+        const key =
+          region.regionGroupCode ?? region.code ?? region.blockCode ?? '';
+        return (
+          <Polygon
+            key={`draft-polygon-${key}`}
+            path={region.polygonPoints}
+            strokeWeight={1}
+            strokeColor="#4c4cff"
+            strokeOpacity={1}
+            strokeStyle="solid"
+            fillColor={region.polygonColor}
+            fillOpacity={0.4}
+          />
+        );
+      })}
+
+      {mapZoomLevel <= 10 &&
+        draftPolygonList.map((region) => {
+          const key =
+            region.regionGroupCode ?? region.code ?? region.blockCode ?? '';
+          return (
+            <CustomOverlayMap key={`cluster-${key}`} position={region.center}>
+              <div
+                style={{
+                  background: '#fff',
+                  border: '1px solid #4c4cff',
+                  borderRadius: 4,
+                  padding: '2px 6px',
+                  fontSize: 12,
+                  fontWeight: 600,
+                }}
+              >
+                {key}
+              </div>
+            </CustomOverlayMap>
+          );
+        })}
+    </KakaoMap>
   );
 }

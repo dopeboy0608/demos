@@ -10,7 +10,21 @@ import {
 } from '../helper/constants';
 import { createDeliveryDateOptions } from '../helper/deliveryDateOptions';
 
-export function RegionViewSearchPanel() {
+interface RegionViewSearchPanelProps {
+  hasSearched: boolean;
+  hasEmptyResult: boolean;
+  onSearchSubmit: (params: {
+    pdd: string;
+    regionGroupCodes: string[];
+    serviceType: string;
+  }) => void;
+}
+
+export function RegionViewSearchPanel({
+  hasSearched,
+  hasEmptyResult,
+  onSearchSubmit,
+}: RegionViewSearchPanelProps) {
   const [serviceType, setServiceType] = useState<string>(SERVICE_TYPE.DAWN);
 
   const pddOptions = createDeliveryDateOptions(
@@ -55,7 +69,7 @@ export function RegionViewSearchPanel() {
     }
 
     setRegionGroupError(false);
-    // TODO(API) 03에서 검색 조건으로 실제 데이터 조회를 연결한다.
+    onSearchSubmit({ pdd, regionGroupCodes, serviceType });
   };
 
   return (
@@ -136,7 +150,13 @@ export function RegionViewSearchPanel() {
           ),
           collapsible: 'disabled',
           children: (
-            <div style={{ padding: 4 }}>검색 조건을 설정 해주세요.</div>
+            <div style={{ padding: 4 }}>
+              {!hasSearched
+                ? '검색 조건을 설정 해주세요.'
+                : hasEmptyResult
+                  ? '검색 결과가 없습니다.'
+                  : '센터별 상세 권역 목록은 다음 서브태스크에서 추가됩니다.'}
+            </div>
           ),
         },
       ]}
