@@ -11,8 +11,12 @@ import '../roboking.css';
 
 const { Title } = Typography;
 
-export function MainCover() {
-  const { handleStart } = useRobokingCover();
+interface MainCoverProps {
+  onStart: () => void;
+}
+
+export function MainCover({ onStart }: MainCoverProps) {
+  const { handleStart } = useRobokingCover(onStart);
 
   return (
     <div className="roboking-stage">

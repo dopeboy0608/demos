@@ -108,3 +108,75 @@
   align-self: center;
   width: 200px;
 }
+
+/* 게임 플레이 화면: FLA 원본 무대(810x1000) 좌표를 그대로 쓰기 위해 패딩 없이 꽉 채운다. */
+.roboking-game-stage {
+  padding: 0;
+  position: relative;
+  background: #1a2e24;
+}
+
+.roboking-game-hud {
+  position: absolute;
+  top: 8px;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 16px;
+  font-weight: 600;
+}
+
+.roboking-game-field {
+  position: relative;
+  width: 810px;
+  height: 1000px;
+}
+
+/* 원본에서는 배경 그림 위의 투명 히트박스지만, 정적 레이아웃 확인용으로 반투명 표시한다. */
+.roboking-wall {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+  background: rgba(255, 80, 80, 0.35);
+  outline: 1px solid rgba(255, 80, 80, 0.6);
+}
+
+.roboking-dust {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #c9b37c;
+  transform: translate(-50%, -50%);
+}
+
+.roboking-event-dust {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ff9800;
+  transform: translate(-50%, -50%);
+}
+
+.roboking-event-item {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: #4caf50;
+  transform: translate(-50%, -50%);
+}
+
+.roboking-robot {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #4a90d9;
+  border: 2px solid #fff;
+  transform: translate(-50%, -50%);
+}
