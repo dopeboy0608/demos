@@ -22,3 +22,25 @@ export interface TopWinnerList {
 }
 
 export type RobotDirection = 'left' | 'right' | 'up' | 'down' | 'stop';
+
+export interface Friend {
+  bigThumb: string;
+  smallThumb: string;
+  id: string;
+  key: number;
+}
+
+export interface FriendsList {
+  myphoto: string;
+  friend: Friend[];
+}
+
+export interface RegisterResponse {
+  result: 'ok';
+  win: boolean;
+  totalScore: number;
+}
+
+export interface RecommendResponse {
+  result: 'ok';
+}

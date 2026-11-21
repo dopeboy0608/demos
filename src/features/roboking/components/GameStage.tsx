@@ -9,7 +9,7 @@ import '../roboking.css';
 interface GameStageProps {
   config: StageConfig;
   clearLabel: string;
-  onClear: () => void;
+  onClear: (scorePercent: number) => void;
   onRetry: () => void;
   onExitToMain: () => void;
 }
@@ -105,7 +105,7 @@ export function GameStage({
           <div className="roboking-popup-overlay">
             <div className="roboking-popup">
               <p>STAGE CLEAR! (SCORE {game.scorePercent}%)</p>
-              <Button type="primary" onClick={onClear}>
+              <Button type="primary" onClick={() => onClear(game.scorePercent)}>
                 {clearLabel}
               </Button>
             </div>

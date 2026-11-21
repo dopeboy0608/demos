@@ -282,3 +282,52 @@
   border-radius: 50%;
   background: rgba(255, 220, 0, 0.6);
 }
+
+/* 07. 결과 화면(당첨/미당첨, 추천 화면) */
+.roboking-result-stage {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.roboking-result-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.roboking-recommend {
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+}
+
+.roboking-recommend-title.ant-typography,
+.roboking-recommend-text.ant-typography {
+  color: #fff;
+}
+
+.roboking-recommend-friend-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+}
+
+.roboking-recommend-friend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.roboking-recommend-input {
+  max-width: 300px;
+}
