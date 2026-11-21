@@ -1,0 +1,28 @@
+/* AppLayout Content의 24px padding을 상쇄해 지도를 전체화면으로 채운다(레거시 negative-margin 트릭). */
+.region-view__wrapper {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  margin: -24px;
+}
+
+.region-view__search-panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 350px;
+  height: 100%;
+  z-index: 99;
+  padding: 8px;
+  background: #fff;
+  box-shadow: 2px 0 6px 0 rgb(0 0 0 / 10%);
+  overflow-y: auto;
+}
+
+.region-view__top-bar {
+  position: absolute;
+  top: 20px;
+  left: 366px;
+  right: 16px;
+  z-index: 99;
+}
