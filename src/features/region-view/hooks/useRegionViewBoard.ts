@@ -1,9 +1,13 @@
-import { Modal } from 'antd';
+import { Modal, message } from 'antd';
 import { useCallback, useRef, useState } from 'react';
 
 import {
   fetchDraftPolygons,
   fetchRegionGroupList,
+  fetchRegionGroupLocation,
+  fetchRegionLocation,
+  type LocationSearchPayload,
+  type RegionGroupListItem,
   type RegionViewSearchParams,
 } from '../api/regionViewApi';
 import { CITY_HALL, DEFAULT_MAP_ZOOM_LEVEL } from '../helper/constants';
@@ -19,12 +23,15 @@ export function useRegionViewBoard() {
   const [draftPolygonList, setDraftPolygonList] = useState<
     ParsedDraftPolygon[]
   >([]);
+  const [regionGroupList, setRegionGroupList] = useState<RegionGroupListItem[]>(
+    [],
+  );
   const [hasSearched, setHasSearched] = useState(false);
   const [hasEmptyResult, setHasEmptyResult] = useState(false);
 
-  // 지도 중심 이동(위치보기)은 04에서 다루므로 여기서는 고정값으로 둔다.
-  const [mapCenter] = useState(CITY_HALL);
+  const [mapCenter, setMapCenter] = useState(CITY_HALL);
   const [mapZoomLevel, setMapZoomLevel] = useState(DEFAULT_MAP_ZOOM_LEVEL);
+  const [isSearchResultMarker, setIsSearchResultMarker] = useState(false);
 
   const searchParamsRef = useRef<RegionViewSearchParams | null>(null);
   const existingGroupCodesRef = useRef<string[]>([]);
@@ -60,6 +67,7 @@ export function useRegionViewBoard() {
           (item) => item.regionGroupCode,
         );
 
+        setRegionGroupList(nonEmptyGroups);
         setHasEmptyResult(nonEmptyGroups.length === 0);
         setHasSearched(true);
         await fetchPolygons();
@@ -81,16 +89,49 @@ export function useRegionViewBoard() {
     setMapZoomLevel(level);
   }, []);
 
+  const handleLocationSearchClick = useCallback(
+    async (
+      payload: string | LocationSearchPayload,
+      searchType?: 'SUB_DIVISION' | 'MICRO_DIVISION',
+    ) => {
+      if (typeof payload === 'string') {
+        const result = await fetchRegionGroupLocation(payload);
+        if (!result) {
+          message.error(`${payload} 권역에 설정된 지역이 없습니다.`);
+          return;
+        }
+        setMapZoomLevel(8);
+        setMapCenter(result.position);
+        return;
+      }
+
+      const result = await fetchRegionLocation(payload);
+      if (!result) {
+        message.error('검색 결과가 없습니다.');
+        return;
+      }
+
+      setIsSearchResultMarker(false);
+      setMapZoomLevel(searchType === 'SUB_DIVISION' ? 6 : 5);
+      setMapCenter(result.position);
+      setTimeout(() => setIsSearchResultMarker(true), 1500);
+    },
+    [],
+  );
+
   return {
     isLoading,
     draftPolygonList,
+    regionGroupList,
     hasSearched,
     hasEmptyResult,
     mapCenter,
     mapZoomLevel,
+    isSearchResultMarker,
     handleSearchSubmit,
     handleUpdatedMap,
     handleChangeZoomLevel,
+    handleLocationSearchClick,
     modalContextHolder,
   };
 }

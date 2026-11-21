@@ -1,6 +1,10 @@
 import { CheckOutlined } from '@ant-design/icons';
 import { Button, Collapse, message, Select, Tag, Typography } from 'antd';
 import { useState } from 'react';
+import type {
+  LocationSearchPayload,
+  RegionGroupListItem,
+} from '../api/regionViewApi';
 import {
   DELIVERY_DATE_RANGE_DAYS,
   DELIVERY_DATE_TOMORROW_HOUR,
@@ -9,21 +13,29 @@ import {
   TEMP_REGION_GROUP_OPTIONS,
 } from '../helper/constants';
 import { createDeliveryDateOptions } from '../helper/deliveryDateOptions';
+import { RegionViewRegionResult } from './RegionViewRegionResult';
 
 interface RegionViewSearchPanelProps {
   hasSearched: boolean;
   hasEmptyResult: boolean;
+  regionGroupList: RegionGroupListItem[];
   onSearchSubmit: (params: {
     pdd: string;
     regionGroupCodes: string[];
     serviceType: string;
   }) => void;
+  onLocationSearchClick: (
+    payload: string | LocationSearchPayload,
+    searchType?: 'SUB_DIVISION' | 'MICRO_DIVISION',
+  ) => void;
 }
 
 export function RegionViewSearchPanel({
   hasSearched,
   hasEmptyResult,
+  regionGroupList,
   onSearchSubmit,
+  onLocationSearchClick,
 }: RegionViewSearchPanelProps) {
   const [serviceType, setServiceType] = useState<string>(SERVICE_TYPE.DAWN);
 
@@ -151,11 +163,16 @@ export function RegionViewSearchPanel({
           collapsible: 'disabled',
           children: (
             <div style={{ padding: 4 }}>
-              {!hasSearched
-                ? '검색 조건을 설정 해주세요.'
-                : hasEmptyResult
-                  ? '검색 결과가 없습니다.'
-                  : '센터별 상세 권역 목록은 다음 서브태스크에서 추가됩니다.'}
+              {!hasSearched ? (
+                '검색 조건을 설정 해주세요.'
+              ) : hasEmptyResult ? (
+                '검색 결과가 없습니다.'
+              ) : (
+                <RegionViewRegionResult
+                  regionGroupList={regionGroupList}
+                  onLocationSearchClick={onLocationSearchClick}
+                />
+              )}
             </div>
           ),
         },

@@ -15,6 +15,7 @@ export function RegionViewPage() {
           mapCenter={board.mapCenter}
           mapZoomLevel={board.mapZoomLevel}
           draftPolygonList={board.draftPolygonList}
+          isSearchResultMarker={board.isSearchResultMarker}
           onChangeZoomLevel={board.handleChangeZoomLevel}
           onUpdatedMap={board.handleUpdatedMap}
         />
@@ -25,7 +26,9 @@ export function RegionViewPage() {
           <RegionViewSearchPanel
             hasSearched={board.hasSearched}
             hasEmptyResult={board.hasEmptyResult}
+            regionGroupList={board.regionGroupList}
             onSearchSubmit={board.handleSearchSubmit}
+            onLocationSearchClick={board.handleLocationSearchClick}
           />
         </div>
       </div>

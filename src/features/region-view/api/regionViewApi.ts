@@ -6,12 +6,34 @@ export interface RegionViewSearchParams {
   serviceType: string;
 }
 
+export interface SubRegionItem {
+  subRegionCode: string;
+  deliveryRounds: string[];
+}
+
+export interface RegionItem {
+  regionCode: string;
+  sortingTypeCode: 'NORMAL' | 'ROOM_ONLY';
+  subRegions: SubRegionItem[];
+}
+
 export interface RegionGroupListItem {
   regionGroupCode: string;
   zipCodeCount: number;
   regionCount: number;
   subRegionCount: number;
-  regions: unknown[];
+  regions: RegionItem[];
+}
+
+export interface LocationSearchPayload {
+  regionGroupCode: string;
+  code: string;
+  sortingLevel: 'REGION' | 'SUB_REGION';
+  sortingTypeCode: string;
+}
+
+export interface LocationResult {
+  position: { lat: number; lng: number };
 }
 
 // TODO(API) 실제 백엔드 연동 시 이 파일의 함수들을 교체한다. 시그니처(params → Promise)는 그대로 유지.
@@ -27,12 +49,47 @@ const MOCK_REGION_META: Record<
 };
 
 // C는 "설정된 지역이 없는 센터" 시나리오(FR-10)를 재현하기 위해 의도적으로 regions를 비워둔다.
-const MOCK_HAS_REGIONS: Record<string, boolean> = {
-  A: true,
-  B: true,
-  C: false,
-  D: true,
-  E: true,
+const MOCK_REGIONS: Record<string, RegionItem[]> = {
+  A: [
+    {
+      regionCode: 'A01',
+      sortingTypeCode: 'NORMAL',
+      subRegions: [
+        { subRegionCode: 'A01-1', deliveryRounds: ['1회차', '2회차'] },
+        { subRegionCode: 'A01-2', deliveryRounds: ['1회차'] },
+      ],
+    },
+    {
+      regionCode: 'A02',
+      sortingTypeCode: 'ROOM_ONLY',
+      subRegions: [{ subRegionCode: 'A02-1', deliveryRounds: ['1회차'] }],
+    },
+  ],
+  B: [
+    {
+      regionCode: 'B01',
+      sortingTypeCode: 'NORMAL',
+      subRegions: [
+        { subRegionCode: 'B01-1', deliveryRounds: ['1회차'] },
+        { subRegionCode: 'B01-2', deliveryRounds: [] },
+      ],
+    },
+  ],
+  C: [],
+  D: [
+    {
+      regionCode: 'D01',
+      sortingTypeCode: 'NORMAL',
+      subRegions: [{ subRegionCode: 'D01-1', deliveryRounds: ['1회차'] }],
+    },
+  ],
+  E: [
+    {
+      regionCode: 'E01',
+      sortingTypeCode: 'NORMAL',
+      subRegions: [{ subRegionCode: 'E01-1', deliveryRounds: ['1회차'] }],
+    },
+  ],
 };
 
 const MOCK_POLYGONS: Record<string, RawDraftPolygon> = {
@@ -98,6 +155,30 @@ const MOCK_POLYGONS: Record<string, RawDraftPolygon> = {
   },
 };
 
+// 센터 단위 위치보기(중심점)
+const MOCK_CENTER_POSITIONS: Record<string, { lat: number; lng: number }> = {
+  A: { lat: 37.59, lng: 126.97 },
+  B: { lat: 37.57, lng: 127.01 },
+  D: { lat: 37.55, lng: 126.97 },
+  E: { lat: 37.53, lng: 127.01 },
+};
+
+// 소분류/세분류 단위 위치보기(코드별 좌표)
+const MOCK_CODE_POSITIONS: Record<string, { lat: number; lng: number }> = {
+  A01: { lat: 37.592, lng: 126.965 },
+  'A01-1': { lat: 37.593, lng: 126.963 },
+  'A01-2': { lat: 37.591, lng: 126.967 },
+  A02: { lat: 37.598, lng: 126.985 },
+  'A02-1': { lat: 37.599, lng: 126.986 },
+  B01: { lat: 37.572, lng: 127.005 },
+  'B01-1': { lat: 37.573, lng: 127.003 },
+  'B01-2': { lat: 37.571, lng: 127.007 },
+  D01: { lat: 37.552, lng: 126.965 },
+  'D01-1': { lat: 37.553, lng: 126.963 },
+  E01: { lat: 37.532, lng: 127.005 },
+  'E01-1': { lat: 37.533, lng: 127.003 },
+};
+
 export function fetchRegionGroupList(
   params: RegionViewSearchParams,
 ): Promise<RegionGroupListItem[]> {
@@ -109,7 +190,7 @@ export function fetchRegionGroupList(
         regionCount: 0,
         subRegionCount: 0,
       }),
-      regions: MOCK_HAS_REGIONS[code] ? [{}] : [],
+      regions: MOCK_REGIONS[code] ?? [],
     })),
   );
 }
@@ -122,4 +203,18 @@ export function fetchDraftPolygons(
       MOCK_POLYGONS[code] ? [MOCK_POLYGONS[code]] : [],
     ),
   );
+}
+
+export function fetchRegionGroupLocation(
+  regionGroupCode: string,
+): Promise<LocationResult | null> {
+  const position = MOCK_CENTER_POSITIONS[regionGroupCode];
+  return Promise.resolve(position ? { position } : null);
+}
+
+export function fetchRegionLocation(
+  payload: LocationSearchPayload,
+): Promise<LocationResult | null> {
+  const position = MOCK_CODE_POSITIONS[payload.code];
+  return Promise.resolve(position ? { position } : null);
 }

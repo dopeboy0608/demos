@@ -1,6 +1,7 @@
 import {
   CustomOverlayMap,
   Map as KakaoMap,
+  MapMarker,
   Polygon,
 } from 'react-kakao-maps-sdk';
 
@@ -10,6 +11,7 @@ interface RegionViewMapProps {
   mapCenter: { lat: number; lng: number };
   mapZoomLevel: number;
   draftPolygonList: ParsedDraftPolygon[];
+  isSearchResultMarker: boolean;
   onChangeZoomLevel: (level: number) => void;
   onUpdatedMap: () => void;
 }
@@ -18,6 +20,7 @@ export function RegionViewMap({
   mapCenter,
   mapZoomLevel,
   draftPolygonList,
+  isSearchResultMarker,
   onChangeZoomLevel,
   onUpdatedMap,
 }: RegionViewMapProps) {
@@ -73,6 +76,8 @@ export function RegionViewMap({
             </CustomOverlayMap>
           );
         })}
+
+      {isSearchResultMarker && <MapMarker position={mapCenter} />}
     </KakaoMap>
   );
 }
