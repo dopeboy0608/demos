@@ -50,3 +50,7 @@ export const REGION_SUB_SORTING_OPTIONS = [
   { label: '일반', value: 'NORMAL' },
   { label: '상온 only', value: 'ROOM_ONLY' },
 ];
+
+// 배송센터/분류유형 토글의 pill 스타일을 한 곳에서 관리해 간격·모양을 일관되게 맞춘다.
+export const TAG_PILL_STYLE = { borderRadius: 14, padding: '2px 10px' };
+export const TAG_GROUP_GAP = 6;

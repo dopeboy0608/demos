@@ -10,6 +10,8 @@ import {
   DELIVERY_DATE_TOMORROW_HOUR,
   SERVICE_TYPE,
   SERVICE_TYPE_OPTIONS,
+  TAG_GROUP_GAP,
+  TAG_PILL_STYLE,
   TEMP_REGION_GROUP_OPTIONS,
 } from '../helper/constants';
 import { createDeliveryDateOptions } from '../helper/deliveryDateOptions';
@@ -127,10 +129,15 @@ export function RegionViewSearchPanel({
                     overflowY: 'auto',
                     border: `1px solid ${regionGroupError ? 'red' : '#d9d9d9'}`,
                     borderRadius: 4,
-                    padding: 4,
+                    padding: 8,
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: TAG_GROUP_GAP,
+                    alignContent: 'flex-start',
                   }}
                 >
                   <Tag.CheckableTag
+                    style={TAG_PILL_STYLE}
                     checked={isAllSelected}
                     onChange={handleAllSelect}
                   >
@@ -139,6 +146,7 @@ export function RegionViewSearchPanel({
                   {regionGroupOptions.map((option) => (
                     <Tag.CheckableTag
                       key={option.code}
+                      style={TAG_PILL_STYLE}
                       checked={regionGroupCodes.includes(option.code)}
                       onChange={(checked) =>
                         handleRegionGroupTagChange(option.code, checked)
@@ -161,6 +169,14 @@ export function RegionViewSearchPanel({
             <Row justify="space-between" align="middle">
               <Typography.Text style={{ fontWeight: 500 }}>
                 상세 권역
+                {hasSearched && !hasEmptyResult && (
+                  <Typography.Text
+                    type="secondary"
+                    style={{ fontWeight: 400, marginLeft: 8 }}
+                  >
+                    (검색된 배송센터 {regionGroupList.length}개)
+                  </Typography.Text>
+                )}
               </Typography.Text>
               <Button
                 size="small"

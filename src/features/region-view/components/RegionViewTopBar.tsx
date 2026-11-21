@@ -1,6 +1,10 @@
 import { Row, Switch, Tag } from 'antd';
 
-import { REGION_SUB_SORTING_OPTIONS } from '../helper/constants';
+import {
+  REGION_SUB_SORTING_OPTIONS,
+  TAG_GROUP_GAP,
+  TAG_PILL_STYLE,
+} from '../helper/constants';
 import { RegionViewLocationSearch } from './RegionViewLocationSearch';
 
 interface RegionViewTopBarProps {
@@ -24,11 +28,12 @@ export function RegionViewTopBar({
   return (
     <Row justify="space-between" align="middle" style={{ width: '100%' }}>
       <RegionViewLocationSearch onSearchResult={onSearchResult} />
-      <Row align="middle" style={{ gap: 16 }}>
-        <Row align="middle" style={{ gap: 4 }}>
+      <Row align="middle" style={{ gap: 20 }}>
+        <Row align="middle" style={{ gap: TAG_GROUP_GAP }}>
           {REGION_SUB_SORTING_OPTIONS.map((option) => (
             <Tag.CheckableTag
               key={option.value}
+              style={TAG_PILL_STYLE}
               checked={sortingTypeCode === option.value}
               onChange={(checked) => {
                 if (checked) onChangeSortingType(option.value);
@@ -38,8 +43,8 @@ export function RegionViewTopBar({
             </Tag.CheckableTag>
           ))}
         </Row>
-        <Row align="middle" style={{ gap: 8 }}>
-          <span className="font-weight-bold" style={{ marginRight: 8 }}>
+        <Row align="middle" style={{ gap: 10 }}>
+          <span className="font-weight-bold" style={{ marginRight: 4 }}>
             불가지역 &#124;
           </span>
           <Switch
