@@ -7,6 +7,7 @@ const { Header, Content } = Layout;
 const NAV_ITEMS = [
   { key: '/', label: <Link to="/">홈</Link> },
   { key: '/polygon', label: <Link to="/polygon">폴리곤 제어</Link> },
+  { key: '/roboking', label: <Link to="/roboking">LG 로보킹</Link> },
 ];
 
 interface AppLayoutProps {
