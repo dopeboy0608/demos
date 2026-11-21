@@ -11,7 +11,7 @@
 | 01  | [#15](https://github.com/dopeboy0608/demos/issues/15) | 커버 > 메인 화면 정적 레이아웃            | 완료 (8cf7696)  |
 | 02  | [#16](https://github.com/dopeboy0608/demos/issues/16) | 주방 > 게임 화면 틀 + 정적 레이아웃       | 완료 (c134928)  |
 | 03  | [#17](https://github.com/dopeboy0608/demos/issues/17) | XFL 변환기 PoC                            | 완료 (b88804e)  |
-| 04  | [#18](https://github.com/dopeboy0608/demos/issues/18) | 공통 기반 (루프/입력/사운드/일시정지)     | 요약만, 보강 전 |
+| 04  | [#18](https://github.com/dopeboy0608/demos/issues/18) | 공통 기반 (루프/입력/사운드/일시정지)     | 완료 (f8f3611)  |
 | 05  | [#19](https://github.com/dopeboy0608/demos/issues/19) | 주방 게임 로직                            | 요약만, 보강 전 |
 | 06  | [#20](https://github.com/dopeboy0608/demos/issues/20) | 거실·침실 스테이지 적용                   | 요약만, 보강 전 |
 | 07  | [#21](https://github.com/dopeboy0608/demos/issues/21) | 결과 화면 (점수 전송/당첨 분기/추천 화면) | 요약만, 보강 전 |
@@ -60,3 +60,4 @@
 - 2026-11-21: 01(#15) 구현·커밋(8cf7696). PR #30 생성(ready for review, 스토리 완료 시 머지 예정).
 - 2026-11-21: 02(#16) 구현·커밋(c134928). `stage_kitchen.fla`에서 벽 18개(이슈 본문의 "19개"는 오기로 확인, 실측 18개)/먼지 75개/이벤트 먼지 6개 좌표를 실측해 반영.
 - 2026-11-21: 03(#17) 구현·커밋(b88804e). `corner_icon`(클래식 트윈+알파), `aura2`(모션 트윈+GlowFilter) 변환 PoC 성공. 마스크는 이 FLA에 작은 분리 예시가 없어 미검증(향후 마스크 필요 시점에 추가 검증 필요). Ruffle 라이브 녹화 비교는 샌드박스 제약(백그라운드 정적 서버 차단)으로 생략, 수치 대조 + 브라우저 재생 샘플링으로 대체.
+- 2026-11-21: 04(#18) 착수 전 본문 보강 후 구현·커밋(f8f3611). 고정 타임스텝 루프/키보드 입력/사운드 매니저(`stage_kitchen.fla`에서 실제 추출한 oops.wav, item-get.mp3)/일시정지. WAV→mp3 변환 도구(ffmpeg) 없어 원본 포맷 그대로 사용. 키보드 입력은 원본 `RoboKing.as`처럼 keyup으로 방향을 되돌리지 않는 동작을 그대로 재현.
