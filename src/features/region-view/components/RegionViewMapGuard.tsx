@@ -9,7 +9,7 @@ export function RegionViewMapGuard({ children }: RegionViewMapGuardProps) {
   const apiKey = import.meta.env.PUBLIC_KAKAO_MAP_API_KEY;
   const [loading, error] = useKakaoLoader({
     appkey: apiKey ?? '',
-    libraries: ['drawing'],
+    libraries: ['drawing', 'services'],
   });
 
   if (!apiKey) {

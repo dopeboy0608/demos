@@ -218,3 +218,24 @@ export function fetchRegionLocation(
   const position = MOCK_CODE_POSITIONS[payload.code];
   return Promise.resolve(position ? { position } : null);
 }
+
+// 신우편번호 5자리 → 좌표 목업(샘플 몇 개만 등록, 나머지는 결과 없음으로 처리)
+const MOCK_ZIPCODE_POSITIONS: Record<string, { lat: number; lng: number }> = {
+  '12345': { lat: 37.5665, lng: 126.9784 },
+  '54321': { lat: 37.59, lng: 126.97 },
+};
+
+export function fetchZipcodeLocation(
+  zipCode: string,
+): Promise<LocationResult | null> {
+  const position = MOCK_ZIPCODE_POSITIONS[zipCode];
+  return Promise.resolve(position ? { position } : null);
+}
+
+// 배송주소(OMS) → 좌표 목업(주소 문자열에 특정 키워드가 포함되면 샘플 좌표 반환)
+export function fetchOmsAddressLocation(
+  fullAddress: string,
+): Promise<LocationResult | null> {
+  if (!fullAddress.trim()) return Promise.resolve(null);
+  return Promise.resolve({ position: { lat: 37.5665, lng: 126.9784 } });
+}

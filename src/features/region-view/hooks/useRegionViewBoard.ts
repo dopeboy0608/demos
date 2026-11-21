@@ -10,7 +10,11 @@ import {
   type RegionGroupListItem,
   type RegionViewSearchParams,
 } from '../api/regionViewApi';
-import { CITY_HALL, DEFAULT_MAP_ZOOM_LEVEL } from '../helper/constants';
+import {
+  CITY_HALL,
+  DEFAULT_MAP_ZOOM_LEVEL,
+  SEARCH_RESULT_ZOOM_LEVEL,
+} from '../helper/constants';
 import {
   type ParsedDraftPolygon,
   parseRegionViewDraftPolygon,
@@ -89,6 +93,17 @@ export function useRegionViewBoard() {
     setMapZoomLevel(level);
   }, []);
 
+  // 검색 진행 후 줌/위치 변경이 끝난 뒤(1.5초)에 마커를 노출한다(지도가 갱신되면 마커가 사라지므로).
+  const moveMapAndShowMarker = useCallback(
+    (position: { lat: number; lng: number }, zoomLevel: number) => {
+      setIsSearchResultMarker(false);
+      setMapZoomLevel(zoomLevel);
+      setMapCenter(position);
+      setTimeout(() => setIsSearchResultMarker(true), 1500);
+    },
+    [],
+  );
+
   const handleLocationSearchClick = useCallback(
     async (
       payload: string | LocationSearchPayload,
@@ -111,12 +126,25 @@ export function useRegionViewBoard() {
         return;
       }
 
-      setIsSearchResultMarker(false);
-      setMapZoomLevel(searchType === 'SUB_DIVISION' ? 6 : 5);
-      setMapCenter(result.position);
-      setTimeout(() => setIsSearchResultMarker(true), 1500);
+      moveMapAndShowMarker(
+        result.position,
+        searchType === 'SUB_DIVISION' ? 6 : 5,
+      );
     },
-    [],
+    [moveMapAndShowMarker],
+  );
+
+  const handleSearchResult = useCallback(
+    ({
+      searchType,
+      position,
+    }: {
+      searchType: string;
+      position: { lat: number; lng: number };
+    }) => {
+      moveMapAndShowMarker(position, SEARCH_RESULT_ZOOM_LEVEL[searchType] ?? 3);
+    },
+    [moveMapAndShowMarker],
   );
 
   return {
@@ -132,6 +160,7 @@ export function useRegionViewBoard() {
     handleUpdatedMap,
     handleChangeZoomLevel,
     handleLocationSearchClick,
+    handleSearchResult,
     modalContextHolder,
   };
 }

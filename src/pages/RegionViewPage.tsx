@@ -20,7 +20,7 @@ export function RegionViewPage() {
           onUpdatedMap={board.handleUpdatedMap}
         />
         <div className="region-view__top-bar">
-          <RegionViewTopBar />
+          <RegionViewTopBar onSearchResult={board.handleSearchResult} />
         </div>
         <div className="region-view__search-panel">
           <RegionViewSearchPanel
