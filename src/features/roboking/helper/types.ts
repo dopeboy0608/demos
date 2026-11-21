@@ -20,3 +20,5 @@ export interface TopWinnerList {
   hombotWinner: HombotWinner;
   prizeWinner: PrizeWinner[];
 }
+
+export type RobotDirection = 'left' | 'right' | 'up' | 'down' | 'stop';
