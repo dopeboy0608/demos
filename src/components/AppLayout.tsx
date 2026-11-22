@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { key: '/region-view', label: <Link to="/region-view">권역조회</Link> },
   { key: '/roboking', label: <Link to="/roboking">LG 로보킹</Link> },
   { key: '/xmark', label: <Link to="/xmark">X-MARK</Link> },
+  { key: '/vonin', label: <Link to="/vonin">보닌</Link> },
 ];
 
 interface AppLayoutProps {

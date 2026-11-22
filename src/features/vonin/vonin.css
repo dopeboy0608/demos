@@ -1,0 +1,222 @@
+/* 원본은 1255x827 고정 레이아웃(결정 사항 ④). 여기서는 고정 폭 스테이지를 중앙 정렬한다. */
+.vonin-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  background: #f5f5f3;
+  color: #333;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.vonin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 1255px;
+  max-width: 100%;
+  padding: 16px 0;
+}
+
+.vonin-top-navi {
+  display: flex;
+  gap: 32px;
+}
+
+.vonin-top-navi-item {
+  position: relative;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.vonin-top-navi-dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: 12px;
+  min-width: 160px;
+  z-index: 10;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.vonin-top-navi-item:hover .vonin-top-navi-dropdown {
+  display: block;
+}
+
+.vonin-top-navi-dropdown-group {
+  margin-bottom: 8px;
+}
+
+.vonin-top-navi-dropdown-label {
+  font-size: 12px;
+  color: #666;
+}
+
+.vonin-top-navi-dropdown-sub {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0;
+  font-size: 11px;
+  color: #999;
+}
+
+.vonin-util-buttons {
+  display: flex;
+  gap: 10px;
+  font-size: 11px;
+  color: #999;
+}
+
+.vonin-home {
+  display: flex;
+  gap: 24px;
+  width: 1255px;
+  max-width: 100%;
+  padding-bottom: 40px;
+}
+
+.vonin-home-visual-placeholder {
+  flex: 1;
+  min-height: 500px;
+  background: #e8e6e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+}
+
+.vonin-home-side {
+  width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.vonin-home-side-row {
+  display: flex;
+  gap: 16px;
+}
+
+.vonin-player {
+  position: relative;
+  width: 100%;
+  height: 160px;
+  background: #222;
+}
+
+.vonin-player-screen {
+  width: 100%;
+  height: 100%;
+}
+
+.vonin-player-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.8);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+}
+
+.vonin-slide {
+  position: relative;
+  width: 359px;
+  max-width: 100%;
+}
+
+.vonin-slide-img {
+  display: block;
+  width: 100%;
+}
+
+.vonin-slide-dots {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin-top: 6px;
+}
+
+.vonin-slide-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ccc;
+}
+
+.vonin-slide-dot-active {
+  background: #333;
+}
+
+.vonin-noticeboard,
+.vonin-best-info {
+  flex: 1;
+  font-size: 12px;
+}
+
+.vonin-noticeboard-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.vonin-noticeboard-more,
+.vonin-best-info-more {
+  font-weight: normal;
+  color: #999;
+  cursor: pointer;
+}
+
+.vonin-noticeboard-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.vonin-noticeboard-item {
+  display: flex;
+  gap: 6px;
+  padding: 4px 0;
+}
+
+.vonin-noticeboard-new {
+  background: #c00;
+  color: #fff;
+  font-size: 9px;
+  padding: 1px 4px;
+}
+
+.vonin-best-info img {
+  width: 95px;
+  height: 95px;
+  object-fit: cover;
+}
+
+.vonin-best-info-title {
+  font-weight: bold;
+  margin-top: 6px;
+}
+
+.vonin-best-info-txt {
+  color: #666;
+}
+
+.vonin-link-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.vonin-link-button {
+  border: 1px solid #ccc;
+  padding: 6px 12px;
+  font-size: 11px;
+  cursor: default;
+}
