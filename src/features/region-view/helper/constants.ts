@@ -1,6 +1,8 @@
 export const CITY_HALL = { lat: 37.566634, lng: 126.97836 };
 
-export const DEFAULT_MAP_ZOOM_LEVEL = 12;
+// 페이지 최초 진입 시 지도 중심/줌 레벨. 서울시청을 중심으로 줌 8(기본 폴리곤 표시 기준점과
+// 동일)로 시작한다(#51).
+export const DEFAULT_MAP_ZOOM_LEVEL = 8;
 
 // 센터 기본 영역(폴리곤) 반경. 위도 37.5° 부근 기준 0.08° ≈ 8~9km로, 서울 "구" 단위 이상
 // 크기를 목표로 한다(#47, #48).
@@ -32,17 +34,41 @@ export interface RegionGroupProfile {
   center: { lat: number; lng: number };
 }
 
+type RegionGroupProfileData = Omit<RegionGroupProfile, 'center'>;
+
+// 센터 폴리곤끼리 겹치지 않도록 격자 형태로 배치한다(#51). 센터 반경(CENTER_POLYGON_BASE_RADIUS)의
+// 최대 변주 비율(1.36배, naturalPolygon.ts의 naturalRadius 진폭 참고)을 기준으로 격자 간격을
+// "지름의 2배 + 여유분"만큼 띄워, 인접한 두 센터의 폴리곤이 수학적으로 겹칠 수 없게 한다.
+const CENTER_MAX_RADIUS_RATIO = 1.36;
+const GRID_MARGIN_RATIO = 1.15;
+const GRID_COLUMNS = 5;
+const GRID_SPACING_LNG =
+  CENTER_POLYGON_BASE_RADIUS * CENTER_MAX_RADIUS_RATIO * 2 * GRID_MARGIN_RATIO;
+// 위도 방향은 폴리곤 자체가 0.8배 눌려 있어(naturalPolygon.ts), 같은 비율로 간격도 줄인다.
+const GRID_SPACING_LAT = GRID_SPACING_LNG * 0.8;
+
+function gridCenter(
+  index: number,
+  totalRows: number,
+): { lat: number; lng: number } {
+  const row = Math.floor(index / GRID_COLUMNS);
+  const col = index % GRID_COLUMNS;
+  return {
+    lat: CITY_HALL.lat + ((totalRows - 1) / 2 - row) * GRID_SPACING_LAT,
+    lng: CITY_HALL.lng + (col - (GRID_COLUMNS - 1) / 2) * GRID_SPACING_LNG,
+  };
+}
+
 // 레거시 하드코딩 상수(REGION_GROUP_OPTIONS) 22개를 기반으로 한 센터 프로필 단일 소스.
 // TEMP_REGION_GROUP_OPTIONS와 regionViewApi.ts의 목업 데이터(META/위치/폴리곤)가 모두 여기서 파생된다.
 // TODO(API) 추후 getDeliveryCenters 등 실제 API 응답으로 교체.
-export const REGION_GROUP_PROFILES: RegionGroupProfile[] = [
+const REGION_GROUP_PROFILE_DATA: RegionGroupProfileData[] = [
   {
     code: 'A',
     serviceType: SERVICE_TYPE.DAWN,
     zipCodeCount: 128,
     regionCount: 4,
     subRegionCount: 12,
-    center: { lat: 37.57, lng: 126.98 },
   },
   {
     code: 'B',
@@ -50,7 +76,6 @@ export const REGION_GROUP_PROFILES: RegionGroupProfile[] = [
     zipCodeCount: 96,
     regionCount: 3,
     subRegionCount: 9,
-    center: { lat: 37.5, lng: 127.03 },
   },
   {
     code: 'BS',
@@ -58,7 +83,6 @@ export const REGION_GROUP_PROFILES: RegionGroupProfile[] = [
     zipCodeCount: 210,
     regionCount: 6,
     subRegionCount: 18,
-    center: { lat: 35.18, lng: 129.08 },
   },
   // C는 "설정된 지역이 없는 센터" 시나리오(FR-10)를 재현하기 위해 수치를 0으로 둔다.
   {
@@ -67,7 +91,6 @@ export const REGION_GROUP_PROFILES: RegionGroupProfile[] = [
     zipCodeCount: 0,
     regionCount: 0,
     subRegionCount: 0,
-    center: { lat: 37.53, lng: 126.9 },
   },
   {
     code: 'D',
@@ -75,7 +98,6 @@ export const REGION_GROUP_PROFILES: RegionGroupProfile[] = [
     zipCodeCount: 64,
     regionCount: 2,
     subRegionCount: 6,
-    center: { lat: 37.56, lng: 126.84 },
   },
   {
     code: 'DE',
@@ -83,7 +105,6 @@ export const REGION_GROUP_PROFILES: RegionGroupProfile[] = [
     zipCodeCount: 150,
     regionCount: 5,
     subRegionCount: 14,
-    center: { lat: 36.35, lng: 127.38 },
   },
   {
     code: 'DW',
@@ -91,7 +112,6 @@ export const REGION_GROUP_PROFILES: RegionGroupProfile[] = [
     zipCodeCount: 180,
     regionCount: 5,
     subRegionCount: 15,
-    center: { lat: 35.87, lng: 128.6 },
   },
   {
     code: 'F',
@@ -99,7 +119,6 @@ export const REGION_GROUP_PROFILES: RegionGroupProfile[] = [
     zipCodeCount: 72,
     regionCount: 2,
     subRegionCount: 7,
-    center: { lat: 37.46, lng: 126.7 },
   },
   {
     code: 'G',
@@ -107,7 +126,6 @@ export const REGION_GROUP_PROFILES: RegionGroupProfile[] = [
     zipCodeCount: 58,
     regionCount: 2,
     subRegionCount: 5,
-    center: { lat: 37.66, lng: 126.83 },
   },
   {
     code: 'GC',
@@ -115,7 +133,6 @@ export const REGION_GROUP_PROFILES: RegionGroupProfile[] = [
     zipCodeCount: 140,
     regionCount: 4,
     subRegionCount: 11,
-    center: { lat: 35.16, lng: 126.85 },
   },
   {
     code: 'H',
@@ -123,7 +140,6 @@ export const REGION_GROUP_PROFILES: RegionGroupProfile[] = [
     zipCodeCount: 84,
     regionCount: 3,
     subRegionCount: 8,
-    center: { lat: 37.26, lng: 127.01 },
   },
   {
     code: 'I',
@@ -131,7 +147,6 @@ export const REGION_GROUP_PROFILES: RegionGroupProfile[] = [
     zipCodeCount: 66,
     regionCount: 2,
     subRegionCount: 6,
-    center: { lat: 37.44, lng: 127.14 },
   },
   {
     code: 'M',
@@ -139,7 +154,6 @@ export const REGION_GROUP_PROFILES: RegionGroupProfile[] = [
     zipCodeCount: 49,
     regionCount: 2,
     subRegionCount: 4,
-    center: { lat: 37.32, lng: 126.83 },
   },
   {
     code: 'Q',
@@ -147,7 +161,6 @@ export const REGION_GROUP_PROFILES: RegionGroupProfile[] = [
     zipCodeCount: 77,
     regionCount: 3,
     subRegionCount: 7,
-    center: { lat: 37.24, lng: 127.18 },
   },
   {
     code: 'R',
@@ -155,7 +168,6 @@ export const REGION_GROUP_PROFILES: RegionGroupProfile[] = [
     zipCodeCount: 55,
     regionCount: 2,
     subRegionCount: 5,
-    center: { lat: 37.5, lng: 126.78 },
   },
   {
     code: 'S',
@@ -163,7 +175,6 @@ export const REGION_GROUP_PROFILES: RegionGroupProfile[] = [
     zipCodeCount: 61,
     regionCount: 2,
     subRegionCount: 6,
-    center: { lat: 36.99, lng: 127.11 },
   },
   {
     code: 'T',
@@ -171,7 +182,6 @@ export const REGION_GROUP_PROFILES: RegionGroupProfile[] = [
     zipCodeCount: 112,
     regionCount: 3,
     subRegionCount: 9,
-    center: { lat: 36.64, lng: 127.49 },
   },
   {
     code: 'UL',
@@ -179,7 +189,6 @@ export const REGION_GROUP_PROFILES: RegionGroupProfile[] = [
     zipCodeCount: 165,
     regionCount: 4,
     subRegionCount: 13,
-    center: { lat: 35.54, lng: 129.31 },
   },
   {
     code: 'W',
@@ -187,7 +196,6 @@ export const REGION_GROUP_PROFILES: RegionGroupProfile[] = [
     zipCodeCount: 40,
     regionCount: 2,
     subRegionCount: 4,
-    center: { lat: 37.65, lng: 127.06 },
   },
   {
     code: 'X',
@@ -195,7 +203,6 @@ export const REGION_GROUP_PROFILES: RegionGroupProfile[] = [
     zipCodeCount: 93,
     regionCount: 3,
     subRegionCount: 8,
-    center: { lat: 37.51, lng: 127.11 },
   },
   {
     code: 'Y',
@@ -203,7 +210,6 @@ export const REGION_GROUP_PROFILES: RegionGroupProfile[] = [
     zipCodeCount: 35,
     regionCount: 1,
     subRegionCount: 3,
-    center: { lat: 37.88, lng: 127.73 },
   },
   {
     code: 'Z',
@@ -211,9 +217,18 @@ export const REGION_GROUP_PROFILES: RegionGroupProfile[] = [
     zipCodeCount: 88,
     regionCount: 3,
     subRegionCount: 7,
-    center: { lat: 35.82, lng: 127.15 },
   },
 ];
+
+const GRID_TOTAL_ROWS = Math.ceil(
+  REGION_GROUP_PROFILE_DATA.length / GRID_COLUMNS,
+);
+
+export const REGION_GROUP_PROFILES: RegionGroupProfile[] =
+  REGION_GROUP_PROFILE_DATA.map((data, index) => ({
+    ...data,
+    center: gridCenter(index, GRID_TOTAL_ROWS),
+  }));
 
 export const TEMP_REGION_GROUP_OPTIONS = REGION_GROUP_PROFILES.map(
   (profile) => ({
