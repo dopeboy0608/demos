@@ -175,6 +175,9 @@
   overflow: auto;
   padding: 0 24px 24px;
   box-sizing: border-box;
+  /* 카드 컨테이너(.xmark-gallery-grid) 자체가 3D로 기울어지므로(#71 FR-05),
+     perspective는 그 부모인 이 요소에 둬야 입체감이 적용된다. */
+  perspective: 1000px;
 }
 
 .xmark-gallery-grid {
@@ -182,7 +185,7 @@
   grid-template-columns: repeat(5, minmax(150px, 1fr));
   grid-template-rows: repeat(2, minmax(170px, 1fr));
   gap: 16px;
-  perspective: 800px;
+  transform-style: preserve-3d;
   flex: 1;
   min-height: 340px;
 }

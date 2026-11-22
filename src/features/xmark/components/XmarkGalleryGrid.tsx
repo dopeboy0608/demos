@@ -16,6 +16,10 @@ const STAGGER_SECONDS = 2 / 30;
 // "뷰포트 하단 + 여유값"까지의 거리를 등장 시작 오프셋으로 계산한다(행마다 필요한 거리가 달라
 // 고정값 하나로는 표현할 수 없음).
 const ENTER_START_BELOW_VIEWPORT_BUFFER_PX = 40;
+// #71 FR-05: 마우스 위치에 따른 컨테이너 3D 패럴럭스. 컨테이너 중심에서 가장자리까지 이동했을 때
+// 도달하는 최대 회전각(과하지 않으면서 입체감은 느껴지는 수준으로 임의 조정 가능한 값).
+const MOUSE_TILT_MAX_DEGREES = 12;
+const MOUSE_TILT_DURATION_SECONDS = 0.6;
 
 export interface XmarkGalleryGridHandle {
   playExit: (onComplete: () => void) => void;
@@ -104,6 +108,40 @@ export const XmarkGalleryGrid = forwardRef<
       timeline.kill();
     };
   }, [items]);
+
+  // 마우스 위치에 따라 카드 10장을 담는 컨테이너(.xmark-gallery-grid) 전체를 3D로 기울인다.
+  // 회전 중심(피벗)은 transform-origin 기본값(50% 50%, 컨테이너 중앙)을 그대로 사용한다.
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const quickSetRotationX = gsap.quickTo(container, 'rotationX', {
+      duration: MOUSE_TILT_DURATION_SECONDS,
+      ease: 'power3.out',
+    });
+    const quickSetRotationY = gsap.quickTo(container, 'rotationY', {
+      duration: MOUSE_TILT_DURATION_SECONDS,
+      ease: 'power3.out',
+    });
+
+    const handleMouseMove = (event: MouseEvent) => {
+      const rect = container.getBoundingClientRect();
+      const offsetX =
+        (event.clientX - (rect.left + rect.width / 2)) / (rect.width / 2);
+      const offsetY =
+        (event.clientY - (rect.top + rect.height / 2)) / (rect.height / 2);
+      const clampedX = Math.max(-1, Math.min(1, offsetX));
+      const clampedY = Math.max(-1, Math.min(1, offsetY));
+
+      quickSetRotationY(clampedX * MOUSE_TILT_MAX_DEGREES);
+      quickSetRotationX(-clampedY * MOUSE_TILT_MAX_DEGREES);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, []);
 
   return (
     <div ref={containerRef} className="xmark-gallery-grid">
