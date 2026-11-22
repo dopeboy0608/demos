@@ -411,3 +411,65 @@
   padding: 6px 16px;
   cursor: pointer;
 }
+
+.vonin-sub-visual-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  color: #999;
+}
+
+.vonin-sub-visual-links-label {
+  font-weight: bold;
+  color: #666;
+}
+
+.vonin-sub-visual-link {
+  color: #333;
+  text-decoration: underline;
+}
+
+.vonin-sub-visual {
+  width: 1026px;
+  max-width: 100%;
+  height: 420px;
+  background: #0c0c0c;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.vonin-sub-visual-eyebrow {
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  color: #999;
+}
+
+.vonin-sub-visual-title {
+  font-size: 48px;
+  margin: 0;
+}
+
+.vonin-sub-visual-line {
+  width: 60px;
+  height: 2px;
+  background: #fff;
+}
+
+.vonin-sub-visual-list {
+  padding: 40px;
+}
+
+.vonin-sub-visual-list ul {
+  list-style: none;
+  padding: 0;
+}
+
+.vonin-sub-visual-list li {
+  padding: 8px 0;
+}
