@@ -1,0 +1,109 @@
+/* 원본은 noScale + StageInfo로 logo/GNB/util/footer/recruit를 브라우저 창 모서리에 고정한다.
+   여기서는 스테이지 역할을 하는 컨테이너(.xmark-stage) 기준으로 같은 모서리 고정을 재현한다. */
+.xmark-stage {
+  position: relative;
+  width: 100%;
+  min-height: 720px;
+  flex: 1;
+  background: #090909;
+  color: #fff;
+  overflow: hidden;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.xmark-logo {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  font-size: 20px;
+  font-weight: bold;
+  letter-spacing: 0.08em;
+}
+
+.xmark-logo-dot {
+  color: #ff6a00;
+}
+
+.xmark-gnb {
+  position: absolute;
+  top: 77px;
+  left: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.xmark-gnb-item {
+  background: none;
+  border: none;
+  color: #999;
+  font-size: 16px;
+  letter-spacing: 0.04em;
+  text-align: left;
+  padding: 0;
+  cursor: pointer;
+}
+
+.xmark-gnb-item:hover {
+  color: #fff;
+}
+
+.xmark-gnb-item-active {
+  color: #fff;
+  font-weight: bold;
+}
+
+.xmark-util {
+  position: absolute;
+  top: 230px;
+  left: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.xmark-util-btn {
+  font-size: 11px;
+  color: #666;
+  letter-spacing: 0.05em;
+}
+
+.xmark-recruit {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  background: none;
+  border: 1px solid #444;
+  color: #ccc;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  padding: 6px 14px;
+  cursor: pointer;
+}
+
+.xmark-recruit:hover {
+  border-color: #ff6a00;
+  color: #fff;
+}
+
+.xmark-footer {
+  position: absolute;
+  bottom: 20px;
+  left: 24px;
+  font-size: 11px;
+  color: #555;
+  letter-spacing: 0.03em;
+}
+
+.xmark-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #777;
+  font-size: 14px;
+}

@@ -7,6 +7,7 @@ import { polygonRoute } from './routes/polygon';
 import { robokingRoute } from './routes/roboking';
 import { robokingPocRoute } from './routes/roboking-poc';
 import { regionViewRoute } from './routes/region-view';
+import { xmarkRoute } from './routes/xmark';
 
 const routeTree = rootRoute.addChildren([
   indexRoute,
@@ -14,6 +15,7 @@ const routeTree = rootRoute.addChildren([
   robokingRoute,
   robokingPocRoute,
   regionViewRoute,
+  xmarkRoute,
 ]);
 
 export const router = createRouter({
