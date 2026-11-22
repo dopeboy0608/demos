@@ -1,0 +1,567 @@
+/* 원본은 noScale + StageInfo로 logo/GNB/util/footer/recruit를 브라우저 창 모서리에 고정한다.
+   여기서는 스테이지 역할을 하는 컨테이너(.xmark-stage) 기준으로 같은 모서리 고정을 재현한다. */
+.xmark-stage {
+  position: relative;
+  width: 100%;
+  min-height: 720px;
+  flex: 1;
+  background: #090909;
+  color: #fff;
+  overflow: hidden;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.xmark-logo {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  font-size: 20px;
+  font-weight: bold;
+  letter-spacing: 0.08em;
+}
+
+.xmark-logo-dot {
+  color: #ff6a00;
+}
+
+.xmark-gnb {
+  position: absolute;
+  top: 77px;
+  left: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.xmark-gnb-item {
+  background: none;
+  border: none;
+  color: #999;
+  font-size: 16px;
+  letter-spacing: 0.04em;
+  text-align: left;
+  padding: 0;
+  cursor: pointer;
+}
+
+.xmark-gnb-item:hover {
+  color: #fff;
+}
+
+.xmark-gnb-item-active {
+  color: #fff;
+  font-weight: bold;
+}
+
+.xmark-util {
+  position: absolute;
+  top: 230px;
+  left: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.xmark-util-btn {
+  font-size: 11px;
+  color: #666;
+  letter-spacing: 0.05em;
+}
+
+.xmark-recruit {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  background: none;
+  border: 1px solid #444;
+  color: #ccc;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  padding: 6px 14px;
+  cursor: pointer;
+}
+
+.xmark-recruit:hover {
+  border-color: #ff6a00;
+  color: #fff;
+}
+
+.xmark-footer {
+  position: absolute;
+  bottom: 20px;
+  left: 24px;
+  font-size: 11px;
+  color: #555;
+  letter-spacing: 0.03em;
+}
+
+.xmark-content {
+  position: absolute;
+  top: 0;
+  left: 220px;
+  right: 0;
+  bottom: 0;
+  overflow: auto;
+  padding: 100px 40px 60px;
+  box-sizing: border-box;
+  color: #777;
+  font-size: 14px;
+}
+
+.xmark-portfolio {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.xmark-portfolio-tabs {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.xmark-sort-tabs,
+.xmark-style-tabs {
+  display: flex;
+  gap: 16px;
+}
+
+.xmark-sort-tab,
+.xmark-style-tab {
+  background: none;
+  border: none;
+  color: #777;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  padding: 0;
+  cursor: pointer;
+}
+
+.xmark-sort-tab:hover,
+.xmark-style-tab:hover {
+  color: #ccc;
+}
+
+.xmark-sort-tab-active,
+.xmark-style-tab-active {
+  color: #fff;
+  font-weight: bold;
+}
+
+.xmark-sort-tab:disabled,
+.xmark-style-tab:disabled {
+  color: #444;
+  cursor: default;
+}
+
+.xmark-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  perspective: 800px;
+}
+
+.xmark-gallery-thumb {
+  position: relative;
+  background: #141414;
+  border: 1px solid #262626;
+  transform-style: preserve-3d;
+  display: block;
+  width: 100%;
+  padding: 0;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.xmark-gallery-thumb-img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 174 / 156;
+  object-fit: cover;
+}
+
+.xmark-gallery-thumb-new {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: #ff6a00;
+  color: #fff;
+  font-size: 10px;
+  padding: 2px 6px;
+}
+
+.xmark-gallery-thumb-title {
+  padding: 8px 10px;
+  font-size: 12px;
+  color: #ccc;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.xmark-gallery-pager {
+  display: flex;
+  gap: 8px;
+}
+
+.xmark-gallery-page-btn {
+  background: none;
+  border: 1px solid #333;
+  color: #777;
+  font-size: 11px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+}
+
+.xmark-gallery-page-btn-active {
+  border-color: #ff6a00;
+  color: #fff;
+}
+
+.xmark-gallery-page-btn:disabled {
+  color: #444;
+  cursor: default;
+}
+
+.xmark-list-mask {
+  position: relative;
+  overflow: hidden;
+}
+
+.xmark-list-track {
+  position: relative;
+  transition: transform 1s cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+
+.xmark-list-row {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: none;
+  border-bottom: 1px solid #1a1a1a;
+  background: none;
+  color: #999;
+  font-size: 14px;
+  font-family: inherit;
+  text-align: left;
+  padding: 0;
+  cursor: pointer;
+}
+
+.xmark-list-row-new {
+  background: #ff6a00;
+  color: #fff;
+  font-size: 10px;
+  padding: 2px 6px;
+}
+
+.xmark-list-row-title {
+  color: #ccc;
+}
+
+.xmark-poc-wrapper {
+  background: #090909;
+  color: #fff;
+  min-height: 100vh;
+  padding: 40px;
+  font-family: Arial, Helvetica, sans-serif;
+  box-sizing: border-box;
+}
+
+.xmark-poc-label {
+  color: #999;
+  font-size: 13px;
+  margin-bottom: 24px;
+}
+
+.xmark-poc-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 174px);
+  gap: 32px 30px;
+  perspective: 800px;
+}
+
+.xmark-poc-thumb {
+  width: 174px;
+  height: 156px;
+  background: #141414;
+  border: 1px solid #262626;
+  transform-style: preserve-3d;
+}
+
+.xmark-poc-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.xmark-popup-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.xmark-popup-card {
+  position: relative;
+  background: #141414;
+  border: 1px solid #333;
+  padding: 40px;
+  max-width: 720px;
+  width: 90%;
+}
+
+.xmark-popup-close {
+  position: absolute;
+  top: -36px;
+  right: 0;
+  background: none;
+  border: 1px solid #555;
+  color: #ccc;
+  font-size: 11px;
+  padding: 4px 12px;
+  cursor: pointer;
+}
+
+.xmark-popup-new {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: #ff6a00;
+  color: #fff;
+  font-size: 10px;
+  padding: 2px 8px;
+}
+
+.xmark-popup-content {
+  display: flex;
+  justify-content: center;
+}
+
+.xmark-popup-image-roller {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.xmark-popup-image {
+  max-width: 100%;
+  max-height: 420px;
+  object-fit: contain;
+}
+
+.xmark-popup-image-tabs {
+  position: absolute;
+  right: -24px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.xmark-popup-image-tab {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px solid #666;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.xmark-popup-image-tab-active {
+  background: #ff6a00;
+  border-color: #ff6a00;
+}
+
+.xmark-popup-static {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.xmark-popup-static-img {
+  max-width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+  opacity: 0.6;
+}
+
+.xmark-popup-static-note {
+  color: #888;
+  font-size: 12px;
+  text-align: center;
+}
+
+.xmark-popup-info {
+  margin-top: 20px;
+}
+
+.xmark-popup-title {
+  color: #fff;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.xmark-popup-meta {
+  display: flex;
+  gap: 16px;
+  color: #888;
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+.xmark-popup-launch {
+  color: #ff6a00;
+}
+
+.xmark-popup-description {
+  color: #aaa;
+  font-size: 13px;
+  margin-top: 10px;
+}
+
+.xmark-tile-transition {
+  position: relative;
+  min-height: 420px;
+}
+
+.xmark-tile-content {
+  opacity: 0.7;
+}
+
+.xmark-tile-content-revealed {
+  opacity: 1;
+  transition: opacity 0.5s cubic-bezier(0.215, 0.61, 0.355, 1) 0.1s;
+}
+
+.xmark-tile-grid {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  perspective: 600px;
+}
+
+.xmark-tile {
+  background: #090909;
+  transform-style: preserve-3d;
+}
+
+.xmark-about {
+  max-width: 560px;
+  color: #ccc;
+}
+
+.xmark-about-title {
+  color: #fff;
+  font-size: 28px;
+  margin-bottom: 20px;
+}
+
+.xmark-about-text {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #999;
+  margin-bottom: 16px;
+}
+
+.xmark-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 560px;
+}
+
+.xmark-contact-photo-btn {
+  background: none;
+  border: 1px solid #333;
+  padding: 0;
+  cursor: pointer;
+  width: 160px;
+  height: 120px;
+}
+
+.xmark-contact-photo-btn img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.xmark-contact-inquiry-btn {
+  align-self: flex-start;
+  background: none;
+  border: 1px solid #ff6a00;
+  color: #ff6a00;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  padding: 10px 24px;
+  cursor: pointer;
+}
+
+.xmark-contact-form-card {
+  position: relative;
+  background: #141414;
+  border: 1px solid #333;
+  padding: 40px;
+  width: 90%;
+  max-width: 420px;
+}
+
+.xmark-contact-form-title {
+  color: #fff;
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.xmark-contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.xmark-contact-form-input,
+.xmark-contact-form-textarea {
+  background: #090909;
+  border: 1px solid #333;
+  color: #ccc;
+  font-size: 13px;
+  font-family: inherit;
+  padding: 8px 10px;
+}
+
+.xmark-contact-form-submit {
+  margin-top: 8px;
+  background: #ff6a00;
+  border: none;
+  color: #fff;
+  font-size: 13px;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.xmark-contact-form-success {
+  color: #ccc;
+  font-size: 13px;
+  line-height: 1.6;
+}

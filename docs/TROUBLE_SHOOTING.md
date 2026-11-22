@@ -174,3 +174,80 @@ been removed.`과 `Non-relative paths are not allowed.` 에러로 `@/*` 경로 �
   콜백에서 생성된 카카오맵 인스턴스에 `map.setMaxLevel(12)`를 직접 호출해 우회함. prop
   바인딩을 거치지 않아 라이브러리가 향후 버그를 고쳐도 영향받지 않음.
 - 관련 이슈/PR: #37
+
+## 2026-11-22 10:00 — `gh issue create`/`gh issue edit`가 간헐적으로 샌드박스에 막힘
+
+- 증상: 이슈 #52(xmark) 서브이슈 생성 작업 중 `gh issue create`, `gh issue edit --body-file`
+  호출이 Claude Code 자동 모드 승인 분류기에 의해 "[Destructive or Unwanted Actions]"
+  이유로 거부됨. 같은 명령을 바로 재시도해도 또 거부되는 경우(서브이슈 생성 1차 시도)와,
+  사용자 확인을 받은 뒤 재시도하자 바로 성공하는 경우(이슈 본문 수정)가 혼재함 — 규칙성
+  없이 통과/거부가 갈림.
+- 원인: 분류기가 이슈 생성·본문 전체 교체처럼 외부에 보이고 되돌리기 어려운 GitHub 쓰기
+  작업을 세션/타이밍에 따라 다르게 판단하는 것으로 보임(결정적 규칙이 아닌 것으로 추정).
+  "[Undermining Oversight]"로 백그라운드 서버 실행이 막힌 사례(위 참고)와 달리, 이번엔
+  같은 호출이 한 번은 막히고 한 번은 통과해 환경 쪽 비결정성으로 판단.
+- 해결/결론: 거부 시 같은 호출을 무한 재시도하지 않고, 사용자에게 상황을 설명한 뒤
+  (a) 사용자가 직접 터미널에서 실행하거나 (b) 사용자의 명시적 재시도 지시를 받아 다시
+  시도하는 방식으로 처리함. CLAUDE.md상 이슈 생성/수정은 원래도 매번 사용자 확인이
+  필요한 외부 액션이라, 이 분류기 거부는 그 확인 절차를 한 번 더 강제하는 효과로 수용.
+- 관련 이슈/PR: #52
+
+## 2026-11-22 13:00 — xmark GNB/logo/util 등 공통 레이아웃 이미지가 XFL 내부 비트맵 캐시 포맷이라 추출 불가
+
+- 증상: 이슈 #52(xmark) 서브태스크 01 구현 중, `xmark_main.fla`(XFL)를 압축 해제해도
+  `main/png/logo.png`, `gnb_img.png`, `util_img.png`, `recruit_img.png`, `footer_img.png` 등
+  레이아웃용 이미지의 실제 파일이 `LIBRARY/`에 존재하지 않음. `DOMBitmapItem`의
+  `bitmapDataHRef`가 가리키는 `bin/M {id} {timestamp}.dat`를 열어보면 PNG/JPEG 매직 바이트가
+  아닌 임의 바이너리(`0305 8802 ...`)이고, 중간에 `78 01`(zlib 헤더로 보이는 바이트)이 있어도
+  해당 지점부터 `zlib.decompress`가 실패함.
+- 원인: 이슈 #12/#13과 달리, 이 FLA는 이미지들을 "파일로 가져오기"가 아니라 Flash 저작 도구에
+  붙여넣기/가져오기 시 내부적으로 저장하는 비공개 비트맵 캐시 포맷(`.dat`)으로 보관하고 있음.
+  `LIBRARY/*.png`로 직접 추출되는 다른 에셋(예: `scroll_arrow.png`, `wheel_img.png`)과 달리,
+  이 방식으로 저장된 이미지는 공개 디코더가 없어 JPEXS 같은 전용 도구 없이는 복원이 어려움.
+- 해결/결론: 디자인 파일이 없는 작업(결정 사항 ⑦: "재현도는 최대한 동일하게, 과한 부분은 설명
+  후 결정")이므로, 해당 이미지들은 픽셀 단위로 복원하는 대신 `XmarkMain.as`에서 읽은 실제 좌표
+  (`StageInfo` 기반 모서리 고정 값)와 텍스트/CSS로 레이아웃을 재현함. 좌표·동작 로직(모서리 고정,
+  GNB 탭 전환, "준비중입니다." 알림)은 코드에서 직접 확인했으므로 실측 그대로이고, 시각 자산만
+  대체했음을 feature doc에 기록.
+- 관련 이슈/PR: #52, #55
+
+## 2026-11-22 14:25 — xmark 휠 스크롤이 preventDefault 되지 않고 페이지도 같이 스크롤됨
+
+- 증상: 이슈 #52(xmark) 서브태스크 05(리스트 휠 스크롤) 구현 중, 브라우저 콘솔에
+  "Unable to preventDefault inside passive event listener invocation." 경고가 반복 발생. 동시에
+  갤러리↔리스트 스타일 탭을 전환했다가 갤러리로 되돌아오면 휠 스크롤이 더 이상 페이지 전환을
+  일으키지 않는 2차 증상도 있었음.
+- 원인:
+  1. React 17+는 성능을 위해 JSX `onWheel`(과 `onTouchStart` 등)을 passive 리스너로 등록한다.
+     passive 리스너 안에서는 `event.preventDefault()`가 무시되므로, 휠로 페이지/스크롤을 직접
+     제어하려는 커스텀 로직과 브라우저 기본 스크롤이 함께 발생함.
+  2. 1번을 고치려고 `useRef` + `useEffect(() => { el.addEventListener(...) }, [])`로 네이티브
+     리스너를 붙이는 훅을 만들었으나, 갤러리↔리스트 전환처럼 대상 엘리먼트가 조건부 렌더링으로
+     언마운트·리마운트되면 `ref.current`는 새 DOM 노드로 바뀌는데 `useEffect`는 컴포넌트가
+     한 번도 언마운트되지 않는 한 재실행되지 않아, 리스너가 떨어져 나간 옛 노드에만 붙은 채
+     방치됨(React DevTools 없이도 재현 가능, "Hooks 순서가 바뀌었다"는 경고와는 무관한 별개
+     버그였음).
+- 해결/결론: `useNonPassiveWheel` 훅을 콜백 ref 방식으로 다시 작성함(`src/features/xmark/hooks/useNonPassiveWheel.ts`).
+  콜백 ref는 엘리먼트가 마운트/언마운트될 때마다 매번 호출되므로, 이전 리스너를 정리하고 새
+  엘리먼트에 다시 붙이는 로직을 그 안에 넣어 리마운트를 놓치지 않게 함. `useRef`로 최신 핸들러를
+  보관해 의존성 배열 없이도 항상 최신 클로저를 호출하도록 함.
+- 관련 이슈/PR: #52, #59
+
+## 2026-11-22 18:30 — xmark 팝업을 열고 닫기만 해도 갤러리 썸네일이 사라짐
+
+- 증상: 이슈 #52(xmark) 서브태스크 06(팝업) 구현 중, 갤러리 썸네일을 클릭해 팝업을 연 뒤
+  CLOSE로 닫으면 페이지를 넘기거나 정렬 탭을 바꾸지 않았는데도 갤러리의 썸네일 12개가 전부
+  투명(alpha 0)해지고, 잠시 후 다시 등장 애니메이션이 처음부터 재생됨.
+- 원인: `XmarkPortfolioGallery`에서 `filteredItems`/`pageItems`를 매 렌더마다
+  `filterGalleryItemsByTab(...)`/`paginateGalleryItems(...)` 호출 결과로 새로 만들고 있었음(메모
+  없이). 팝업 열림 상태(`activeItem`)만 바뀌어도 컴포넌트가 리렌더되고, 그때마다 내용은 같아도
+  배열 참조가 달라짐. `XmarkGalleryGrid`의 등장 애니메이션 `useEffect`는 `[items]`를 의존성으로
+  삼는데, 참조가 바뀌면 React는 "데이터가 바뀌었다"고 보고 이펙트를 다시 실행해 등장 애니메이션을
+  처음부터 재생함(먼저 `gsap.set(..., {autoAlpha:0})`으로 초기화하기 때문에 썸네일이 잠깐
+  사라지는 것처럼 보임).
+- 해결/결론: `filteredItems`는 `useMemo(..., [sortTab])`, `pageItems`는
+  `useMemo(..., [filteredItems, page])`로 감싸 sortTab/page가 실제로 바뀔 때만 새 배열을 만들게
+  함. 이 패턴은 일반화할 수 있음: 자식 컴포넌트의 `useEffect` deps로 파생 배열을 넘길 때는, 그
+  배열을 만드는 쪽에서 메모이제이션을 하지 않으면 그 배열과 무관한 상태 변화에도 자식의 이펙트가
+  매번 재실행된다.
+- 관련 이슈/PR: #52, #60
