@@ -1,5 +1,6 @@
 import {
   CENTER_POLYGON_BASE_RADIUS,
+  type RegionGroupProfile,
   REGION_GROUP_PROFILES,
 } from '../helper/constants';
 import { createNaturalPolygon } from '../helper/naturalPolygon';
@@ -64,36 +65,99 @@ const MOCK_REGION_META: Record<
   ]),
 );
 
-// C는 "설정된 지역이 없는 센터" 시나리오(FR-10)를 재현하기 위해 의도적으로 regions를 비워둔다.
-function buildRegions(code: string, index: number): RegionItem[] {
-  if (code === 'C') return [];
-
-  const normalSubRegionCount = 1 + (index % 2);
-  const normal: RegionItem = {
-    regionCode: `${code}01`,
-    sortingTypeCode: 'NORMAL',
-    subRegions: Array.from({ length: normalSubRegionCount }, (_, i) => ({
-      subRegionCode: `${code}01-${i + 1}`,
-      deliveryRounds: i === 0 ? ['1회차', '2회차'] : ['1회차'],
-    })),
-  };
-
-  // 짝수 인덱스 센터만 상온 only 구간도 함께 갖도록 해 다양성을 준다.
-  if (index % 2 !== 0) return [normal];
-
-  const roomOnly: RegionItem = {
-    regionCode: `${code}02`,
-    sortingTypeCode: 'ROOM_ONLY',
-    subRegions: [{ subRegionCode: `${code}02-1`, deliveryRounds: ['1회차'] }],
-  };
-
-  return [normal, roomOnly];
+function padCode(n: number): string {
+  return String(n).padStart(2, '0');
 }
 
-const MOCK_REGIONS: Record<string, RegionItem[]> = Object.fromEntries(
+interface ProfileDerived {
+  regions: RegionItem[];
+  regionPolygons: RawDraftPolygon[];
+  subRegionPolygons: RawDraftPolygon[];
+}
+
+// 좌측 목록(소분류/세분류 개수)과 지도 폴리곤 분할이 항상 일치하도록, 센터당 한 번만
+// 계산한 subCounts(소분류별 세분류 배정 수)를 regions/regionPolygons/subRegionPolygons가
+// 모두 공유한다. 코드 체계도 B01, B01-01처럼 목록과 폴리곤이 같은 번호를 쓴다(#51).
+// C는 "설정된 지역이 없는 센터" 시나리오(FR-10)를 재현하기 위해 의도적으로 비워둔다.
+function buildProfileDerived(
+  profile: RegionGroupProfile,
+  index: number,
+): ProfileDerived {
+  if (profile.regionCount === 0) {
+    return { regions: [], regionPolygons: [], subRegionPolygons: [] };
+  }
+
+  const subCounts = distributeCount(
+    profile.subRegionCount,
+    profile.regionCount,
+    index,
+  );
+  const regionPolygonCoordinates = createSectorDivisions(
+    profile.center,
+    index,
+    profile.regionCount,
+    CENTER_POLYGON_BASE_RADIUS,
+  );
+
+  const regions: RegionItem[] = [];
+  const regionPolygons: RawDraftPolygon[] = [];
+  const subRegionPolygons: RawDraftPolygon[] = [];
+
+  subCounts.forEach((subCount, regionIndex) => {
+    const regionCode = `${profile.code}${padCode(regionIndex + 1)}`;
+    // 마지막 소분류를 상온 only로 둬(2개 이상일 때) 기존 분류유형 토글 데모를 유지한다.
+    const sortingTypeCode: RegionItem['sortingTypeCode'] =
+      profile.regionCount >= 2 && regionIndex === profile.regionCount - 1
+        ? 'ROOM_ONLY'
+        : 'NORMAL';
+
+    const subRegions: SubRegionItem[] = Array.from(
+      { length: subCount },
+      (_, subIndex) => ({
+        subRegionCode: `${regionCode}-${padCode(subIndex + 1)}`,
+        deliveryRounds: subIndex === 0 ? ['1회차', '2회차'] : ['1회차'],
+      }),
+    );
+
+    regions.push({ regionCode, sortingTypeCode, subRegions });
+
+    regionPolygons.push({
+      regionGroupCode: profile.code,
+      code: regionCode,
+      geom: { coordinates: regionPolygonCoordinates[regionIndex] },
+    });
+
+    const nestedCoordinates = createNestedSectorDivisions(
+      profile.center,
+      index,
+      regionIndex,
+      profile.regionCount,
+      subCount,
+      CENTER_POLYGON_BASE_RADIUS,
+    );
+    nestedCoordinates.forEach((coordinates, subIndex) => {
+      subRegionPolygons.push({
+        regionGroupCode: profile.code,
+        code: `${regionCode}-${padCode(subIndex + 1)}`,
+        geom: { coordinates },
+      });
+    });
+  });
+
+  return { regions, regionPolygons, subRegionPolygons };
+}
+
+const PROFILE_DERIVED: Record<string, ProfileDerived> = Object.fromEntries(
   REGION_GROUP_PROFILES.map((profile, index) => [
     profile.code,
-    buildRegions(profile.code, index),
+    buildProfileDerived(profile, index),
+  ]),
+);
+
+const MOCK_REGIONS: Record<string, RegionItem[]> = Object.fromEntries(
+  REGION_GROUP_PROFILES.map((profile) => [
+    profile.code,
+    PROFILE_DERIVED[profile.code].regions,
   ]),
 );
 
@@ -114,21 +178,11 @@ const MOCK_POLYGONS: Record<string, RawDraftPolygon> = Object.fromEntries(
 );
 
 // 소분류 단위 폴리곤 — 센터 영역을 regionCount개의 부채꼴로 방사형 분할한다(#47, #49).
-// 좌측 목록/위치보기 검색용 regionCode(A01, A02 등)와는 별개의 지도 표시 전용 키를 쓴다.
 const MOCK_REGION_POLYGONS: Record<string, RawDraftPolygon[]> =
   Object.fromEntries(
-    REGION_GROUP_PROFILES.map((profile, index) => [
+    REGION_GROUP_PROFILES.map((profile) => [
       profile.code,
-      createSectorDivisions(
-        profile.center,
-        index,
-        profile.regionCount,
-        CENTER_POLYGON_BASE_RADIUS,
-      ).map((coordinates, sectorIndex) => ({
-        regionGroupCode: profile.code,
-        code: `${profile.code}-R${sectorIndex + 1}`,
-        geom: { coordinates },
-      })),
+      PROFILE_DERIVED[profile.code].regionPolygons,
     ]),
   );
 
@@ -136,30 +190,10 @@ const MOCK_REGION_POLYGONS: Record<string, RawDraftPolygon[]> =
 // 분배한 뒤, 각 소분류 부채꼴을 다시 더 작은 부채꼴로 나눈다(#47, #50).
 const MOCK_SUBREGION_POLYGONS: Record<string, RawDraftPolygon[]> =
   Object.fromEntries(
-    REGION_GROUP_PROFILES.map((profile, index) => {
-      const subCounts = distributeCount(
-        profile.subRegionCount,
-        profile.regionCount,
-        index,
-      );
-
-      const polygons = subCounts.flatMap((subCount, sectorIndex) =>
-        createNestedSectorDivisions(
-          profile.center,
-          index,
-          sectorIndex,
-          profile.regionCount,
-          subCount,
-          CENTER_POLYGON_BASE_RADIUS,
-        ).map((coordinates, subIndex) => ({
-          regionGroupCode: profile.code,
-          code: `${profile.code}-R${sectorIndex + 1}-S${subIndex + 1}`,
-          geom: { coordinates },
-        })),
-      );
-
-      return [profile.code, polygons];
-    }),
+    REGION_GROUP_PROFILES.map((profile) => [
+      profile.code,
+      PROFILE_DERIVED[profile.code].subRegionPolygons,
+    ]),
   );
 
 // 센터 단위 위치보기(중심점)
