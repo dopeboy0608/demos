@@ -101,6 +101,18 @@ export function createAreaDivisions(
   baseRadius: number,
 ): number[][][][][] {
   const ring = createBoundaryRing(center, seed, baseRadius);
+  return createAreaDivisionsFromRing(ring, count);
+}
+
+/**
+ * 이미 만들어진(절차적이든 실제 경계든) ring을 count개의 조각으로 나눈다. 실제 행정동
+ * 경계(#64)처럼 createBoundaryRing으로 생성되지 않은 ring도 동일하게 분할할 수 있도록
+ * createAreaDivisions에서 ring 생성 부분만 분리했다.
+ */
+export function createAreaDivisionsFromRing(
+  ring: number[][],
+  count: number,
+): number[][][][][] {
   return splitAreaIntoPieces(ring, count).map(closeRing);
 }
 

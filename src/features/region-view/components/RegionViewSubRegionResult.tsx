@@ -37,7 +37,8 @@ export function RegionViewSubRegionResult({
           key: region.regionCode,
           label: (
             <span>
-              {region.regionCode} 세분류 권역 {region.subRegions.length}
+              {region.label ?? region.regionCode} 세분류 권역{' '}
+              {region.subRegions.length}
             </span>
           ),
           extra: (
@@ -73,7 +74,7 @@ export function RegionViewSubRegionResult({
                   }}
                 >
                   <span>
-                    {subRegion.subRegionCode} 배송회차{' '}
+                    {subRegion.label ?? subRegion.subRegionCode} 배송회차{' '}
                     {subRegion.deliveryRounds.length
                       ? subRegion.deliveryRounds.join('/')
                       : '정보없음'}
