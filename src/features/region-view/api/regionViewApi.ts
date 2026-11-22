@@ -1,3 +1,4 @@
+import seoulDongs from '../data/seoulDongs.json';
 import {
   CENTER_POLYGON_BASE_RADIUS,
   type RegionGroupProfile,
@@ -6,6 +7,7 @@ import {
 import { createNaturalPolygon } from '../helper/naturalPolygon';
 import {
   createAreaDivisions,
+  createAreaDivisionsFromRing,
   distributeCount,
 } from '../helper/radialSubdivision';
 import type { RawDraftPolygon } from '../helper/regionViewParser';
@@ -20,12 +22,16 @@ export interface RegionViewSearchParams {
 export interface SubRegionItem {
   subRegionCode: string;
   deliveryRounds: string[];
+  // 실제 이름이 있는 센터(서울시 구/동, #64/#69)만 채운다. 없으면 subRegionCode를 그대로 표시한다.
+  label?: string;
 }
 
 export interface RegionItem {
   regionCode: string;
   sortingTypeCode: 'NORMAL' | 'ROOM_ONLY';
   subRegions: SubRegionItem[];
+  // 실제 이름이 있는 센터(서울시 구/동, #64/#69)만 채운다. 없으면 regionCode를 그대로 표시한다.
+  label?: string;
 }
 
 export interface RegionGroupListItem {
@@ -74,6 +80,49 @@ interface ProfileDerived {
   subRegionPolygons: RawDraftPolygon[];
 }
 
+// 서울시 구 센터(#64)의 소속 행정동(guName 기준) — code(adm_cd) 오름차순으로 순서를 고정해
+// regions/regionPolygons/subRegionPolygons가 항상 같은 동 순서를 쓰게 한다.
+const SEOUL_DONGS_BY_GU: Record<string, (typeof seoulDongs)[number][]> = {};
+for (const dong of seoulDongs) {
+  if (!SEOUL_DONGS_BY_GU[dong.guName]) {
+    SEOUL_DONGS_BY_GU[dong.guName] = [];
+  }
+  SEOUL_DONGS_BY_GU[dong.guName].push(dong);
+}
+
+// 동(dong)의 outer ring 중 가장 넓은 폴리곤(면적 기준, shoelace)과 나머지 폴리곤을 분리한다.
+// 서교동(#64 데이터 조사 중 발견, 유일한 MultiPolygon 동)처럼 떨어진 작은 조각이 있는
+// 경우에도 면적을 잃지 않도록, 나머지 조각은 분할하지 않고 첫 세분류 조각에 그대로 합친다.
+function splitDongOuterRing(coordinates: number[][][][]): {
+  mainRing: number[][];
+  otherPolygons: number[][][][];
+} {
+  const ringArea = (ring: number[][]): number => {
+    let sum = 0;
+    for (let i = 0; i < ring.length; i++) {
+      const [x1, y1] = ring[i];
+      const [x2, y2] = ring[(i + 1) % ring.length];
+      sum += x1 * y2 - x2 * y1;
+    }
+    return Math.abs(sum) / 2;
+  };
+
+  let mainIndex = 0;
+  let maxArea = -1;
+  coordinates.forEach((polygon, i) => {
+    const area = ringArea(polygon[0]);
+    if (area > maxArea) {
+      maxArea = area;
+      mainIndex = i;
+    }
+  });
+
+  return {
+    mainRing: coordinates[mainIndex][0],
+    otherPolygons: coordinates.filter((_, i) => i !== mainIndex),
+  };
+}
+
 // 좌측 목록(소분류/세분류 개수)과 지도 폴리곤 분할이 항상 일치하도록, 센터당 한 번만
 // 계산한 subCounts(소분류별 세분류 배정 수)를 regions/regionPolygons/subRegionPolygons가
 // 모두 공유한다. 코드 체계도 B01, B01-01처럼 목록과 폴리곤이 같은 번호를 쓴다(#51).
@@ -84,6 +133,12 @@ function buildProfileDerived(
 ): ProfileDerived {
   if (profile.regionCount === 0) {
     return { regions: [], regionPolygons: [], subRegionPolygons: [] };
+  }
+
+  // 서울시 구 센터(실제 경계, #64/#69)는 소분류=실제 행정동 경계, 세분류=동별 지번그룹
+  // 시뮬레이션(splitAreaIntoPieces)으로 만든다. 그 외(절차적 21개 센터)는 기존 그대로.
+  if (profile.name && profile.coordinates) {
+    return buildSeoulDistrictDerived(profile, index);
   }
 
   const subCounts = distributeCount(
@@ -151,6 +206,75 @@ function buildProfileDerived(
   return { regions, regionPolygons, subRegionPolygons };
 }
 
+// 서울시 구 센터 전용: 소분류는 실제 행정동 경계(seoulDongs.json)를 그대로 쓰고, 세분류는
+// 동 영역을 splitAreaIntoPieces(#51)로 쪼개 지번그룹을 시뮬레이션한다(#64/#69). 코드 체계는
+// 동의 실제 행정동코드(adm_cd)를 쓰고, 지도 라벨은 label(동 이름)을 따로 둔다.
+function buildSeoulDistrictDerived(
+  profile: RegionGroupProfile,
+  index: number,
+): ProfileDerived {
+  const dongs = SEOUL_DONGS_BY_GU[profile.name as string] ?? [];
+  const subCounts = distributeCount(
+    profile.subRegionCount,
+    dongs.length,
+    index,
+  );
+
+  const regions: RegionItem[] = [];
+  const regionPolygons: RawDraftPolygon[] = [];
+  const subRegionPolygons: RawDraftPolygon[] = [];
+
+  dongs.forEach((dong, dongIndex) => {
+    const regionCode = dong.code;
+    // 마지막 동을 상온 only로 둬(2개 이상일 때) 기존 분류유형 토글 데모를 유지한다.
+    const sortingTypeCode: RegionItem['sortingTypeCode'] =
+      dongs.length >= 2 && dongIndex === dongs.length - 1
+        ? 'ROOM_ONLY'
+        : 'NORMAL';
+
+    const subCount = subCounts[dongIndex];
+    const { mainRing, otherPolygons } = splitDongOuterRing(dong.coordinates);
+    const pieces = createAreaDivisionsFromRing(mainRing, subCount);
+    if (otherPolygons.length > 0) {
+      pieces[0] = [...otherPolygons, ...pieces[0]];
+    }
+
+    const subRegions: SubRegionItem[] = Array.from(
+      { length: subCount },
+      (_, subIndex) => ({
+        subRegionCode: `${regionCode}-${padCode(subIndex + 1)}`,
+        label: `${dong.name}-${padCode(subIndex + 1)}`,
+        deliveryRounds: subIndex === 0 ? ['1회차', '2회차'] : ['1회차'],
+      }),
+    );
+
+    regions.push({
+      regionCode,
+      label: dong.name,
+      sortingTypeCode,
+      subRegions,
+    });
+
+    regionPolygons.push({
+      regionGroupCode: profile.code,
+      code: regionCode,
+      label: dong.name,
+      geom: { coordinates: dong.coordinates },
+    });
+
+    for (let subIndex = 0; subIndex < subCount; subIndex++) {
+      subRegionPolygons.push({
+        regionGroupCode: profile.code,
+        code: `${regionCode}-${padCode(subIndex + 1)}`,
+        label: `${dong.name}-${padCode(subIndex + 1)}`,
+        geom: { coordinates: pieces[subIndex] },
+      });
+    }
+  });
+
+  return { regions, regionPolygons, subRegionPolygons };
+}
+
 const PROFILE_DERIVED: Record<string, ProfileDerived> = Object.fromEntries(
   REGION_GROUP_PROFILES.map((profile, index) => [
     profile.code,
@@ -165,17 +289,23 @@ const MOCK_REGIONS: Record<string, RegionItem[]> = Object.fromEntries(
   ]),
 );
 
+// 서울시 구 센터(#64)는 실제 경계(profile.coordinates)를 그대로 쓰고, 그 외(절차적 21개
+// 센터)는 기존처럼 center/반경으로 폴리곤을 절차적으로 생성한다.
 const MOCK_POLYGONS: Record<string, RawDraftPolygon> = Object.fromEntries(
   REGION_GROUP_PROFILES.map((profile, index) => [
     profile.code,
     {
       regionGroupCode: profile.code,
+      label: profile.name,
       geom: {
-        coordinates: createNaturalPolygon(
-          profile.center,
-          index,
-          CENTER_POLYGON_BASE_RADIUS,
-        ),
+        coordinates:
+          profile.name && profile.coordinates
+            ? profile.coordinates
+            : createNaturalPolygon(
+                profile.center,
+                index,
+                CENTER_POLYGON_BASE_RADIUS,
+              ),
       },
     },
   ]),

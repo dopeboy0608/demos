@@ -71,6 +71,9 @@ export interface RawDraftPolygon {
   regionGroupCode?: string;
   code?: string;
   blockCode?: string;
+  // 지도 라벨에 code 대신 표시할 실제 이름(서울시 구/동처럼 code가 사람이 읽기 어려운
+  // 경우에만 채운다, #64/#69). 없으면 기존처럼 code/regionGroupCode를 라벨로 쓴다.
+  label?: string;
   geom: { coordinates: number[][][][] };
   [key: string]: unknown;
 }

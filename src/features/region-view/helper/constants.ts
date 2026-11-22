@@ -261,9 +261,14 @@ function approximatePolygonCenter(coordinates: number[][][][]): {
   return { lat: sum.lat / ring.length, lng: sum.lng / ring.length };
 }
 
+// 행정동(소분류) 하나당 시뮬레이션할 지번그룹(세분류) 평균 개수. 실제 지번 폴리곤이 없어
+// splitAreaIntoPieces(#51)로 동 영역을 이만큼 조각내 세분류를 흉내낸다(#64/#69).
+const SIMULATED_PARCEL_GROUPS_PER_DONG = 3;
+
 // 서울시 25개 구를 실제 경계 데이터(#64/#67)로 센터 목록에 추가한다. regionCount는 실제
-// 행정동 개수를 쓰고, subRegionCount(세분류=지번그룹 시뮬레이션)는 #69에서 실제 분할
-// 로직이 들어가기 전까지 regionCount와 동일한 임시값으로 둔다.
+// 행정동 개수를 쓰고, subRegionCount(세분류=지번그룹 시뮬레이션)는 동당 평균
+// SIMULATED_PARCEL_GROUPS_PER_DONG개로 추정한다(#69, regionViewApi.ts에서 동별 실제
+// 분할 개수를 distributeCount로 다시 배정).
 const SEOUL_DISTRICT_PROFILES: RegionGroupProfile[] = seoulDistricts.map(
   (district, index) => ({
     code: district.code,
@@ -271,7 +276,7 @@ const SEOUL_DISTRICT_PROFILES: RegionGroupProfile[] = seoulDistricts.map(
     serviceType: index % 2 === 0 ? SERVICE_TYPE.DAWN : SERVICE_TYPE.DAY,
     zipCodeCount: district.dongCount * 10,
     regionCount: district.dongCount,
-    subRegionCount: district.dongCount,
+    subRegionCount: district.dongCount * SIMULATED_PARCEL_GROUPS_PER_DONG,
     center: approximatePolygonCenter(district.coordinates),
     coordinates: district.coordinates,
   }),

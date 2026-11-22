@@ -99,8 +99,10 @@ export function RegionViewMap({
 
       {visiblePolygonList.map((region) => {
         // 기본은 regionGroupCode(A), 소분류/세분류는 code(A01, A01-01)를 라벨로 쓴다(#51).
+        // 서울시 구/동처럼 code가 사람이 읽기 어려운 경우는 label(실제 이름)을 우선한다(#64/#69).
         const key =
           region.code ?? region.regionGroupCode ?? region.blockCode ?? '';
+        const displayLabel = region.label ?? key;
         return (
           <CustomOverlayMap key={`label-${key}`} position={region.center}>
             <div
@@ -113,7 +115,7 @@ export function RegionViewMap({
                 fontWeight: 600,
               }}
             >
-              {key}
+              {displayLabel}
             </div>
           </CustomOverlayMap>
         );
