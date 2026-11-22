@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   createAreaPolygon,
+  createBoundaryRing,
   createNaturalPolygon,
   naturalRadius,
 } from './naturalPolygon';
@@ -86,5 +87,21 @@ describe('createAreaPolygon', () => {
     // firstSlice의 마지막 경계점(센터 직전)과 secondSlice의 첫 경계점(센터 다음)이
     // 정확히 같은 cutAngle 지점을 가리켜야 한다 — 두 조각을 합쳤을 때 틈/겹침이 없다는 뜻.
     expect(firstSlice[firstSlice.length - 2]).toEqual(secondSlice[1]);
+  });
+});
+
+describe('createBoundaryRing', () => {
+  it('center 없이 경계점만으로 이루어진 열린 고리를 반환한다', () => {
+    const ring = createBoundaryRing({ lat: 37.5, lng: 127.0 }, 1, TEST_RADIUS);
+
+    expect(ring.length).toBeGreaterThan(8);
+    expect(ring[0]).not.toEqual(ring[ring.length - 1]);
+  });
+
+  it('동일한 입력이면 항상 동일한 결과를 반환한다 (결정적)', () => {
+    const a = createBoundaryRing({ lat: 37.5, lng: 127.0 }, 3, TEST_RADIUS);
+    const b = createBoundaryRing({ lat: 37.5, lng: 127.0 }, 3, TEST_RADIUS);
+
+    expect(a).toEqual(b);
   });
 });

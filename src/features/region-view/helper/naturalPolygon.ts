@@ -66,3 +66,24 @@ export function createNaturalPolygon(
 ): number[][][][] {
   return createAreaPolygon(center, seed, 0, Math.PI * 2, baseRadius);
 }
+
+/**
+ * createAreaPolygon과 같은 모양이지만, 중심점 없이 경계선만 도는 열린 고리(ring)를 만든다.
+ * 격자 분할(areaGrid.ts)이 이 경계선을 직선으로 잘라 소분류/세분류 조각을 만드는 데 쓴다.
+ */
+export function createBoundaryRing(
+  center: { lat: number; lng: number },
+  seed: number,
+  baseRadius: number,
+  sampleCount = ARC_SAMPLE_COUNT * 3,
+): number[][] {
+  const points: number[][] = [];
+  for (let i = 0; i < sampleCount; i++) {
+    const angle = (Math.PI * 2 * i) / sampleCount;
+    const radius = naturalRadius(seed, angle, baseRadius);
+    const lng = center.lng + radius * Math.cos(angle);
+    const lat = center.lat + radius * Math.sin(angle) * 0.8;
+    points.push([lng, lat]);
+  }
+  return points;
+}

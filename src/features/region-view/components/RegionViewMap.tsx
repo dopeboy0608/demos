@@ -97,27 +97,27 @@ export function RegionViewMap({
         );
       })}
 
-      {mapZoomLevel >= ZOOM_LEVEL_BASE &&
-        draftPolygonList.map((region) => {
-          const key =
-            region.regionGroupCode ?? region.code ?? region.blockCode ?? '';
-          return (
-            <CustomOverlayMap key={`cluster-${key}`} position={region.center}>
-              <div
-                style={{
-                  background: '#fff',
-                  border: '1px solid #4c4cff',
-                  borderRadius: 4,
-                  padding: '2px 6px',
-                  fontSize: 12,
-                  fontWeight: 600,
-                }}
-              >
-                {key}
-              </div>
-            </CustomOverlayMap>
-          );
-        })}
+      {visiblePolygonList.map((region) => {
+        // 기본은 regionGroupCode(A), 소분류/세분류는 code(A01, A01-01)를 라벨로 쓴다(#51).
+        const key =
+          region.code ?? region.regionGroupCode ?? region.blockCode ?? '';
+        return (
+          <CustomOverlayMap key={`label-${key}`} position={region.center}>
+            <div
+              style={{
+                background: '#fff',
+                border: '1px solid #4c4cff',
+                borderRadius: 4,
+                padding: '2px 6px',
+                fontSize: 12,
+                fontWeight: 600,
+              }}
+            >
+              {key}
+            </div>
+          </CustomOverlayMap>
+        );
+      })}
 
       {isSearchResultMarker && <MapMarker position={mapCenter} />}
     </KakaoMap>

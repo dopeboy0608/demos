@@ -5,8 +5,7 @@ import {
 } from '../helper/constants';
 import { createNaturalPolygon } from '../helper/naturalPolygon';
 import {
-  createNestedSectorDivisions,
-  createSectorDivisions,
+  createAreaDivisions,
   distributeCount,
 } from '../helper/radialSubdivision';
 import type { RawDraftPolygon } from '../helper/regionViewParser';
@@ -92,16 +91,28 @@ function buildProfileDerived(
     profile.regionCount,
     index,
   );
-  const regionPolygonCoordinates = createSectorDivisions(
+  const regionPolygonCoordinates = createAreaDivisions(
     profile.center,
     index,
     profile.regionCount,
+    CENTER_POLYGON_BASE_RADIUS,
+  );
+  // 세분류는 소분류 안에서 다시 나누는 대신, 센터 전체를 subRegionCount로 곧장 균형 분할한다.
+  // 소분류별 subCount(2~4개 정도로 적음)에 갇혀 나누면 한쪽 축만 줄어들어 줌을 깊이 했을 때
+  // 화면에 잘 안 들어맞는 문제가 있었다(#51). subRegionCount 전체를 한 번에 재귀 분할하면
+  // 컷 횟수가 늘어 가로·세로 모두 고르게 작아진다 — 합치면 센터 영역과 여전히 정확히
+  // 일치하지만, 소분류 경계선과 완전히 겹치지는 않는다(목업 수준에서는 허용 가능한 절충).
+  const subRegionPolygonCoordinates = createAreaDivisions(
+    profile.center,
+    index,
+    profile.subRegionCount,
     CENTER_POLYGON_BASE_RADIUS,
   );
 
   const regions: RegionItem[] = [];
   const regionPolygons: RawDraftPolygon[] = [];
   const subRegionPolygons: RawDraftPolygon[] = [];
+  let subRegionCursor = 0;
 
   subCounts.forEach((subCount, regionIndex) => {
     const regionCode = `${profile.code}${padCode(regionIndex + 1)}`;
@@ -127,21 +138,14 @@ function buildProfileDerived(
       geom: { coordinates: regionPolygonCoordinates[regionIndex] },
     });
 
-    const nestedCoordinates = createNestedSectorDivisions(
-      profile.center,
-      index,
-      regionIndex,
-      profile.regionCount,
-      subCount,
-      CENTER_POLYGON_BASE_RADIUS,
-    );
-    nestedCoordinates.forEach((coordinates, subIndex) => {
+    for (let subIndex = 0; subIndex < subCount; subIndex++) {
       subRegionPolygons.push({
         regionGroupCode: profile.code,
         code: `${regionCode}-${padCode(subIndex + 1)}`,
-        geom: { coordinates },
+        geom: { coordinates: subRegionPolygonCoordinates[subRegionCursor] },
       });
-    });
+      subRegionCursor++;
+    }
   });
 
   return { regions, regionPolygons, subRegionPolygons };
@@ -177,7 +181,7 @@ const MOCK_POLYGONS: Record<string, RawDraftPolygon> = Object.fromEntries(
   ]),
 );
 
-// 소분류 단위 폴리곤 — 센터 영역을 regionCount개의 부채꼴로 방사형 분할한다(#47, #49).
+// 소분류 단위 폴리곤 — 센터 영역을 regionCount개의 세로 띠로 촘촘하게 나눈다(#47, #49, #51).
 const MOCK_REGION_POLYGONS: Record<string, RawDraftPolygon[]> =
   Object.fromEntries(
     REGION_GROUP_PROFILES.map((profile) => [
@@ -187,7 +191,7 @@ const MOCK_REGION_POLYGONS: Record<string, RawDraftPolygon[]> =
   );
 
 // 세분류 단위 폴리곤 — 센터 전체 subRegionCount를 regionCount개 소분류에 시드 기반으로
-// 분배한 뒤, 각 소분류 부채꼴을 다시 더 작은 부채꼴로 나눈다(#47, #50).
+// 분배한 뒤, 각 소분류 띠를 가로 방향으로 다시 촘촘하게 나눈다(#47, #50, #51).
 const MOCK_SUBREGION_POLYGONS: Record<string, RawDraftPolygon[]> =
   Object.fromEntries(
     REGION_GROUP_PROFILES.map((profile) => [

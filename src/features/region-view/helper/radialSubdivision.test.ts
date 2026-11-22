@@ -1,38 +1,63 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  createNestedSectorDivisions,
-  createSectorDivisions,
-  distributeCount,
-} from './radialSubdivision';
+import { createAreaDivisions, distributeCount } from './radialSubdivision';
 
 const CENTER = { lat: 37.5, lng: 127.0 };
 const BASE_RADIUS = 0.08;
 
-describe('createSectorDivisions', () => {
-  it('count개의 부채꼴 폴리곤을 생성한다', () => {
-    const result = createSectorDivisions(CENTER, 0, 4, BASE_RADIUS);
+function bbox(ring: number[][]) {
+  const lngs = ring.map(([lng]) => lng);
+  const lats = ring.map(([, lat]) => lat);
+  return {
+    width: Math.max(...lngs) - Math.min(...lngs),
+    height: Math.max(...lats) - Math.min(...lats),
+  };
+}
+
+describe('createAreaDivisions', () => {
+  it('count개의 조각을 생성한다', () => {
+    const result = createAreaDivisions(CENTER, 0, 4, BASE_RADIUS);
 
     expect(result).toHaveLength(4);
   });
 
-  it('count가 0이면 빈 배열을 반환한다', () => {
-    expect(createSectorDivisions(CENTER, 0, 0, BASE_RADIUS)).toEqual([]);
+  it('count가 1이면 전체 영역 그대로 하나의 조각을 반환한다', () => {
+    const result = createAreaDivisions(CENTER, 0, 1, BASE_RADIUS);
+
+    expect(result).toHaveLength(1);
+    expect(result[0][0][0].length).toBeGreaterThan(8);
   });
 
-  it('인접한 두 조각은 경계에서 정확히 같은 좌표를 공유한다 (합치면 전체 영역과 일치)', () => {
-    const [first, second] = createSectorDivisions(CENTER, 3, 4, BASE_RADIUS);
-    const firstRing = first[0][0];
-    const secondRing = second[0][0];
+  it('조각들은 상위 영역 반경 이내에 있다 (상위 영역을 벗어나지 않음)', () => {
+    const result = createAreaDivisions(CENTER, 1, 5, BASE_RADIUS);
 
-    // 각 조각은 [중심, ...호 위의 점들, 중심] 형태이므로, first의 마지막 호 점(끝 각도)과
-    // second의 첫 호 점(시작 각도)이 같은 경계를 가리켜야 한다.
-    expect(firstRing[firstRing.length - 2]).toEqual(secondRing[1]);
+    for (const [[ring]] of result) {
+      for (const [lng, lat] of ring) {
+        expect(Math.abs(lng - CENTER.lng)).toBeLessThanOrEqual(
+          BASE_RADIUS * 1.4,
+        );
+        expect(Math.abs(lat - CENTER.lat)).toBeLessThanOrEqual(
+          BASE_RADIUS * 1.4,
+        );
+      }
+    }
+  });
+
+  it('조각 하나의 가로·세로 폭 모두 전체(count=1)보다 좁다 (양쪽 축 모두 촘촘해짐)', () => {
+    const [whole] = createAreaDivisions(CENTER, 2, 1, BASE_RADIUS);
+    const pieces = createAreaDivisions(CENTER, 2, 6, BASE_RADIUS);
+    const wholeBox = bbox(whole[0][0]);
+
+    for (const piece of pieces) {
+      const box = bbox(piece[0][0]);
+      expect(box.width).toBeLessThan(wholeBox.width);
+      expect(box.height).toBeLessThan(wholeBox.height);
+    }
   });
 
   it('동일한 입력이면 항상 동일한 결과를 반환한다 (결정적)', () => {
-    const a = createSectorDivisions(CENTER, 1, 3, BASE_RADIUS);
-    const b = createSectorDivisions(CENTER, 1, 3, BASE_RADIUS);
+    const a = createAreaDivisions(CENTER, 1, 3, BASE_RADIUS);
+    const b = createAreaDivisions(CENTER, 1, 3, BASE_RADIUS);
 
     expect(a).toEqual(b);
   });
@@ -71,36 +96,5 @@ describe('distributeCount', () => {
     expect(result).toHaveLength(4);
     expect(result.reduce((sum, n) => sum + n, 0)).toBe(2);
     expect(result.filter((n) => n === 0)).toHaveLength(2);
-  });
-});
-
-describe('createNestedSectorDivisions', () => {
-  it('subCount개의 부채꼴 폴리곤을 생성한다', () => {
-    const result = createNestedSectorDivisions(CENTER, 0, 0, 4, 3, BASE_RADIUS);
-
-    expect(result).toHaveLength(3);
-  });
-
-  it('부모 부채꼴과 똑같은 각도 구간·반경 함수를 공유해, 합치면 부모와 정확히 일치한다', () => {
-    const [parent] = createSectorDivisions(CENTER, 2, 4, BASE_RADIUS);
-    const nested = createNestedSectorDivisions(CENTER, 2, 0, 4, 3, BASE_RADIUS);
-
-    const parentRing = parent[0][0];
-    const firstNestedRing = nested[0][0][0];
-    const lastNestedRing = nested[nested.length - 1][0][0];
-
-    // 중첩 분할의 첫 경계점은 부모 부채꼴의 시작 경계점과, 마지막 경계점은 부모의 끝
-    // 경계점과 정확히 같아야 한다(부모의 각도 범위를 그대로 나눠 쓰기 때문).
-    expect(firstNestedRing[1]).toEqual(parentRing[1]);
-    expect(lastNestedRing[lastNestedRing.length - 2]).toEqual(
-      parentRing[parentRing.length - 2],
-    );
-  });
-
-  it('동일한 입력이면 항상 동일한 결과를 반환한다 (결정적)', () => {
-    const a = createNestedSectorDivisions(CENTER, 3, 1, 4, 2, BASE_RADIUS);
-    const b = createNestedSectorDivisions(CENTER, 3, 1, 4, 2, BASE_RADIUS);
-
-    expect(a).toEqual(b);
   });
 });
