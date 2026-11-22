@@ -211,3 +211,40 @@
 .xmark-portfolio-list-placeholder {
   color: #555;
 }
+
+.xmark-poc-wrapper {
+  background: #090909;
+  color: #fff;
+  min-height: 100vh;
+  padding: 40px;
+  font-family: Arial, Helvetica, sans-serif;
+  box-sizing: border-box;
+}
+
+.xmark-poc-label {
+  color: #999;
+  font-size: 13px;
+  margin-bottom: 24px;
+}
+
+.xmark-poc-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 174px);
+  gap: 32px 30px;
+  perspective: 800px;
+}
+
+.xmark-poc-thumb {
+  width: 174px;
+  height: 156px;
+  background: #141414;
+  border: 1px solid #262626;
+  transform-style: preserve-3d;
+}
+
+.xmark-poc-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
