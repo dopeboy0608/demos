@@ -12,9 +12,15 @@ const TEXT_DELAYS_SECONDS = { title: 0, date: 0.3, company: 0.6, launch: 0.9 };
 interface XmarkPopupProps {
   item: XmarkGalleryItem;
   onClose: () => void;
+  /** PopUpMain.as의 `isPhoto` 플래그 그대로: 회사 사진 팝업은 NEW/제목/메타 정보를 숨긴다. */
+  hideInfo?: boolean;
 }
 
-export function XmarkPopup({ item, onClose }: XmarkPopupProps) {
+export function XmarkPopup({
+  item,
+  onClose,
+  hideInfo = false,
+}: XmarkPopupProps) {
   const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -69,7 +75,9 @@ export function XmarkPopup({ item, onClose }: XmarkPopupProps) {
           CLOSE
         </button>
 
-        {item.isNew && <span className="xmark-popup-new">NEW</span>}
+        {!hideInfo && item.isNew && (
+          <span className="xmark-popup-new">NEW</span>
+        )}
 
         <div className="xmark-popup-content">
           {item.type === 'image' ? (
@@ -89,29 +97,31 @@ export function XmarkPopup({ item, onClose }: XmarkPopupProps) {
           )}
         </div>
 
-        <div className="xmark-popup-info">
-          <div className="xmark-popup-title" data-popup-field="title">
-            {item.title}
-          </div>
-          <div className="xmark-popup-meta">
-            <span data-popup-field="date">{item.date}</span>
-            <span data-popup-field="company">{item.company}</span>
-            {item.link && (
-              <a
-                href={item.link}
-                target="_blank"
-                rel="noreferrer"
-                data-popup-field="launch"
-                className="xmark-popup-launch"
-              >
-                LAUNCH
-              </a>
+        {!hideInfo && (
+          <div className="xmark-popup-info">
+            <div className="xmark-popup-title" data-popup-field="title">
+              {item.title}
+            </div>
+            <div className="xmark-popup-meta">
+              <span data-popup-field="date">{item.date}</span>
+              <span data-popup-field="company">{item.company}</span>
+              {item.link && (
+                <a
+                  href={item.link}
+                  target="_blank"
+                  rel="noreferrer"
+                  data-popup-field="launch"
+                  className="xmark-popup-launch"
+                >
+                  LAUNCH
+                </a>
+              )}
+            </div>
+            {item.content && (
+              <p className="xmark-popup-description">{item.content}</p>
             )}
           </div>
-          {item.content && (
-            <p className="xmark-popup-description">{item.content}</p>
-          )}
-        </div>
+        )}
       </div>
     </div>
   );

@@ -13,8 +13,8 @@
 | 03  | [#57](https://github.com/dopeboy0608/demos/issues/57) | PoC: 3D 전환 연출 검증         | 커밋 완료(0fb8a14)           |
 | 04  | [#58](https://github.com/dopeboy0608/demos/issues/58) | Portfolio 갤러리 동작 연결     | 커밋 완료(9fa4805)           |
 | 05  | [#59](https://github.com/dopeboy0608/demos/issues/59) | Portfolio 리스트 + 스타일 전환 | 커밋 완료(7c8a185)           |
-| 06  | [#60](https://github.com/dopeboy0608/demos/issues/60) | 팝업 3종                       | 구현 완료, 커밋 진행 중      |
-| 07  | [#61](https://github.com/dopeboy0608/demos/issues/61) | About/Contact                  | 요약만, 보강 전              |
+| 06  | [#60](https://github.com/dopeboy0608/demos/issues/60) | 팝업 3종                       | 커밋 완료(f952fc9)           |
+| 07  | [#61](https://github.com/dopeboy0608/demos/issues/61) | About/Contact                  | 구현 완료, 커밋 진행 중      |
 | 08  | [#62](https://github.com/dopeboy0608/demos/issues/62) | 검수                           | 요약만, 보강 전              |
 
 ## 워크플로우
@@ -56,6 +56,13 @@
 - 코드(`PopUpMain`)는 `type`을 `image`/`video`/`swf`로 처리하는데 XML 실측 값은 `image`/`flash`/`banner` — ③ 스펙 vs 코드 불일치(블로킹 아님, 데이터·필드 정의 섹션에 반영)
 - 교차검증 게이트: 디자인 파일 없음(n/a) / 코드 불일치는 위 ③ 1건(01~02 블로킹 아님, 재검증 불필요) → **통과**
 
+## 알려진 한계
+
+- **logo/GNB/util/recruit 원본 이미지**: XFL 내부 비공개 비트맵 캐시(`.dat`) 포맷이라 디코더 없이 추출 불가. 텍스트/CSS로 대체(서브태스크 01, `TROUBLE_SHOOTING.md` 참고).
+- **About 콘텐츠**: 원본 `about_container`가 텍스트 없이 100프레임짜리 모션 그래픽 심볼 하나로만 구성되어 있어 추출 가능한 소개 문구가 없음. 설명 텍스트로 대체(서브태스크 07).
+- **80타일 전환 구현 방식**: 원본은 `BitmapData.draw`로 콘텐츠를 타일마다 실제로 캡처해 복제하지만, 이 이관은 html2canvas 같은 신규 라이브러리 없이 타일을 배경색과 같은 불투명 "덮개"로 두고 뒤집어 치우는 방식으로 단순화함(서브태스크 07). 시각 효과는 동일.
+- **비디오·배너 팝업 재생**: ffmpeg/Homebrew 미설치로 변환 도구가 없어 실제 재생 없이 썸네일+안내 문구만 표시(결정 사항 ②, 서브태스크 06).
+
 ## 진행 로그
 
 - 2026-11-22: Phase A — 이슈 #52 본문을 5개 섹션 템플릿으로 재구성, `gallery.xml`(60건) 실측치로 데이터·필드 정의 보정. 기존 기술 분석은 "참고" 섹션으로 보존.
@@ -65,4 +72,5 @@
 - 2026-11-22: Phase C — 서브태스크 03(#57) PoC. Ruffle 녹화 대신 `Thumb.as`/`ThumbManager.as` 소스에서 갤러리 3D 등장의 정확한 수치(2초, rotationX:360, rotationY:1~2바퀴 랜덤, Back.easeOut, 2프레임=약 66.7ms 간격 셔플 스타트)를 직접 추출해 CSS 3D + GSAP로 재현(`/xmark-poc`, `XmarkGalleryEntrancePoc.tsx`, 메인 네비게이션에는 미노출). 브라우저로 원본과 동일한 플립-인 효과(일부 1바퀴/일부 2바퀴 회전) 확인. 결론: CSS 3D+GSAP 접근 자체는 실현 가능하고 비용도 낮음 — About/Contact 80타일 전환도 같은 방식으로 우선 시도하고, 타일 수가 많아 성능은 서브태스크 07에서 실측 후 간소화 여부 재논의하기로 결정(확인 필요 사항 1 해소). 이슈 #57 본문에 PoC 결과 섹션 추가. 커밋(0fb8a14) 완료.
 - 2026-11-22: Phase C — 서브태스크 04(#58) 구현(사용자 요청으로 이후 커밋 전 확인 생략, 연속 진행). PoC(03) 결과를 실제 `XmarkGalleryGrid`로 연결 — 등장(2초)/퇴장(0.5초) 애니메이션을 imperative handle(`playExit`)로 구현해 "퇴장 완료 → 페이지 변경 → 등장" 순서를 그대로 재현. 마우스 휠로 페이지 이동(웹 관례에 맞춰 deltaY>0=다음 페이지로 매핑 — 원본 Flash delta 부호와 반대지만 더 직관적이라 판단) 구현, 전환 중 정렬/스타일 탭 비활성화로 인터랙션 잠금. 셔플 함수는 `shuffleArray`로 추출해 TDD로 테스트(3개 케이스). lint/tsc/test(132개) 통과, 브라우저로 휠 1회당 1페이지 이동 및 빠른 연속 휠 입력 시 잠금으로 1페이지만 이동함을 확인. 커밋(9fa4805) 완료.
 - 2026-11-22: Phase C — 서브태스크 05(#59) 구현. `List.as`/`ListManager.as` 소스에서 행 등장(1초, 지연 0.05*i, Cubic.easeOut)과 휠 스크롤(200ms 재입력 잠금) 수치를 추출. 리스트는 갤러리처럼 페이지 단위가 아니라 전체 필터 결과를 하나의 트랙(`xmark-list-track`)에 렌더링하고 `overflow:hidden` 마스크 안에서 `transform: translateY()`로 스크롤 — 원본의 개별 행 위치 애니메이션 대신 CSS transition 하나로 단순화(동일한 시각 효과, 구현 비용 절감). 행 등장은 GSAP로 재현. 버그 발견 및 수정: JSX `onWheel`은 passive 리스너라 `preventDefault()`가 무시되어 페이지가 함께 스크롤되는 문제 — `useNonPassiveWheel` 훅을 만들어 네이티브 리스너(`passive:false`)로 교체. 이 과정에서 갤러리↔리스트 스타일 전환처럼 대상 엘리먼트가 조건부 마운트/언마운트되면 `useEffect(deps:[])` 기반 리스너 부착이 재마운트를 감지 못해 리스너가 고아가 되는 2차 버그를 발견해 콜백 ref 방식으로 재작성. `getListMaxScroll` 순수 함수는 TDD로 테스트(2개 케이스). lint/tsc/test(134개) 통과, 브라우저로 행 12개 등장/휠 스크롤(1틱당 1행)/갤러리↔리스트 반복 전환 후 휠 정상 동작 확인(콘솔 에러 없음). 커밋(7c8a185) 완료.
-- 2026-11-22: Phase C — 서브태스크 06(#60) 구현. `PopUpMain.as`/`Image.as`/`Thumb.as`/`List.as` 소스에서 팝업 등장(0.5초 scale+alpha, Cubic.easeOut), 텍스트 순차 페이드인(title/date/company/launch, 각 0.3초 간격), 이미지 롤링(7초, 원형 탭, 호버 시 정지), 썸네일 클릭 시 0.4초 제자리 회전 수치를 추출해 그대로 재현. `pop_img.jpg`/`pop_img1.jpg` 실제 이미지를 `public/xmark/img`에 복사해 이미지 타입 팝업에 사용. 비디오/배너 타입은 결정 사항 ②에 따라 썸네일+안내 문구만 표시. 클릭 가능한 썸네일/리스트 행은 a11y 린트에 맞춰 `<button>` 엘리먼트로 전환. 중요한 버그 발견/수정: `activeItem`(팝업 열림 상태) 변경만으로도 `filteredItems`/`pageItems`가 매 렌더마다 새 배열 참조로 재계산되어, 팝업을 열고 닫기만 해도 갤러리 그리드 등장 애니메이션이 불필요하게 재생되며 일시적으로 썸네일이 전부 사라지는 문제 발견 — `useMemo`로 sortTab/page 변경 시에만 재계산되도록 수정. lint/tsc/test(134개) 통과, 브라우저로 이미지/비디오·배너 타입 팝업, 리스트 행 클릭, 버그 수정 확인(콘솔 에러 없음). 커밋 전 사용자 확인 대기.
+- 2026-11-22: Phase C — 서브태스크 06(#60) 구현. `PopUpMain.as`/`Image.as`/`Thumb.as`/`List.as` 소스에서 팝업 등장(0.5초 scale+alpha, Cubic.easeOut), 텍스트 순차 페이드인(title/date/company/launch, 각 0.3초 간격), 이미지 롤링(7초, 원형 탭, 호버 시 정지), 썸네일 클릭 시 0.4초 제자리 회전 수치를 추출해 그대로 재현. `pop_img.jpg`/`pop_img1.jpg` 실제 이미지를 `public/xmark/img`에 복사해 이미지 타입 팝업에 사용. 비디오/배너 타입은 결정 사항 ②에 따라 썸네일+안내 문구만 표시. 클릭 가능한 썸네일/리스트 행은 a11y 린트에 맞춰 `<button>` 엘리먼트로 전환. 중요한 버그 발견/수정: `activeItem`(팝업 열림 상태) 변경만으로도 `filteredItems`/`pageItems`가 매 렌더마다 새 배열 참조로 재계산되어, 팝업을 열고 닫기만 해도 갤러리 그리드 등장 애니메이션이 불필요하게 재생되며 일시적으로 썸네일이 전부 사라지는 문제 발견 — `useMemo`로 sortTab/page 변경 시에만 재계산되도록 수정. lint/tsc/test(134개) 통과, 브라우저로 이미지/비디오·배너 타입 팝업, 리스트 행 클릭, 버그 수정 확인(콘솔 에러 없음). 커밋(f952fc9) 완료.
+- 2026-11-22: Phase C — 서브태스크 07(#61) 구현. `AboutMain.as`/`ContactMain.as`의 80타일(10×8) 전환 수치(0.5초, rotationX -180→0, alpha 0→0.7, 셔플 후 0.01초 간격 스타트, 80개 전부 완료 시 실제 콘텐츠 alpha 0.7→1)를 그대로 재현하되, 원본의 `BitmapData.draw` 픽셀 캡처 방식 대신 타일을 배경색과 같은 불투명 "덮개"로 두고 뒤집어 치우는 방식으로 단순화(신규 라이브러리(html2canvas 등) 없이 동일한 시각 효과, PoC(03)에서 확인한 CSS 3D+GSAP 접근 재사용). About 콘텐츠 텍스트는 원본이 텍스트 없는 100프레임 모션 심볼이라 추출 불가 — 설명 텍스트로 대체(알려진 한계로 기록). Contact는 회사 사진 버튼(10초 롤링, `photo` 블록 재사용, 클릭 시 `hideInfo` 플래그로 제목/NEW뱃지 없는 팝업)과 "프로젝트 문의" 폼(`ProjectMain.as`의 실제 필드 6개, 제출 시 원본 `alert()` 문구 그대로 더미 성공 메시지) 구현. lint/tsc/test(134개) 통과, 브라우저로 About 80타일 전환(80개 확인)/Contact 사진 팝업/문의 폼 제출 확인(콘솔 에러 없음). 커밋 전 사용자 확인 대기.

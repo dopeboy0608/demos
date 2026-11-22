@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { message } from 'antd';
 
+import { XmarkAbout } from './XmarkAbout';
+import { XmarkContact } from './XmarkContact';
 import { XmarkFooter } from './XmarkFooter';
 import { XmarkGnb } from './XmarkGnb';
 import { XmarkLogo } from './XmarkLogo';
@@ -11,14 +13,6 @@ import { XMARK_COMING_SOON_MESSAGE } from '../helper/xmarkConstants';
 import type { XmarkTab } from '../helper/xmarkConstants';
 
 import '../xmark.css';
-
-const TAB_PLACEHOLDER_LABEL: Record<
-  Exclude<XmarkTab, 'portfolio' | 'story'>,
-  string
-> = {
-  about: 'About 영역 (다음 서브태스크에서 구현)',
-  contact: 'Contact 영역 (다음 서브태스크에서 구현)',
-};
 
 export function XmarkStage() {
   const [activeTab, setActiveTab] = useState<XmarkTab>('portfolio');
@@ -37,10 +31,12 @@ export function XmarkStage() {
       <XmarkRecruitButton onClick={showComingSoon} />
 
       <div className="xmark-content">
-        {activeTab === 'portfolio' || activeTab === 'story' ? (
-          <XmarkPortfolioGallery />
+        {activeTab === 'about' ? (
+          <XmarkAbout />
+        ) : activeTab === 'contact' ? (
+          <XmarkContact />
         ) : (
-          TAB_PLACEHOLDER_LABEL[activeTab]
+          <XmarkPortfolioGallery />
         )}
       </div>
 

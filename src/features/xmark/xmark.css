@@ -438,3 +438,130 @@
   font-size: 13px;
   margin-top: 10px;
 }
+
+.xmark-tile-transition {
+  position: relative;
+  min-height: 420px;
+}
+
+.xmark-tile-content {
+  opacity: 0.7;
+}
+
+.xmark-tile-content-revealed {
+  opacity: 1;
+  transition: opacity 0.5s cubic-bezier(0.215, 0.61, 0.355, 1) 0.1s;
+}
+
+.xmark-tile-grid {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  perspective: 600px;
+}
+
+.xmark-tile {
+  background: #090909;
+  transform-style: preserve-3d;
+}
+
+.xmark-about {
+  max-width: 560px;
+  color: #ccc;
+}
+
+.xmark-about-title {
+  color: #fff;
+  font-size: 28px;
+  margin-bottom: 20px;
+}
+
+.xmark-about-text {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #999;
+  margin-bottom: 16px;
+}
+
+.xmark-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 560px;
+}
+
+.xmark-contact-photo-btn {
+  background: none;
+  border: 1px solid #333;
+  padding: 0;
+  cursor: pointer;
+  width: 160px;
+  height: 120px;
+}
+
+.xmark-contact-photo-btn img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.xmark-contact-inquiry-btn {
+  align-self: flex-start;
+  background: none;
+  border: 1px solid #ff6a00;
+  color: #ff6a00;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  padding: 10px 24px;
+  cursor: pointer;
+}
+
+.xmark-contact-form-card {
+  position: relative;
+  background: #141414;
+  border: 1px solid #333;
+  padding: 40px;
+  width: 90%;
+  max-width: 420px;
+}
+
+.xmark-contact-form-title {
+  color: #fff;
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.xmark-contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.xmark-contact-form-input,
+.xmark-contact-form-textarea {
+  background: #090909;
+  border: 1px solid #333;
+  color: #ccc;
+  font-size: 13px;
+  font-family: inherit;
+  padding: 8px 10px;
+}
+
+.xmark-contact-form-submit {
+  margin-top: 8px;
+  background: #ff6a00;
+  border: none;
+  color: #fff;
+  font-size: 13px;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.xmark-contact-form-success {
+  color: #ccc;
+  font-size: 13px;
+  line-height: 1.6;
+}
