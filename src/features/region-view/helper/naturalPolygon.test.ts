@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { createNaturalPolygon } from './naturalPolygon';
+import {
+  createAreaPolygon,
+  createNaturalPolygon,
+  naturalRadius,
+} from './naturalPolygon';
 
 const TEST_RADIUS = 0.08;
 
@@ -40,5 +44,47 @@ describe('createNaturalPolygon', () => {
       expect(Math.abs(lng - center.lng)).toBeLessThanOrEqual(baseRadius * 1.5);
       expect(Math.abs(lat - center.lat)).toBeLessThanOrEqual(baseRadius * 1.5);
     }
+  });
+});
+
+describe('naturalRadius', () => {
+  it('각도만 같으면 seed가 같을 때 항상 같은 값을 반환한다 (결정적)', () => {
+    expect(naturalRadius(4, 1.2, TEST_RADIUS)).toBe(
+      naturalRadius(4, 1.2, TEST_RADIUS),
+    );
+  });
+
+  it('2π 주기로 반복된다 (각도 0과 2π는 같은 값)', () => {
+    const atZero = naturalRadius(7, 0, TEST_RADIUS);
+    const atFullCircle = naturalRadius(7, Math.PI * 2, TEST_RADIUS);
+
+    expect(atFullCircle).toBeCloseTo(atZero, 10);
+  });
+});
+
+describe('createAreaPolygon', () => {
+  it('같은 seed/baseRadius라면 각도 구간의 경계에서 정확히 같은 좌표를 공유한다 (경계 일치)', () => {
+    const center = { lat: 37.5, lng: 127.0 };
+    const seed = 2;
+    const cutAngle = Math.PI / 2;
+
+    const [[firstSlice]] = createAreaPolygon(
+      center,
+      seed,
+      0,
+      cutAngle,
+      TEST_RADIUS,
+    );
+    const [[secondSlice]] = createAreaPolygon(
+      center,
+      seed,
+      cutAngle,
+      Math.PI,
+      TEST_RADIUS,
+    );
+
+    // firstSlice의 마지막 경계점(센터 직전)과 secondSlice의 첫 경계점(센터 다음)이
+    // 정확히 같은 cutAngle 지점을 가리켜야 한다 — 두 조각을 합쳤을 때 틈/겹침이 없다는 뜻.
+    expect(firstSlice[firstSlice.length - 2]).toEqual(secondSlice[1]);
   });
 });
