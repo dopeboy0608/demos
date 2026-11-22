@@ -8,8 +8,8 @@
 
 | #   | 서브이슈                                              | 제목                           | 상태                         |
 | --- | ----------------------------------------------------- | ------------------------------ | ---------------------------- |
-| 01  | [#55](https://github.com/dopeboy0608/demos/issues/55) | 공통 레이아웃 정적 구현        | 구현 완료, 커밋 전 확인 대기 |
-| 02  | [#56](https://github.com/dopeboy0608/demos/issues/56) | Portfolio 갤러리 정적 그리드   | 본문 완성, 착수 전           |
+| 01  | [#55](https://github.com/dopeboy0608/demos/issues/55) | 공통 레이아웃 정적 구현        | 커밋 완료(1fd5c80)           |
+| 02  | [#56](https://github.com/dopeboy0608/demos/issues/56) | Portfolio 갤러리 정적 그리드   | 구현 완료, 커밋 전 확인 대기 |
 | 03  | [#57](https://github.com/dopeboy0608/demos/issues/57) | PoC: 3D 전환 연출 검증         | 요약만, 보강 전              |
 | 04  | [#58](https://github.com/dopeboy0608/demos/issues/58) | Portfolio 갤러리 동작 연결     | 요약만, 보강 전              |
 | 05  | [#59](https://github.com/dopeboy0608/demos/issues/59) | Portfolio 리스트 + 스타일 전환 | 요약만, 보강 전              |
@@ -59,4 +59,5 @@
 
 - 2026-11-22: Phase A — 이슈 #52 본문을 5개 섹션 템플릿으로 재구성, `gallery.xml`(60건) 실측치로 데이터·필드 정의 보정. 기존 기술 분석은 "참고" 섹션으로 보존.
 - 2026-11-22: Phase B — 입력 체크/사실 조사/교차검증 게이트 통과. 질문 라운드: ffmpeg/Homebrew 없음(비디오·배너 팝업 모두 범위 제외로 확장), 서브태스크 01/02 분할, PoC 서브태스크(03) 포함, 문의 폼 더미 성공 피드백 — 모두 사용자 승인. 로드맵(8개 서브태스크) 확정, 서브이슈 #55~#62 생성 및 스토리 #52에 연결.
-- 2026-11-22: Phase C — 서브태스크 01(#55) 구현. `feature/52-xmark-flash-migration` 브랜치 생성, `src/features/xmark` 스캐폴딩. XFL 타임라인(`DOMDocument.xml`)과 `XmarkMain.as`의 `StageInfo` 좌표 코드를 직접 읽어 logo(좌상)/GNB(좌측, top+77)/util(좌측, top+230, PDF·MAIL)/recruit(우상단)/footer(좌하, "COPYRIGHT 2009-2012 X-MARK")의 실제 고정 위치를 재현. GNB/util/logo/recruit 원본 이미지는 XFL 내부 비트맵 캐시(zlib 기반 비표준 `.dat` 포맷)라 디코더 없이 추출 불가 확인 — 텍스트/CSS 기반으로 대체(디자인 파일 없음, 결정 사항 ⑦ 범위). GNB 탭 전환, Story/Recruit 클릭 시 "준비중입니다." 알림(원본 `alert()` 문구 그대로) 구현 및 브라우저로 동작 확인. lint/tsc/test(122개) 통과. 커밋 전 사용자 확인 대기.
+- 2026-11-22: Phase C — 서브태스크 01(#55) 구현. `feature/52-xmark-flash-migration` 브랜치 생성, `src/features/xmark` 스캐폴딩. XFL 타임라인(`DOMDocument.xml`)과 `XmarkMain.as`의 `StageInfo` 좌표 코드를 직접 읽어 logo(좌상)/GNB(좌측, top+77)/util(좌측, top+230, PDF·MAIL)/recruit(우상단)/footer(좌하, "COPYRIGHT 2009-2012 X-MARK")의 실제 고정 위치를 재현. GNB/util/logo/recruit 원본 이미지는 XFL 내부 비트맵 캐시(zlib 기반 비표준 `.dat` 포맷)라 디코더 없이 추출 불가 확인 — 텍스트/CSS 기반으로 대체(디자인 파일 없음, 결정 사항 ⑦ 범위). GNB 탭 전환, Story/Recruit 클릭 시 "준비중입니다." 알림(원본 `alert()` 문구 그대로) 구현 및 브라우저로 동작 확인. lint/tsc/test(122개) 통과. 커밋(1fd5c80) 완료.
+- 2026-11-22: Phase C — 서브태스크 02(#56) 구현. 실제 `gallery.xml`(60건)을 파싱해 `XMARK_GALLERY_ITEMS`(id 포함, thumb은 `public/xmark/img`에 복사한 실제 JPG로 치환)로 이관. 정렬 탭(all/web/ad/flash/gui/mobile) 필터와 스타일 탭(갤러리/리스트) UI, 4×3 페이지네이션 그리드 구현 — 리스트 내용은 placeholder. `sort` 4·5를 모두 `mobile` 탭으로 묶는 매핑은 기존 사실조사 추정을 그대로 코드 주석으로 남김. 필터/페이지네이션 순수 함수는 TDD로 테스트 작성(7개 케이스). lint/tsc/test(129개) 통과, 브라우저로 FLASH(20건→2페이지)/GUI(1건) 필터와 LIST 전환 확인. 커밋 전 사용자 확인 대기.

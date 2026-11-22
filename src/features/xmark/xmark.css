@@ -98,12 +98,116 @@
 .xmark-content {
   position: absolute;
   top: 0;
-  left: 0;
+  left: 220px;
   right: 0;
   bottom: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  overflow: auto;
+  padding: 100px 40px 60px;
+  box-sizing: border-box;
   color: #777;
   font-size: 14px;
+}
+
+.xmark-portfolio {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.xmark-portfolio-tabs {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.xmark-sort-tabs,
+.xmark-style-tabs {
+  display: flex;
+  gap: 16px;
+}
+
+.xmark-sort-tab,
+.xmark-style-tab {
+  background: none;
+  border: none;
+  color: #777;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  padding: 0;
+  cursor: pointer;
+}
+
+.xmark-sort-tab:hover,
+.xmark-style-tab:hover {
+  color: #ccc;
+}
+
+.xmark-sort-tab-active,
+.xmark-style-tab-active {
+  color: #fff;
+  font-weight: bold;
+}
+
+.xmark-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.xmark-gallery-thumb {
+  position: relative;
+  background: #141414;
+  border: 1px solid #262626;
+}
+
+.xmark-gallery-thumb-img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 174 / 156;
+  object-fit: cover;
+}
+
+.xmark-gallery-thumb-new {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: #ff6a00;
+  color: #fff;
+  font-size: 10px;
+  padding: 2px 6px;
+}
+
+.xmark-gallery-thumb-title {
+  padding: 8px 10px;
+  font-size: 12px;
+  color: #ccc;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.xmark-gallery-pager {
+  display: flex;
+  gap: 8px;
+}
+
+.xmark-gallery-page-btn {
+  background: none;
+  border: 1px solid #333;
+  color: #777;
+  font-size: 11px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+}
+
+.xmark-gallery-page-btn-active {
+  border-color: #ff6a00;
+  color: #fff;
+}
+
+.xmark-portfolio-list-placeholder {
+  color: #555;
 }
