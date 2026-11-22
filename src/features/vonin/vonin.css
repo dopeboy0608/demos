@@ -78,14 +78,40 @@
   padding-bottom: 40px;
 }
 
-.vonin-home-visual-placeholder {
+.vonin-carousel {
   flex: 1;
   min-height: 500px;
   background: #e8e6e1;
   display: flex;
   align-items: center;
-  justify-content: center;
-  color: #999;
+  gap: 16px;
+  padding: 0 24px;
+  overflow: hidden;
+}
+
+.vonin-carousel-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  opacity: 0.6;
+  transform: scale(0.85);
+  font-size: 11px;
+  color: #777;
+}
+
+.vonin-carousel-item img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.vonin-carousel-item-front {
+  opacity: 1;
+  transform: scale(1.2);
+  color: #333;
+  font-weight: bold;
 }
 
 .vonin-home-side {
