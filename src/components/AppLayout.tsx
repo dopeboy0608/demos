@@ -8,8 +8,8 @@ const NAV_ITEMS = [
   { key: '/', label: <Link to="/">홈</Link> },
   { key: '/polygon', label: <Link to="/polygon">폴리곤 제어</Link> },
   { key: '/region-view', label: <Link to="/region-view">권역조회</Link> },
-  { key: '/roboking', label: <Link to="/roboking">LG 로보킹</Link> },
   { key: '/xmark', label: <Link to="/xmark">X-MARK</Link> },
+  { key: '/roboking', label: <Link to="/roboking">LG 로보킹</Link> },
   { key: '/vonin', label: <Link to="/vonin">보닌</Link> },
 ];
 

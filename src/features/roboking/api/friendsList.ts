@@ -1,3 +1,5 @@
+import { toAssetUrl } from '@/config/basepath';
+
 import type { FriendsList } from '../helper/types';
 
 // 원본 mock(php/friendsList.php) 응답을 정적 JSON으로 옮긴 값.
@@ -8,10 +10,10 @@ const FRIEND_KEYS = [
 ];
 
 export const friendsList: FriendsList = {
-  myphoto: '/roboking/img/big.png',
+  myphoto: toAssetUrl('/roboking/img/big.png'),
   friend: FRIEND_KEYS.map((key) => ({
-    bigThumb: '/roboking/img/big.png',
-    smallThumb: '/roboking/img/small.png',
+    bigThumb: toAssetUrl('/roboking/img/big.png'),
+    smallThumb: toAssetUrl('/roboking/img/small.png'),
     id: `test${key}`,
     key,
   })),

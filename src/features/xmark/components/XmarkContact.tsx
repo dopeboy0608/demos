@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 
+import { toAssetUrl } from '@/config/basepath';
+
 import { XmarkContactForm } from './XmarkContactForm';
 import { XmarkPopup } from './XmarkPopup';
 import { XmarkTileTransition } from './XmarkTileTransition';
@@ -8,7 +10,10 @@ import type { XmarkGalleryItem } from '../helper/xmarkGalleryData';
 
 // ContactMain.as의 photo 롤링: 10초마다 롤오버 상태 토글(여기서는 사진 교체로 단순화),
 // 원본의 photo 블록(6건, pop_img.jpg/pop_img1.jpg 반복)을 그대로 사용.
-const PHOTO_FILES = ['/xmark/img/pop_img.jpg', '/xmark/img/pop_img1.jpg'];
+const PHOTO_FILES = [
+  toAssetUrl('/xmark/img/pop_img.jpg'),
+  toAssetUrl('/xmark/img/pop_img1.jpg'),
+];
 const PHOTO_ROLL_INTERVAL_MS = 10000;
 
 const PHOTO_POPUP_ITEM: XmarkGalleryItem = {

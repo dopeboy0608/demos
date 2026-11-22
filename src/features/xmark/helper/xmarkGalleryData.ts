@@ -1,3 +1,5 @@
+import { toAssetUrl } from '@/config/basepath';
+
 // `project/flash/xmark/src/fla/xml/gallery.xml` 샘플 60건을 그대로 옮긴 데이터.
 // 썸네일(thumb)만 `public/xmark/img`로 복사해 로컬 경로로 치환했고, 그 외 필드는 원본 값 그대로 유지
 // (원본에 비어있던 content는 빈 문자열로 둠).
@@ -18,7 +20,7 @@ export interface XmarkGalleryItem {
   content: string;
 }
 
-export const XMARK_GALLERY_ITEMS: XmarkGalleryItem[] = [
+const XMARK_GALLERY_ITEMS_RAW: XmarkGalleryItem[] = [
   {
     id: 0,
     isNew: true,
@@ -1010,3 +1012,14 @@ export const XMARK_GALLERY_ITEMS: XmarkGalleryItem[] = [
     content: '',
   },
 ];
+
+// 썸네일/이미지는 public/ 하위 절대 경로라 배포 base(GitHub Pages 서브경로)를 모르면 깨지므로,
+// 실제 서빙 경로로 변환한다. `flv/`로 시작하는 값(미지원 영상, 알려진 한계)은 그대로 둔다.
+export const XMARK_GALLERY_ITEMS: XmarkGalleryItem[] =
+  XMARK_GALLERY_ITEMS_RAW.map((item) => ({
+    ...item,
+    thumb: toAssetUrl(item.thumb),
+    files: item.files.map((file) =>
+      file.startsWith('/') ? toAssetUrl(file) : file,
+    ),
+  }));

@@ -1,10 +1,12 @@
+import { toAssetUrl } from '@/config/basepath';
+
 import type { StageConfig } from './stageConfig';
 
 // stage_living.fla(XFL)의 LIBRARY/mc/wall.xml, mc/dust_mc.xml, mc/event_dust_mc.xml,
 // LIBRARY/stage_mc.xml(아이템·로봇 시작 위치)에서 추출한 실제 좌표.
 export const livingStageConfig: StageConfig = {
   totalDust: 121,
-  backgroundImage: '/roboking/img/stage2_game_bg.png',
+  backgroundImage: toAssetUrl('/roboking/img/stage2_game_bg.png'),
   robotStart: { x: 148, y: 721.4 },
   walls: [
     {
@@ -335,7 +337,7 @@ export const livingStageConfig: StageConfig = {
     name: 'carpet_icon',
     x: 345,
     y: 563,
-    image: '/roboking/img/carpet_icon_img.png',
+    image: toAssetUrl('/roboking/img/carpet_icon_img.png'),
   },
   speedIcon: { x: 548, y: 505 },
 };

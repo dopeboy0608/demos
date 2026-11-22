@@ -1,8 +1,10 @@
+import { toAssetUrl } from '@/config/basepath';
+
 // stage_kitchen.fla(XFL)의 LIBRARY/sound에서 실제로 추출한 효과음.
 // Howler.js 같은 라이브러리 없이도 네이티브 Audio로 충분해 추가하지 않았다.
 const SOUND_SOURCES = {
-  oops: '/roboking/sound/oops.wav',
-  itemGet: '/roboking/sound/item-get.mp3',
+  oops: toAssetUrl('/roboking/sound/oops.wav'),
+  itemGet: toAssetUrl('/roboking/sound/item-get.mp3'),
 } as const;
 
 export type SoundKey = keyof typeof SOUND_SOURCES;

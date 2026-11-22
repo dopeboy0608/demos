@@ -1,3 +1,5 @@
+import { toAssetUrl } from '@/config/basepath';
+
 import { VONIN_ROLL_PRODUCT_COUNT } from './voninMainData';
 
 // `main.xml`의 rollproduct.url 실측 8건을 그대로 사용(Contents.as는 9개 무비클립(m1~m9)을
@@ -13,6 +15,6 @@ export const VONIN_CAROUSEL_PRODUCTS: VoninCarouselProduct[] = Array.from(
   (_, i) => ({
     id: i,
     label: `상품 ${i + 1}`,
-    img: '/vonin/img/product_img.png',
+    img: toAssetUrl('/vonin/img/product_img.png'),
   }),
 );

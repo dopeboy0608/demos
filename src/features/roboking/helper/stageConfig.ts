@@ -1,3 +1,5 @@
+import { toAssetUrl } from '@/config/basepath';
+
 export interface Point {
   x: number;
   y: number;
@@ -60,13 +62,13 @@ export const BACKGROUND_WIDTH = 776;
 export const BACKGROUND_HEIGHT = 714;
 
 /** 세 스테이지가 공유하는 스프라이트(크기는 원본 PNG 그대로). */
-export const ROBOT_IMAGE = '/roboking/img/roboking.png';
+export const ROBOT_IMAGE = toAssetUrl('/roboking/img/roboking.png');
 export const ROBOT_WIDTH = 48;
 export const ROBOT_HEIGHT = 52;
-export const DUST_IMAGE = '/roboking/img/dust_1.png';
+export const DUST_IMAGE = toAssetUrl('/roboking/img/dust_1.png');
 export const DUST_WIDTH = 23;
 export const DUST_HEIGHT = 25;
-export const SPEED_ICON_IMAGE = '/roboking/img/speed_icon.png';
+export const SPEED_ICON_IMAGE = toAssetUrl('/roboking/img/speed_icon.png');
 export const ICON_SIZE = 39;
 
 /** FLA `mc/wall_mc`의 로컬 크기(twips 1100x3099 → px 55x155). */
