@@ -4,9 +4,11 @@ import { useCallback, useRef, useState } from 'react';
 import {
   fetchDraftPolygons,
   fetchImpossiblePolygons,
+  fetchRegionAreaPolygons,
   fetchRegionGroupList,
   fetchRegionGroupLocation,
   fetchRegionLocation,
+  fetchSubRegionAreaPolygons,
   fetchZipcodeExcelBlob,
   type LocationSearchPayload,
   type RegionGroupListItem,
@@ -32,6 +34,12 @@ export function useRegionViewBoard() {
   const [draftPolygonList, setDraftPolygonList] = useState<
     ParsedDraftPolygon[]
   >([]);
+  const [regionPolygonList, setRegionPolygonList] = useState<
+    ParsedDraftPolygon[]
+  >([]);
+  const [subRegionPolygonList, setSubRegionPolygonList] = useState<
+    ParsedDraftPolygon[]
+  >([]);
   const [impossiblePolygonList, setImpossiblePolygonList] = useState<
     ParsedDraftPolygon[]
   >([]);
@@ -53,12 +61,21 @@ export function useRegionViewBoard() {
 
   const fetchMapData = useCallback(async () => {
     if (!searchParamsRef.current) return;
-    const [rawDraft, rawImpossible] = await Promise.all([
-      fetchDraftPolygons(searchParamsRef.current),
-      fetchImpossiblePolygons(searchParamsRef.current),
-    ]);
+    const [rawDraft, rawRegion, rawSubRegion, rawImpossible] =
+      await Promise.all([
+        fetchDraftPolygons(searchParamsRef.current),
+        fetchRegionAreaPolygons(searchParamsRef.current),
+        fetchSubRegionAreaPolygons(searchParamsRef.current),
+        fetchImpossiblePolygons(searchParamsRef.current),
+      ]);
     setDraftPolygonList(
       parseRegionViewDraftPolygon(rawDraft, existingGroupCodesRef.current),
+    );
+    setRegionPolygonList(
+      parseRegionViewDraftPolygon(rawRegion, existingGroupCodesRef.current),
+    );
+    setSubRegionPolygonList(
+      parseRegionViewDraftPolygon(rawSubRegion, existingGroupCodesRef.current),
     );
     setImpossiblePolygonList(
       parseRegionViewDraftPolygon(rawImpossible, [], false),
@@ -207,6 +224,8 @@ export function useRegionViewBoard() {
   return {
     isLoading,
     draftPolygonList,
+    regionPolygonList,
+    subRegionPolygonList,
     impossiblePolygonList,
     regionGroupList,
     hasSearched,

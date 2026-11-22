@@ -1,5 +1,13 @@
-import { REGION_GROUP_PROFILES } from '../helper/constants';
+import {
+  CENTER_POLYGON_BASE_RADIUS,
+  REGION_GROUP_PROFILES,
+} from '../helper/constants';
 import { createNaturalPolygon } from '../helper/naturalPolygon';
+import {
+  createNestedSectorDivisions,
+  createSectorDivisions,
+  distributeCount,
+} from '../helper/radialSubdivision';
 import type { RawDraftPolygon } from '../helper/regionViewParser';
 
 export interface RegionViewSearchParams {
@@ -94,10 +102,65 @@ const MOCK_POLYGONS: Record<string, RawDraftPolygon> = Object.fromEntries(
     profile.code,
     {
       regionGroupCode: profile.code,
-      geom: { coordinates: createNaturalPolygon(profile.center, index) },
+      geom: {
+        coordinates: createNaturalPolygon(
+          profile.center,
+          index,
+          CENTER_POLYGON_BASE_RADIUS,
+        ),
+      },
     },
   ]),
 );
+
+// 소분류 단위 폴리곤 — 센터 영역을 regionCount개의 부채꼴로 방사형 분할한다(#47, #49).
+// 좌측 목록/위치보기 검색용 regionCode(A01, A02 등)와는 별개의 지도 표시 전용 키를 쓴다.
+const MOCK_REGION_POLYGONS: Record<string, RawDraftPolygon[]> =
+  Object.fromEntries(
+    REGION_GROUP_PROFILES.map((profile, index) => [
+      profile.code,
+      createSectorDivisions(
+        profile.center,
+        index,
+        profile.regionCount,
+        CENTER_POLYGON_BASE_RADIUS,
+      ).map((coordinates, sectorIndex) => ({
+        regionGroupCode: profile.code,
+        code: `${profile.code}-R${sectorIndex + 1}`,
+        geom: { coordinates },
+      })),
+    ]),
+  );
+
+// 세분류 단위 폴리곤 — 센터 전체 subRegionCount를 regionCount개 소분류에 시드 기반으로
+// 분배한 뒤, 각 소분류 부채꼴을 다시 더 작은 부채꼴로 나눈다(#47, #50).
+const MOCK_SUBREGION_POLYGONS: Record<string, RawDraftPolygon[]> =
+  Object.fromEntries(
+    REGION_GROUP_PROFILES.map((profile, index) => {
+      const subCounts = distributeCount(
+        profile.subRegionCount,
+        profile.regionCount,
+        index,
+      );
+
+      const polygons = subCounts.flatMap((subCount, sectorIndex) =>
+        createNestedSectorDivisions(
+          profile.center,
+          index,
+          sectorIndex,
+          profile.regionCount,
+          subCount,
+          CENTER_POLYGON_BASE_RADIUS,
+        ).map((coordinates, subIndex) => ({
+          regionGroupCode: profile.code,
+          code: `${profile.code}-R${sectorIndex + 1}-S${subIndex + 1}`,
+          geom: { coordinates },
+        })),
+      );
+
+      return [profile.code, polygons];
+    }),
+  );
 
 // 센터 단위 위치보기(중심점)
 const MOCK_CENTER_POSITIONS: Record<string, { lat: number; lng: number }> =
@@ -161,6 +224,26 @@ export function fetchDraftPolygons(
   return Promise.resolve(
     params.regionGroupCodes.flatMap((code) =>
       MOCK_POLYGONS[code] ? [MOCK_POLYGONS[code]] : [],
+    ),
+  );
+}
+
+// 소분류 단위 폴리곤 조회 — 줌 레벨이 ZOOM_LEVEL_REGION_MIN~ZOOM_LEVEL_BASE-1 구간일 때 사용(#49).
+export function fetchRegionAreaPolygons(
+  params: RegionViewSearchParams,
+): Promise<RawDraftPolygon[]> {
+  return Promise.resolve(
+    params.regionGroupCodes.flatMap((code) => MOCK_REGION_POLYGONS[code] ?? []),
+  );
+}
+
+// 세분류 단위 폴리곤 조회 — 줌 레벨이 ZOOM_LEVEL_REGION_MIN 미만일 때 사용(#50).
+export function fetchSubRegionAreaPolygons(
+  params: RegionViewSearchParams,
+): Promise<RawDraftPolygon[]> {
+  return Promise.resolve(
+    params.regionGroupCodes.flatMap(
+      (code) => MOCK_SUBREGION_POLYGONS[code] ?? [],
     ),
   );
 }

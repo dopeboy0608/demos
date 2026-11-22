@@ -2,6 +2,15 @@ export const CITY_HALL = { lat: 37.566634, lng: 126.97836 };
 
 export const DEFAULT_MAP_ZOOM_LEVEL = 12;
 
+// 센터 기본 영역(폴리곤) 반경. 위도 37.5° 부근 기준 0.08° ≈ 8~9km로, 서울 "구" 단위 이상
+// 크기를 목표로 한다(#47, #48).
+export const CENTER_POLYGON_BASE_RADIUS = 0.08;
+
+// 지도 중심이 서울시청(CITY_HALL)일 때를 기준으로 한 폴리곤 표기 전환 줌 레벨(#47).
+// 레벨이 클수록 넓게 보임: 8 이상=기본(센터), 6~7=소분류, (추후 #50) 5 이하=세분류.
+export const ZOOM_LEVEL_BASE = 8;
+export const ZOOM_LEVEL_REGION_MIN = 6;
+
 export const SERVICE_TYPE = { DAWN: 'DAWN', DAY: 'DAY' } as const;
 
 export const SERVICE_TYPE_OPTIONS = [
