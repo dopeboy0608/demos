@@ -152,7 +152,7 @@ export function RegionViewSearchPanel({
                         handleRegionGroupTagChange(option.code, checked)
                       }
                     >
-                      <CheckOutlined /> {option.code}
+                      <CheckOutlined /> {option.name ?? option.code}
                     </Tag.CheckableTag>
                   ))}
                 </div>

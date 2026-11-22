@@ -1,3 +1,5 @@
+import seoulDistricts from '../data/seoulDistricts.json';
+
 export const CITY_HALL = { lat: 37.566634, lng: 126.97836 };
 
 // 페이지 최초 진입 시 지도 중심/줌 레벨. 서울시청을 중심으로 줌 8(기본 폴리곤 표시 기준점과
@@ -32,6 +34,10 @@ export interface RegionGroupProfile {
   regionCount: number;
   subRegionCount: number;
   center: { lat: number; lng: number };
+  // 실제 경계 데이터를 쓰는 센터(서울시 25개 구, #64)만 채운다. 없으면 기존처럼
+  // naturalPolygon.ts가 center/반경으로 폴리곤을 절차적으로 생성한다.
+  name?: string;
+  coordinates?: number[][][][];
 }
 
 type RegionGroupProfileData = Omit<RegionGroupProfile, 'center'>;
@@ -47,6 +53,12 @@ const GRID_SPACING_LNG =
 // 위도 방향은 폴리곤 자체가 0.8배 눌려 있어(naturalPolygon.ts), 같은 비율로 간격도 줄인다.
 const GRID_SPACING_LAT = GRID_SPACING_LNG * 0.8;
 
+// 절차적 센터(21개) 격자의 기준점. 서울시 25개 구(#64)가 실제 좌표에 자리잡으므로,
+// 격자가 서울과 겹치지 않도록 기준점을 서울 바깥(경북 지역 인근)으로 둔다. 서울시
+// 대략적 범위는 위도 37.42~37.70, 경도 126.76~127.18 — 이 격자(5x5, 한 변 약 1도)는
+// 그보다 충분히 남동쪽에 위치해 겹치지 않는다.
+const PROCEDURAL_GRID_ANCHOR = { lat: 36.0, lng: 128.0 };
+
 function gridCenter(
   index: number,
   totalRows: number,
@@ -54,8 +66,12 @@ function gridCenter(
   const row = Math.floor(index / GRID_COLUMNS);
   const col = index % GRID_COLUMNS;
   return {
-    lat: CITY_HALL.lat + ((totalRows - 1) / 2 - row) * GRID_SPACING_LAT,
-    lng: CITY_HALL.lng + (col - (GRID_COLUMNS - 1) / 2) * GRID_SPACING_LNG,
+    lat:
+      PROCEDURAL_GRID_ANCHOR.lat +
+      ((totalRows - 1) / 2 - row) * GRID_SPACING_LAT,
+    lng:
+      PROCEDURAL_GRID_ANCHOR.lng +
+      (col - (GRID_COLUMNS - 1) / 2) * GRID_SPACING_LNG,
   };
 }
 
@@ -224,15 +240,52 @@ const GRID_TOTAL_ROWS = Math.ceil(
   REGION_GROUP_PROFILE_DATA.length / GRID_COLUMNS,
 );
 
-export const REGION_GROUP_PROFILES: RegionGroupProfile[] =
-  REGION_GROUP_PROFILE_DATA.map((data, index) => ({
+const PROCEDURAL_PROFILES: RegionGroupProfile[] = REGION_GROUP_PROFILE_DATA.map(
+  (data, index) => ({
     ...data,
     center: gridCenter(index, GRID_TOTAL_ROWS),
-  }));
+  }),
+);
+
+// 다각형 첫 번째 링의 좌표 평균으로 센터(위치보기/목록 표시용)를 근사한다. regionViewParser.ts의
+// approximateCenter와 같은 방식이되, 입력 형식(number[][][][])이 달라 여기서 따로 둔다.
+function approximatePolygonCenter(coordinates: number[][][][]): {
+  lat: number;
+  lng: number;
+} {
+  const ring = coordinates[0][0];
+  const sum = ring.reduce(
+    (acc, [lng, lat]) => ({ lat: acc.lat + lat, lng: acc.lng + lng }),
+    { lat: 0, lng: 0 },
+  );
+  return { lat: sum.lat / ring.length, lng: sum.lng / ring.length };
+}
+
+// 서울시 25개 구를 실제 경계 데이터(#64/#67)로 센터 목록에 추가한다. regionCount는 실제
+// 행정동 개수를 쓰고, subRegionCount(세분류=지번그룹 시뮬레이션)는 #69에서 실제 분할
+// 로직이 들어가기 전까지 regionCount와 동일한 임시값으로 둔다.
+const SEOUL_DISTRICT_PROFILES: RegionGroupProfile[] = seoulDistricts.map(
+  (district, index) => ({
+    code: district.code,
+    name: district.name,
+    serviceType: index % 2 === 0 ? SERVICE_TYPE.DAWN : SERVICE_TYPE.DAY,
+    zipCodeCount: district.dongCount * 10,
+    regionCount: district.dongCount,
+    subRegionCount: district.dongCount,
+    center: approximatePolygonCenter(district.coordinates),
+    coordinates: district.coordinates,
+  }),
+);
+
+export const REGION_GROUP_PROFILES: RegionGroupProfile[] = [
+  ...PROCEDURAL_PROFILES,
+  ...SEOUL_DISTRICT_PROFILES,
+];
 
 export const TEMP_REGION_GROUP_OPTIONS = REGION_GROUP_PROFILES.map(
   (profile) => ({
     code: profile.code,
+    name: profile.name,
     serviceType: profile.serviceType,
   }),
 );
