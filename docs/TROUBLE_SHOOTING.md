@@ -232,3 +232,22 @@ been removed.`과 `Non-relative paths are not allowed.` 에러로 `@/*` 경로 �
   엘리먼트에 다시 붙이는 로직을 그 안에 넣어 리마운트를 놓치지 않게 함. `useRef`로 최신 핸들러를
   보관해 의존성 배열 없이도 항상 최신 클로저를 호출하도록 함.
 - 관련 이슈/PR: #52, #59
+
+## 2026-11-22 18:30 — xmark 팝업을 열고 닫기만 해도 갤러리 썸네일이 사라짐
+
+- 증상: 이슈 #52(xmark) 서브태스크 06(팝업) 구현 중, 갤러리 썸네일을 클릭해 팝업을 연 뒤
+  CLOSE로 닫으면 페이지를 넘기거나 정렬 탭을 바꾸지 않았는데도 갤러리의 썸네일 12개가 전부
+  투명(alpha 0)해지고, 잠시 후 다시 등장 애니메이션이 처음부터 재생됨.
+- 원인: `XmarkPortfolioGallery`에서 `filteredItems`/`pageItems`를 매 렌더마다
+  `filterGalleryItemsByTab(...)`/`paginateGalleryItems(...)` 호출 결과로 새로 만들고 있었음(메모
+  없이). 팝업 열림 상태(`activeItem`)만 바뀌어도 컴포넌트가 리렌더되고, 그때마다 내용은 같아도
+  배열 참조가 달라짐. `XmarkGalleryGrid`의 등장 애니메이션 `useEffect`는 `[items]`를 의존성으로
+  삼는데, 참조가 바뀌면 React는 "데이터가 바뀌었다"고 보고 이펙트를 다시 실행해 등장 애니메이션을
+  처음부터 재생함(먼저 `gsap.set(..., {autoAlpha:0})`으로 초기화하기 때문에 썸네일이 잠깐
+  사라지는 것처럼 보임).
+- 해결/결론: `filteredItems`는 `useMemo(..., [sortTab])`, `pageItems`는
+  `useMemo(..., [filteredItems, page])`로 감싸 sortTab/page가 실제로 바뀔 때만 새 배열을 만들게
+  함. 이 패턴은 일반화할 수 있음: 자식 컴포넌트의 `useEffect` deps로 파생 배열을 넘길 때는, 그
+  배열을 만드는 쪽에서 메모이제이션을 하지 않으면 그 배열과 무관한 상태 변화에도 자식의 이펙트가
+  매번 재실행된다.
+- 관련 이슈/PR: #52, #60

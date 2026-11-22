@@ -16,9 +16,13 @@ const WHEEL_LOCK_MS = 200;
 
 interface XmarkPortfolioListProps {
   items: XmarkGalleryItem[];
+  onRowClick: (item: XmarkGalleryItem) => void;
 }
 
-export function XmarkPortfolioList({ items }: XmarkPortfolioListProps) {
+export function XmarkPortfolioList({
+  items,
+  onRowClick,
+}: XmarkPortfolioListProps) {
   const [scrollOffset, setScrollOffset] = useState(0);
   const trackRef = useRef<HTMLDivElement>(null);
   const wheelLockedRef = useRef(false);
@@ -92,7 +96,12 @@ export function XmarkPortfolioList({ items }: XmarkPortfolioListProps) {
         }}
       >
         {items.map((item, index) => (
-          <XmarkListRow key={item.id} item={item} index={index} />
+          <XmarkListRow
+            key={item.id}
+            item={item}
+            index={index}
+            onClick={onRowClick}
+          />
         ))}
       </div>
     </div>

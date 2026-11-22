@@ -1,6 +1,7 @@
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 
 import { XmarkGalleryGrid } from './XmarkGalleryGrid';
+import { XmarkPopup } from './XmarkPopup';
 import { XmarkPortfolioList } from './XmarkPortfolioList';
 import { XmarkSortTabs } from './XmarkSortTabs';
 import { XmarkStyleTabs } from './XmarkStyleTabs';
@@ -15,24 +16,31 @@ import {
 import type { XmarkGalleryGridHandle } from './XmarkGalleryGrid';
 import type { XmarkStyle } from './XmarkStyleTabs';
 import type { XmarkSortTab } from '../helper/xmarkGalleryConstants';
+import type { XmarkGalleryItem } from '../helper/xmarkGalleryData';
 
 export function XmarkPortfolioGallery() {
   const [sortTab, setSortTab] = useState<XmarkSortTab>('all');
   const [style, setStyle] = useState<XmarkStyle>('gallery');
   const [page, setPage] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [activeItem, setActiveItem] = useState<XmarkGalleryItem | null>(null);
 
   const gridRef = useRef<XmarkGalleryGridHandle>(null);
 
-  const filteredItems = filterGalleryItemsByTab(XMARK_GALLERY_ITEMS, sortTab);
+  // sortTab/page가 바뀔 때만 새 배열을 만든다. useMemo 없이 매 렌더마다 새 배열 참조를 만들면
+  // activeItem(팝업) 상태만 바뀌어도 XmarkGalleryGrid의 items deps가 바뀐 것으로 인식되어
+  // 등장 애니메이션이 불필요하게 다시 재생된다.
+  const filteredItems = useMemo(
+    () => filterGalleryItemsByTab(XMARK_GALLERY_ITEMS, sortTab),
+    [sortTab],
+  );
   const pageCount = getGalleryPageCount(
     filteredItems.length,
     XMARK_GALLERY_PAGE_SIZE,
   );
-  const pageItems = paginateGalleryItems(
-    filteredItems,
-    page,
-    XMARK_GALLERY_PAGE_SIZE,
+  const pageItems = useMemo(
+    () => paginateGalleryItems(filteredItems, page, XMARK_GALLERY_PAGE_SIZE),
+    [filteredItems, page],
   );
 
   // Portfolio/gallery/GalleryMain.as의 tabControl(false) + 썸네일 outThumb → addThumb 순서를 그대로 옮김:
@@ -94,7 +102,11 @@ export function XmarkPortfolioGallery() {
 
       {style === 'gallery' ? (
         <div ref={wheelRef}>
-          <XmarkGalleryGrid ref={gridRef} items={pageItems} />
+          <XmarkGalleryGrid
+            ref={gridRef}
+            items={pageItems}
+            onThumbClick={setActiveItem}
+          />
           <div className="xmark-gallery-pager">
             {Array.from({ length: pageCount }, (_, i) => i).map((pageIndex) => (
               <button
@@ -110,7 +122,11 @@ export function XmarkPortfolioGallery() {
           </div>
         </div>
       ) : (
-        <XmarkPortfolioList items={filteredItems} />
+        <XmarkPortfolioList items={filteredItems} onRowClick={setActiveItem} />
+      )}
+
+      {activeItem && (
+        <XmarkPopup item={activeItem} onClose={() => setActiveItem(null)} />
       )}
     </div>
   );

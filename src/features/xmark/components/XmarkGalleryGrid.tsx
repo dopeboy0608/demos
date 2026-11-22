@@ -20,12 +20,13 @@ export interface XmarkGalleryGridHandle {
 
 interface XmarkGalleryGridProps {
   items: XmarkGalleryItem[];
+  onThumbClick: (item: XmarkGalleryItem) => void;
 }
 
 export const XmarkGalleryGrid = forwardRef<
   XmarkGalleryGridHandle,
   XmarkGalleryGridProps
->(function XmarkGalleryGrid({ items }, ref) {
+>(function XmarkGalleryGrid({ items, onThumbClick }, ref) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useImperativeHandle(ref, () => ({
@@ -101,7 +102,7 @@ export const XmarkGalleryGrid = forwardRef<
   return (
     <div ref={containerRef} className="xmark-gallery-grid">
       {items.map((item) => (
-        <XmarkGalleryThumb key={item.id} item={item} />
+        <XmarkGalleryThumb key={item.id} item={item} onClick={onThumbClick} />
       ))}
     </div>
   );
