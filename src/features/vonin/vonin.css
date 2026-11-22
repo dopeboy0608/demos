@@ -246,3 +246,26 @@
   font-size: 11px;
   cursor: default;
 }
+
+.vonin-poc-wrapper {
+  padding: 40px;
+}
+
+.vonin-poc-label {
+  color: #666;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.vonin-poc-controls {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.vonin-poc-controls button {
+  border: 1px solid #333;
+  background: none;
+  padding: 8px 16px;
+  cursor: pointer;
+}

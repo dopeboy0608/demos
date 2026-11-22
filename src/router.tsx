@@ -8,6 +8,7 @@ import { robokingRoute } from './routes/roboking';
 import { robokingPocRoute } from './routes/roboking-poc';
 import { regionViewRoute } from './routes/region-view';
 import { voninRoute } from './routes/vonin';
+import { voninPocRoute } from './routes/vonin-poc';
 import { xmarkRoute } from './routes/xmark';
 import { xmarkPocRoute } from './routes/xmark-poc';
 
@@ -20,6 +21,7 @@ const routeTree = rootRoute.addChildren([
   xmarkRoute,
   xmarkPocRoute,
   voninRoute,
+  voninPocRoute,
 ]);
 
 export const router = createRouter({
