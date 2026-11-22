@@ -157,9 +157,40 @@
   max-width: 100%;
 }
 
+.vonin-slide-viewport {
+  overflow: hidden;
+  width: 359px;
+  max-width: 100%;
+}
+
+.vonin-slide-track {
+  display: flex;
+  transition: transform 0.5s ease-out;
+}
+
 .vonin-slide-img {
   display: block;
-  width: 100%;
+  width: 359px;
+  flex-shrink: 0;
+}
+
+.vonin-slide-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.7);
+  border: none;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+}
+
+.vonin-slide-arrow-left {
+  left: 4px;
+}
+
+.vonin-slide-arrow-right {
+  right: 4px;
 }
 
 .vonin-slide-dots {
@@ -174,6 +205,9 @@
   height: 8px;
   border-radius: 50%;
   background: #ccc;
+  border: none;
+  padding: 0;
+  cursor: pointer;
 }
 
 .vonin-slide-dot-active {
