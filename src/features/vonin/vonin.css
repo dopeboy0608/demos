@@ -303,3 +303,111 @@
   padding: 8px 16px;
   cursor: pointer;
 }
+
+.vonin-view-toggle {
+  width: 1255px;
+  max-width: 100%;
+  text-align: right;
+  background: none;
+  border: 1px solid #999;
+  padding: 6px 14px;
+  font-size: 11px;
+  cursor: pointer;
+  margin-bottom: 12px;
+  align-self: center;
+}
+
+.vonin-cafe {
+  display: flex;
+  gap: 20px;
+  width: 1255px;
+  max-width: 100%;
+  padding-bottom: 40px;
+  flex-wrap: wrap;
+}
+
+.vonin-cafe-best {
+  width: 240px;
+  font-size: 12px;
+}
+
+.vonin-cafe-best img {
+  width: 95px;
+  height: 95px;
+  object-fit: cover;
+}
+
+.vonin-cafe-best-title {
+  font-weight: bold;
+  margin-top: 6px;
+}
+
+.vonin-cafe-best-txt {
+  color: #666;
+}
+
+.vonin-cafe-best-products {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0;
+}
+
+.vonin-cafe-best-products li {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.vonin-cafe-star {
+  color: #e8a000;
+  font-size: 10px;
+}
+
+.vonin-cafe-column {
+  width: 180px;
+  font-size: 12px;
+}
+
+.vonin-cafe-column h4 {
+  margin: 0 0 8px;
+  font-size: 13px;
+}
+
+.vonin-cafe-column ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.vonin-cafe-column li {
+  padding: 4px 0;
+  color: #555;
+}
+
+.vonin-cafe-write {
+  width: 240px;
+  font-size: 12px;
+}
+
+.vonin-cafe-write h4 {
+  margin: 0 0 8px;
+  font-size: 13px;
+}
+
+.vonin-cafe-write textarea {
+  width: 100%;
+  height: 80px;
+  resize: none;
+  border: 1px solid #ccc;
+  padding: 6px;
+  font-family: inherit;
+  margin-bottom: 8px;
+}
+
+.vonin-cafe-write button {
+  border: 1px solid #333;
+  background: none;
+  padding: 6px 16px;
+  cursor: pointer;
+}

@@ -11,9 +11,15 @@ export interface VoninNoticeItem {
 }
 
 export interface VoninBestRemarkProduct {
+  id: number;
   title: string;
   txt: string;
   star: number;
+}
+
+export interface VoninTextItem {
+  id: number;
+  txt: string;
 }
 
 export const VONIN_ROLL_PRODUCT_COUNT = 8;
@@ -43,14 +49,26 @@ export const VONIN_BEST_REMARK = {
   title: '스피릿',
   txt: '안에들어갈내용안에들어갈내용안에들어갈내용안에들어갈내용안에들어갈내용',
   products: [
-    { title: '1번제목', txt: '1들어갈내용1들어갈내용1들어갈내용', star: 5 },
-    { title: '2번제목', txt: '2들어갈내용', star: 2 },
+    {
+      id: 0,
+      title: '1번제목',
+      txt: '1들어갈내용1들어갈내용1들어갈내용',
+      star: 5,
+    },
+    { id: 1, title: '2번제목', txt: '2들어갈내용', star: 2 },
   ] as VoninBestRemarkProduct[],
 };
 
-export const VONIN_BM = ['bm1', 'bm2', 'bm3'];
-export const VONIN_RSS = [
-  'rss1',
-  'rss2rss2rss2rss2rss2rss2rss2rss2rss2rss2rss2',
+export const VONIN_BM: VoninTextItem[] = [
+  { id: 0, txt: 'bm1' },
+  { id: 1, txt: 'bm2' },
+  { id: 2, txt: 'bm3' },
 ];
-export const VONIN_QA = ['qa1', 'qa2qa2qa2qa2qa2qa2qa2qa2qa2qa2qa2qa2qa2'];
+export const VONIN_RSS: VoninTextItem[] = [
+  { id: 0, txt: 'rss1' },
+  { id: 1, txt: 'rss2rss2rss2rss2rss2rss2rss2rss2rss2rss2rss2' },
+];
+export const VONIN_QA: VoninTextItem[] = [
+  { id: 0, txt: 'qa1' },
+  { id: 1, txt: 'qa2qa2qa2qa2qa2qa2qa2qa2qa2qa2qa2qa2qa2' },
+];
