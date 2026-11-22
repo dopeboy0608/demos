@@ -1,10 +1,6 @@
-const VERTEX_COUNT = 6;
+import { pseudoRandom } from './pseudoRandom';
 
-// seed만으로 변주를 만드는 결정적 의사난수(실제 Math.random을 쓰지 않아 테스트 가능)
-function pseudoRandom(seed: number, salt: number): number {
-  const value = Math.sin(seed * 12.9898 + salt * 78.233) * 43758.5453;
-  return value - Math.floor(value);
-}
+const VERTEX_COUNT = 6;
 
 /**
  * 중심좌표 주변에 단순 사각형이 아닌 불규칙한 다각형을 만든다. 실제 난수 대신 seed 기반

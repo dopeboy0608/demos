@@ -15,6 +15,7 @@ export function RegionViewPage() {
           mapCenter={board.mapCenter}
           mapZoomLevel={board.mapZoomLevel}
           draftPolygonList={board.draftPolygonList}
+          regionPolygonList={board.regionPolygonList}
           impossiblePolygonList={board.impossiblePolygonList}
           isImpossibleView={board.isImpossibleView}
           isSearchResultMarker={board.isSearchResultMarker}

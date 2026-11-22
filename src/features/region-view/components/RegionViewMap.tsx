@@ -5,12 +5,14 @@ import {
   Polygon,
 } from 'react-kakao-maps-sdk';
 
+import { ZOOM_LEVEL_BASE } from '../helper/constants';
 import type { ParsedDraftPolygon } from '../helper/regionViewParser';
 
 interface RegionViewMapProps {
   mapCenter: { lat: number; lng: number };
   mapZoomLevel: number;
   draftPolygonList: ParsedDraftPolygon[];
+  regionPolygonList: ParsedDraftPolygon[];
   impossiblePolygonList: ParsedDraftPolygon[];
   isImpossibleView: boolean;
   isSearchResultMarker: boolean;
@@ -22,12 +24,17 @@ export function RegionViewMap({
   mapCenter,
   mapZoomLevel,
   draftPolygonList,
+  regionPolygonList,
   impossiblePolygonList,
   isImpossibleView,
   isSearchResultMarker,
   onChangeZoomLevel,
   onUpdatedMap,
 }: RegionViewMapProps) {
+  // 줌 레벨에 따라 기본(센터)/소분류 폴리곤을 전환한다(세분류 전환은 #50에서 추가 예정).
+  const visiblePolygonList =
+    mapZoomLevel >= ZOOM_LEVEL_BASE ? draftPolygonList : regionPolygonList;
+
   const handleZoomChanged = (map: kakao.maps.Map) => {
     onChangeZoomLevel(map.getLevel());
     onUpdatedMap();
@@ -49,9 +56,11 @@ export function RegionViewMap({
       onZoomChanged={handleZoomChanged}
       onDragEnd={onUpdatedMap}
     >
-      {draftPolygonList.map((region) => {
+      {visiblePolygonList.map((region) => {
+        // 소분류 폴리곤은 한 센터 안에서 regionGroupCode가 모두 같으므로, 고유한
+        // code(예: A-R1)를 우선 키로 쓴다(기본 폴리곤은 code가 없어 regionGroupCode로 대체).
         const key =
-          region.regionGroupCode ?? region.code ?? region.blockCode ?? '';
+          region.code ?? region.regionGroupCode ?? region.blockCode ?? '';
         return (
           <Polygon
             key={`draft-polygon-${key}`}

@@ -4,6 +4,7 @@ import { useCallback, useRef, useState } from 'react';
 import {
   fetchDraftPolygons,
   fetchImpossiblePolygons,
+  fetchRegionAreaPolygons,
   fetchRegionGroupList,
   fetchRegionGroupLocation,
   fetchRegionLocation,
@@ -32,6 +33,9 @@ export function useRegionViewBoard() {
   const [draftPolygonList, setDraftPolygonList] = useState<
     ParsedDraftPolygon[]
   >([]);
+  const [regionPolygonList, setRegionPolygonList] = useState<
+    ParsedDraftPolygon[]
+  >([]);
   const [impossiblePolygonList, setImpossiblePolygonList] = useState<
     ParsedDraftPolygon[]
   >([]);
@@ -53,12 +57,16 @@ export function useRegionViewBoard() {
 
   const fetchMapData = useCallback(async () => {
     if (!searchParamsRef.current) return;
-    const [rawDraft, rawImpossible] = await Promise.all([
+    const [rawDraft, rawRegion, rawImpossible] = await Promise.all([
       fetchDraftPolygons(searchParamsRef.current),
+      fetchRegionAreaPolygons(searchParamsRef.current),
       fetchImpossiblePolygons(searchParamsRef.current),
     ]);
     setDraftPolygonList(
       parseRegionViewDraftPolygon(rawDraft, existingGroupCodesRef.current),
+    );
+    setRegionPolygonList(
+      parseRegionViewDraftPolygon(rawRegion, existingGroupCodesRef.current),
     );
     setImpossiblePolygonList(
       parseRegionViewDraftPolygon(rawImpossible, [], false),
@@ -207,6 +215,7 @@ export function useRegionViewBoard() {
   return {
     isLoading,
     draftPolygonList,
+    regionPolygonList,
     impossiblePolygonList,
     regionGroupList,
     hasSearched,
