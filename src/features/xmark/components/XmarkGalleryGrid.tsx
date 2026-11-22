@@ -12,7 +12,10 @@ import type { XmarkGalleryItem } from '../helper/xmarkGalleryData';
 const ENTER_DURATION_SECONDS = 2;
 const EXIT_DURATION_SECONDS = 0.5;
 const STAGGER_SECONDS = 2 / 30;
-const ENTER_START_Y = 60;
+// #71 FR-06: 카드가 뷰포트 아래(화면 밖)에서 올라오도록, 각 카드의 실제 화면상 y좌표 기준으로
+// "뷰포트 하단 + 여유값"까지의 거리를 등장 시작 오프셋으로 계산한다(행마다 필요한 거리가 달라
+// 고정값 하나로는 표현할 수 없음).
+const ENTER_START_BELOW_VIEWPORT_BUFFER_PX = 40;
 
 export interface XmarkGalleryGridHandle {
   playExit: (onComplete: () => void) => void;
@@ -71,7 +74,10 @@ export const XmarkGalleryGrid = forwardRef<
     if (thumbs.length !== items.length) return;
 
     gsap.set(thumbs, {
-      y: ENTER_START_Y,
+      y: (_index, target: HTMLElement) =>
+        window.innerHeight -
+        target.getBoundingClientRect().top +
+        ENTER_START_BELOW_VIEWPORT_BUFFER_PX,
       autoAlpha: 0,
       rotationX: 0,
       rotationY: 0,
