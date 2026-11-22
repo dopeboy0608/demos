@@ -150,16 +150,24 @@
   font-weight: bold;
 }
 
+.xmark-sort-tab:disabled,
+.xmark-style-tab:disabled {
+  color: #444;
+  cursor: default;
+}
+
 .xmark-gallery-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
+  perspective: 800px;
 }
 
 .xmark-gallery-thumb {
   position: relative;
   background: #141414;
   border: 1px solid #262626;
+  transform-style: preserve-3d;
 }
 
 .xmark-gallery-thumb-img {
@@ -206,6 +214,11 @@
 .xmark-gallery-page-btn-active {
   border-color: #ff6a00;
   color: #fff;
+}
+
+.xmark-gallery-page-btn:disabled {
+  color: #444;
+  cursor: default;
 }
 
 .xmark-portfolio-list-placeholder {
