@@ -210,3 +210,25 @@ been removed.`과 `Non-relative paths are not allowed.` 에러로 `@/*` 경로 �
   GNB 탭 전환, "준비중입니다." 알림)은 코드에서 직접 확인했으므로 실측 그대로이고, 시각 자산만
   대체했음을 feature doc에 기록.
 - 관련 이슈/PR: #52, #55
+
+## 2026-11-22 14:25 — xmark 휠 스크롤이 preventDefault 되지 않고 페이지도 같이 스크롤됨
+
+- 증상: 이슈 #52(xmark) 서브태스크 05(리스트 휠 스크롤) 구현 중, 브라우저 콘솔에
+  "Unable to preventDefault inside passive event listener invocation." 경고가 반복 발생. 동시에
+  갤러리↔리스트 스타일 탭을 전환했다가 갤러리로 되돌아오면 휠 스크롤이 더 이상 페이지 전환을
+  일으키지 않는 2차 증상도 있었음.
+- 원인:
+  1. React 17+는 성능을 위해 JSX `onWheel`(과 `onTouchStart` 등)을 passive 리스너로 등록한다.
+     passive 리스너 안에서는 `event.preventDefault()`가 무시되므로, 휠로 페이지/스크롤을 직접
+     제어하려는 커스텀 로직과 브라우저 기본 스크롤이 함께 발생함.
+  2. 1번을 고치려고 `useRef` + `useEffect(() => { el.addEventListener(...) }, [])`로 네이티브
+     리스너를 붙이는 훅을 만들었으나, 갤러리↔리스트 전환처럼 대상 엘리먼트가 조건부 렌더링으로
+     언마운트·리마운트되면 `ref.current`는 새 DOM 노드로 바뀌는데 `useEffect`는 컴포넌트가
+     한 번도 언마운트되지 않는 한 재실행되지 않아, 리스너가 떨어져 나간 옛 노드에만 붙은 채
+     방치됨(React DevTools 없이도 재현 가능, "Hooks 순서가 바뀌었다"는 경고와는 무관한 별개
+     버그였음).
+- 해결/결론: `useNonPassiveWheel` 훅을 콜백 ref 방식으로 다시 작성함(`src/features/xmark/hooks/useNonPassiveWheel.ts`).
+  콜백 ref는 엘리먼트가 마운트/언마운트될 때마다 매번 호출되므로, 이전 리스너를 정리하고 새
+  엘리먼트에 다시 붙이는 로직을 그 안에 넣어 리마운트를 놓치지 않게 함. `useRef`로 최신 핸들러를
+  보관해 의존성 배열 없이도 항상 최신 클로저를 호출하도록 함.
+- 관련 이슈/PR: #52, #59

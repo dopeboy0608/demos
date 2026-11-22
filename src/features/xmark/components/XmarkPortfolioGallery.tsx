@@ -1,8 +1,10 @@
 import { useRef, useState } from 'react';
 
 import { XmarkGalleryGrid } from './XmarkGalleryGrid';
+import { XmarkPortfolioList } from './XmarkPortfolioList';
 import { XmarkSortTabs } from './XmarkSortTabs';
 import { XmarkStyleTabs } from './XmarkStyleTabs';
+import { useNonPassiveWheel } from '../hooks/useNonPassiveWheel';
 import { XMARK_GALLERY_PAGE_SIZE } from '../helper/xmarkGalleryConstants';
 import { XMARK_GALLERY_ITEMS } from '../helper/xmarkGalleryData';
 import {
@@ -65,14 +67,15 @@ export function XmarkPortfolioGallery() {
 
   // 원본은 wheel delta<0일 때 다음 페이지였지만(Flash의 delta 부호 관례), 웹 휠 이벤트는
   // deltaY>0이 "아래로 스크롤"이라 다음 페이지로 매핑하는 것이 직관적이라 그대로 따름.
-  const handleWheel = (event: React.WheelEvent<HTMLDivElement>) => {
+  // JSX onWheel은 passive 리스너라 preventDefault가 동작하지 않아 네이티브 리스너로 처리한다.
+  const wheelRef = useNonPassiveWheel<HTMLDivElement>((event) => {
     event.preventDefault();
     if (event.deltaY > 0) {
       goToPage(page + 1);
     } else if (event.deltaY < 0) {
       goToPage(page - 1);
     }
-  };
+  });
 
   return (
     <div className="xmark-portfolio">
@@ -90,7 +93,7 @@ export function XmarkPortfolioGallery() {
       </div>
 
       {style === 'gallery' ? (
-        <div onWheel={handleWheel}>
+        <div ref={wheelRef}>
           <XmarkGalleryGrid ref={gridRef} items={pageItems} />
           <div className="xmark-gallery-pager">
             {Array.from({ length: pageCount }, (_, i) => i).map((pageIndex) => (
@@ -107,9 +110,7 @@ export function XmarkPortfolioGallery() {
           </div>
         </div>
       ) : (
-        <div className="xmark-portfolio-list-placeholder">
-          리스트 영역 (다음 서브태스크에서 구현)
-        </div>
+        <XmarkPortfolioList items={filteredItems} />
       )}
     </div>
   );
