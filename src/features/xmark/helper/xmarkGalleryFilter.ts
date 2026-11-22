@@ -29,11 +29,3 @@ export function getGalleryPageCount(
 ): number {
   return Math.max(1, Math.ceil(itemCount / pageSize));
 }
-
-// `ListManager.as`의 `_scrollLen = _listArr.length - 12` 그대로.
-export function getListMaxScroll(
-  itemCount: number,
-  visibleRows: number,
-): number {
-  return Math.max(0, itemCount - visibleRows);
-}

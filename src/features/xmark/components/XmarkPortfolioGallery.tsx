@@ -2,9 +2,7 @@ import { useMemo, useRef, useState } from 'react';
 
 import { XmarkGalleryGrid } from './XmarkGalleryGrid';
 import { XmarkPopup } from './XmarkPopup';
-import { XmarkPortfolioList } from './XmarkPortfolioList';
 import { XmarkSortTabs } from './XmarkSortTabs';
-import { XmarkStyleTabs } from './XmarkStyleTabs';
 import { useNonPassiveWheel } from '../hooks/useNonPassiveWheel';
 import { XMARK_GALLERY_PAGE_SIZE } from '../helper/xmarkGalleryConstants';
 import { XMARK_GALLERY_ITEMS } from '../helper/xmarkGalleryData';
@@ -14,13 +12,11 @@ import {
   paginateGalleryItems,
 } from '../helper/xmarkGalleryFilter';
 import type { XmarkGalleryGridHandle } from './XmarkGalleryGrid';
-import type { XmarkStyle } from './XmarkStyleTabs';
 import type { XmarkSortTab } from '../helper/xmarkGalleryConstants';
 import type { XmarkGalleryItem } from '../helper/xmarkGalleryData';
 
 export function XmarkPortfolioGallery() {
   const [sortTab, setSortTab] = useState<XmarkSortTab>('all');
-  const [style, setStyle] = useState<XmarkStyle>('gallery');
   const [page, setPage] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [activeItem, setActiveItem] = useState<XmarkGalleryItem | null>(null);
@@ -68,11 +64,6 @@ export function XmarkPortfolioGallery() {
     setPage(0);
   };
 
-  const handleStyleSelect = (next: XmarkStyle) => {
-    if (isTransitioning) return;
-    setStyle(next);
-  };
-
   // 원본은 wheel delta<0일 때 다음 페이지였지만(Flash의 delta 부호 관례), 웹 휠 이벤트는
   // deltaY>0이 "아래로 스크롤"이라 다음 페이지로 매핑하는 것이 직관적이라 그대로 따름.
   // JSX onWheel은 passive 리스너라 preventDefault가 동작하지 않아 네이티브 리스너로 처리한다.
@@ -93,37 +84,28 @@ export function XmarkPortfolioGallery() {
           onSelect={handleSortSelect}
           disabled={isTransitioning}
         />
-        <XmarkStyleTabs
-          activeStyle={style}
-          onSelect={handleStyleSelect}
-          disabled={isTransitioning}
-        />
       </div>
 
-      {style === 'gallery' ? (
-        <div ref={wheelRef}>
-          <XmarkGalleryGrid
-            ref={gridRef}
-            items={pageItems}
-            onThumbClick={setActiveItem}
-          />
-          <div className="xmark-gallery-pager">
-            {Array.from({ length: pageCount }, (_, i) => i).map((pageIndex) => (
-              <button
-                key={pageIndex}
-                type="button"
-                disabled={isTransitioning}
-                className={`xmark-gallery-page-btn${page === pageIndex ? ' xmark-gallery-page-btn-active' : ''}`}
-                onClick={() => goToPage(pageIndex)}
-              >
-                {pageIndex + 1}
-              </button>
-            ))}
-          </div>
+      <div ref={wheelRef} className="xmark-gallery-area">
+        <XmarkGalleryGrid
+          ref={gridRef}
+          items={pageItems}
+          onThumbClick={setActiveItem}
+        />
+        <div className="xmark-gallery-pager">
+          {Array.from({ length: pageCount }, (_, i) => i).map((pageIndex) => (
+            <button
+              key={pageIndex}
+              type="button"
+              disabled={isTransitioning}
+              className={`xmark-gallery-page-btn${page === pageIndex ? ' xmark-gallery-page-btn-active' : ''}`}
+              onClick={() => goToPage(pageIndex)}
+            >
+              {pageIndex + 1}
+            </button>
+          ))}
         </div>
-      ) : (
-        <XmarkPortfolioList items={filteredItems} onRowClick={setActiveItem} />
-      )}
+      </div>
 
       {activeItem && (
         <XmarkPopup item={activeItem} onClose={() => setActiveItem(null)} />

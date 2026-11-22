@@ -24,5 +24,6 @@ export const XMARK_SORT_TABS: { tab: XmarkSortTab; label: string }[] = [
   { tab: 'mobile', label: 'MOBILE' },
 ];
 
-export const XMARK_GALLERY_PAGE_SIZE = 12;
-export const XMARK_GALLERY_COLUMNS = 4;
+// 해상도에 관계없이 한 페이지에 10장이 스크롤 없이 들어오도록 5열 x 2행 그리드로 배치한다(#71).
+export const XMARK_GALLERY_PAGE_SIZE = 10;
+export const XMARK_GALLERY_COLUMNS = 5;
