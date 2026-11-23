@@ -68,6 +68,8 @@ export function useStageGame(config: StageConfig) {
 
   const collectedCount = collectedDust.size + collectedEventDust.size;
   const scorePercent = Math.floor((collectedCount / config.totalDust) * 100);
+  const totalSeconds =
+    GAME_RULES.endTimeUnits / GAME_RULES.timeUnitsPerTick / STAGE_FPS;
   const timeLeftSeconds = Math.max(
     0,
     Math.ceil(
@@ -75,6 +77,12 @@ export function useStageGame(config: StageConfig) {
         GAME_RULES.timeUnitsPerTick /
         STAGE_FPS,
     ),
+  );
+  // CLEAR/TIME 게이지 UI(#86)에 쓰는 퍼센트. 시간은 남은 비율(가득 찬 상태로 시작해 줄어듦)로
+  // 보여준다.
+  const timePercent = Math.max(
+    0,
+    Math.round((timeLeftSeconds / totalSeconds) * 100),
   );
 
   const handleSpaceDown = useCallback(() => {
@@ -269,5 +277,6 @@ export function useStageGame(config: StageConfig) {
     dogPos: dogVisible ? dogPos : null,
     scorePercent,
     timeLeftSeconds,
+    timePercent,
   };
 }

@@ -42,8 +42,26 @@ export function GameStage({
     <div className="roboking-stage">
       <div className="roboking-stage-inner roboking-game-stage">
         <div className="roboking-game-hud">
-          <span>TIME: {game.timeLeftSeconds}</span>
-          <span>SCORE: {game.scorePercent}%</span>
+          <div className="roboking-hud-gauge">
+            <span className="roboking-hud-label">CLEAR</span>
+            <div className="roboking-hud-bar">
+              <div
+                className="roboking-hud-bar-fill roboking-hud-bar-fill--clear"
+                style={{ width: `${game.scorePercent}%` }}
+              />
+            </div>
+            <span className="roboking-hud-value">{game.scorePercent}%</span>
+          </div>
+          <div className="roboking-hud-gauge">
+            <span className="roboking-hud-label">TIME</span>
+            <div className="roboking-hud-bar">
+              <div
+                className="roboking-hud-bar-fill roboking-hud-bar-fill--time"
+                style={{ width: `${game.timePercent}%` }}
+              />
+            </div>
+            <span className="roboking-hud-value">{game.timeLeftSeconds}s</span>
+          </div>
         </div>
         <div className="roboking-game-field">
           <img

@@ -1,10 +1,17 @@
-/* 원본 Flash 무대 크기(810x1000)를 고정하고, 뷰포트에 맞춰 스케일만 한다. */
+/* 원본 Flash 무대 크기(810x1000)를 고정하고, 뷰포트에 맞춰 스케일만 한다.
+   xmark/region-view와 동일하게 margin:-24px로 AppLayout Content의 24px 패딩을 상쇄해
+   화면을 꽉 채우고, 뷰포트가 810x1000보다 넓거나 길 때 흰 배경이 비치지 않도록 무대와
+   어울리는 어두운 배경을 둔다(#86). */
 .roboking-stage {
   display: flex;
   justify-content: center;
   align-items: flex-start;
   width: 100%;
-  height: 100%;
+  min-height: 100%;
+  margin: -24px;
+  padding: 24px;
+  box-sizing: border-box;
+  background: #0b1e33;
 }
 
 .roboking-stage-inner {
@@ -123,9 +130,52 @@
   right: 0;
   z-index: 10;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 24px;
   padding: 0 16px;
   font-weight: 600;
+}
+
+/* CLEAR/TIME 게이지. 배경 그림 속 정적인 CLEAR/TIME 바 디자인(검은 알약형 트랙)을
+   참고해, 실제 진행률을 보여주는 바로 교체한다(#86). */
+.roboking-hud-gauge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.roboking-hud-label {
+  min-width: 36px;
+  letter-spacing: 0.05em;
+}
+
+.roboking-hud-bar {
+  width: 120px;
+  height: 10px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  overflow: hidden;
+}
+
+.roboking-hud-bar-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.2s linear;
+}
+
+.roboking-hud-bar-fill--clear {
+  background: linear-gradient(90deg, #ffb347, #ff8c00);
+}
+
+.roboking-hud-bar-fill--time {
+  background: linear-gradient(90deg, #7ed6ff, #3498db);
+}
+
+.roboking-hud-value {
+  min-width: 36px;
+  text-align: right;
 }
 
 .roboking-game-debug-hud {
