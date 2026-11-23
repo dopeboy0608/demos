@@ -68,15 +68,45 @@ export function RegionViewSubRegionResult({
                   key={subRegion.subRegionCode}
                   style={{
                     display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '4px 0',
+                    flexDirection: 'column',
+                    gap: 4,
+                    padding: '6px 0',
                   }}
                 >
-                  <span
-                    style={{ display: 'flex', alignItems: 'center', gap: 6 }}
+                  {/* 위치보기 버튼은 배송회차 Tag 개수와 무관하게 항상 같은 자리에 고정되도록
+                      라벨 행과 Tag 행을 분리한다(라벨이 길거나 회차가 여러 개여도 버튼이
+                      밀려나지 않음, #94). */}
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      gap: 8,
+                    }}
                   >
-                    <span>{subRegion.label ?? subRegion.subRegionCode}</span>
+                    <span style={{ flex: 1, minWidth: 0 }}>
+                      {subRegion.label ?? subRegion.subRegionCode}
+                    </span>
+                    <Button
+                      shape="circle"
+                      size="small"
+                      title="위치보기"
+                      icon={<PushpinOutlined />}
+                      style={{ flexShrink: 0 }}
+                      onClick={() =>
+                        onLocationSearchClick(
+                          {
+                            regionGroupCode,
+                            code: subRegion.subRegionCode,
+                            sortingLevel: 'SUB_REGION',
+                            sortingTypeCode,
+                          },
+                          'MICRO_DIVISION',
+                        )
+                      }
+                    />
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                     {subRegion.deliveryRounds.length ? (
                       subRegion.deliveryRounds.map((round) => (
                         <Tag key={round}>배송회차 {round}</Tag>
@@ -84,24 +114,7 @@ export function RegionViewSubRegionResult({
                     ) : (
                       <Tag>배송회차 정보없음</Tag>
                     )}
-                  </span>
-                  <Button
-                    shape="circle"
-                    size="small"
-                    title="위치보기"
-                    icon={<PushpinOutlined />}
-                    onClick={() =>
-                      onLocationSearchClick(
-                        {
-                          regionGroupCode,
-                          code: subRegion.subRegionCode,
-                          sortingLevel: 'SUB_REGION',
-                          sortingTypeCode,
-                        },
-                        'MICRO_DIVISION',
-                      )
-                    }
-                  />
+                  </div>
                 </div>
               ))}
             </div>
