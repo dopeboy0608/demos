@@ -35,30 +35,17 @@ interface Demo {
   cover: ReactNode;
 }
 
+// GNB 메뉴 순서(폴리곤 제어 → 권역조회 → X-MARK → LG 로보킹)와 동일하게 맞춘다(#83).
 const DEMOS: Demo[] = [
   {
     to: '/polygon',
-    title: '폴리곤 제어 데모',
+    title: '폴리곤 제어',
     description:
       '지도 2개에서 폴리곤을 그리고 선택·합치기(union/intersection/xor/difference)·분할하는 데모 화면',
     cover: (
       <div style={iconCoverStyle('#e6f4ff')}>
         <BorderOutlined style={{ color: '#1677ff' }} />
       </div>
-    ),
-  },
-  {
-    to: '/roboking',
-    title: 'LG 로보킹 (Flash 이관)',
-    description:
-      'Flash로 만들어진 LG 로보킹 청소 게임을 이관하는 데모. 메인 화면(랭킹/당첨자/게임방법/영상)과 3개 스테이지 게임플레이가 구현됨',
-    status: '복원 진행중',
-    cover: (
-      <img
-        src={toAssetUrl('/roboking/img/stage1_game_bg.png')}
-        alt=""
-        style={imageCoverStyle}
-      />
     ),
   },
   {
@@ -80,6 +67,20 @@ const DEMOS: Demo[] = [
     cover: (
       <img
         src={toAssetUrl('/xmark/img/img0.jpg')}
+        alt=""
+        style={imageCoverStyle}
+      />
+    ),
+  },
+  {
+    to: '/roboking',
+    title: 'LG 로보킹 (Flash 이관)',
+    description:
+      'Flash로 만들어진 LG 로보킹 청소 게임을 이관하는 데모. 메인 화면(랭킹/당첨자/게임방법/영상)과 3개 스테이지 게임플레이가 구현됨',
+    status: '복원 진행중',
+    cover: (
+      <img
+        src={toAssetUrl('/roboking/img/stage1_game_bg.png')}
         alt=""
         style={imageCoverStyle}
       />
