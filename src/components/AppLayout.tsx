@@ -8,10 +8,13 @@ const NAV_ITEMS = [
   { key: '/', label: <Link to="/">홈</Link> },
   { key: '/polygon', label: <Link to="/polygon">폴리곤 제어</Link> },
   { key: '/region-view', label: <Link to="/region-view">권역조회</Link> },
-  { key: '/xmark', label: <Link to="/xmark">X-MARK</Link> },
+  {
+    key: '/xmark',
+    label: <Link to="/xmark">X-MARK (Flash 이관)</Link>,
+  },
   {
     key: '/roboking',
-    label: <Link to="/roboking">LG 로보킹 (복원 진행중)</Link>,
+    label: <Link to="/roboking">LG 로보킹 (Flash 이관, 복원 진행중)</Link>,
   },
 ];
 
