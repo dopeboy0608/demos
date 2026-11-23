@@ -9,7 +9,7 @@
 | 03  | #75  | 마우스 3D 패럴럭스                                | 완료 (63aa032)                 |
 | 04  | #76  | 휠업 페이지 전환(다음 페이지)                     | 완료 (2868cf4)                 |
 | 05  | #77  | 휠다운 페이지 전환(이전 페이지)                   | 완료 (2868cf4, 04와 같은 커밋) |
-| 06  | #78  | 마무리 정리 및 회귀 확인                          | 대기                           |
+| 06  | #78  | 마무리 정리 및 회귀 확인                          | 완료                           |
 
 브랜치: `feature/71-xmark-개선` (스토리 하나당 브랜치 하나, origin/main 기준)
 
@@ -39,3 +39,8 @@
 - 02(#74) 완료(2306ca4): `XmarkGalleryGrid`의 등장 `gsap.set` y값을 고정 60px 대신 함수형 값(`window.innerHeight - target.getBoundingClientRect().top + 40`)으로 바꿔, 그리드의 몇 번째 행이든 모든 카드가 뷰포트 하단 바깥에서 올라오도록 수정. 브라우저로 애니메이션 중간 프레임(카드가 화면 밖에서 올라오는 모습)과 최종 정착 상태를 확인.
 - 03(#75) 완료(63aa032): `perspective`를 `.xmark-gallery-grid`에서 부모 `.xmark-gallery-area`로 옮기고 그리드에 `transform-style:preserve-3d` 추가. `window`의 `mousemove`를 구독해 컨테이너 중심 대비 포인터 오프셋을 -1~1로 정규화한 뒤 `gsap.quickTo`로 rotationX/rotationY를 최대 ±12도까지 부드럽게 따라가도록 구현(피벗은 transform-origin 기본값인 중앙 유지). 브라우저에서 그리드 좌상단/우하단으로 마우스를 옮겨 반대 방향으로 기울어짐을 확인.
 - 04(#76)·05(#77) 완료(2868cf4, 같은 커밋): `playExit`/entrance 로직에 `forward`/`backward` 방향 개념을 도입하고, 등장·퇴장 오프셋 계산을 `computeOffscreenOffset(target, 'above'|'below')` 하나로 통합. forward(휠업/다음 페이지)는 기존 카드가 위로 사라지고 새 카드가 아래서 올라오며, backward(휠다운/이전 페이지)는 그 반대(아래로 사라지고 위에서 내려옴). 브라우저로 양방향 전환을 모두 확인(휠업→2페이지, 휠다운→1페이지로 복귀).
+- 06(#78) 완료: lint/tsc/test(83개)/build 전체 재확인 후, 브라우저로 FLASH 정렬 탭 전환·카드 팝업 오픈/닫기·`/xmark-poc` 라우트·다른 라우트(`/polygon`, `/roboking`)까지 회귀 확인. 신규/수정 코드는 모두 커밋 시점에 code-organizer 기준(import 그룹 순서, 훅/상수 선언 위치)에 맞게 작성되어 있어 별도 재정렬 불필요. 남은 TODO 없음(API 연동이 없는 작업이라 `TODO(API)` 마커 자체가 발생하지 않음). `/xmark-poc`는 마우스 패럴럭스와 무관한 entrance 데모로 그대로 유지(03 결정 참고).
+
+## 다음 단계
+
+- 스토리 #71의 모든 서브태스크(01~06) 완료. 사용자 확인 후 Draft PR 오픈 여부를 결정한다.
