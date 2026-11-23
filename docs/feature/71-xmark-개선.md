@@ -41,6 +41,12 @@
 - 04(#76)·05(#77) 완료(2868cf4, 같은 커밋): `playExit`/entrance 로직에 `forward`/`backward` 방향 개념을 도입하고, 등장·퇴장 오프셋 계산을 `computeOffscreenOffset(target, 'above'|'below')` 하나로 통합. forward(휠업/다음 페이지)는 기존 카드가 위로 사라지고 새 카드가 아래서 올라오며, backward(휠다운/이전 페이지)는 그 반대(아래로 사라지고 위에서 내려옴). 브라우저로 양방향 전환을 모두 확인(휠업→2페이지, 휠다운→1페이지로 복귀).
 - 06(#78) 완료: lint/tsc/test(83개)/build 전체 재확인 후, 브라우저로 FLASH 정렬 탭 전환·카드 팝업 오픈/닫기·`/xmark-poc` 라우트·다른 라우트(`/polygon`, `/roboking`)까지 회귀 확인. 신규/수정 코드는 모두 커밋 시점에 code-organizer 기준(import 그룹 순서, 훅/상수 선언 위치)에 맞게 작성되어 있어 별도 재정렬 불필요. 남은 TODO 없음(API 연동이 없는 작업이라 `TODO(API)` 마커 자체가 발생하지 않음). `/xmark-poc`는 마우스 패럴럭스와 무관한 entrance 데모로 그대로 유지(03 결정 참고).
 
+- PR #80 리뷰 중 추가 요청(2026-11-23) 반영(f8e8071):
+  1. `.xmark-stage`에 `width:100%`를 명시하면 `margin:-24px`가 상쇄해야 할 패딩만큼 커지지 못해 오른쪽에 48px 틈이 남는 문제 발견 → `width:100%` 제거하고 `align-items:stretch` 기본 동작에 맡겨 해결. 폴리곤/권역조회는 각자 별도 CSS라 영향 없음을 브라우저로 확인.
+  2. `.xmark-gallery-grid`를 `width:80%; height:80%;`로 축소해, 마우스 3D 패럴럭스로 기울어질 때 `.xmark-gallery-area`에 생기던 가로/세로 스크롤 제거(최대 기울기에서도 `scrollWidth === clientWidth`, `scrollHeight === clientHeight` 확인).
+  3. `.xmark-gallery-thumb`에 `aspect-ratio:1/1` 적용, `.xmark-gallery-thumb-img`를 `flex:1`로 바꿔 해상도가 바뀌어도 카드가 항상 정사각형을 유지하도록 수정.
+  4. 등장 애니메이션(2초)이 끝나야 `isTransitioning` 잠금이 풀리도록 변경(`XmarkGalleryGrid`에 `onEnterComplete` 콜백 추가, 초기 상태도 `true`로 시작). 뷰포트가 채 정착하기 전 휠을 연타하면 등장 타임라인이 끊기며 화면이 튀던 버그를 브라우저로 재현 후 수정 확인(4연속 스크롤 시도 중 페이지 번호가 그대로 유지됨을 확인).
+
 ## 다음 단계
 
-- 스토리 #71의 모든 서브태스크(01~06) 완료. 사용자 확인 후 Draft PR 오픈 여부를 결정한다.
+- 스토리 #71의 모든 서브태스크(01~06) + PR #80 리뷰 반영 완료.

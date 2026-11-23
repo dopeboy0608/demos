@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 
 import { XmarkGalleryGrid } from './XmarkGalleryGrid';
 import { XmarkPopup } from './XmarkPopup';
@@ -21,7 +21,8 @@ import type { XmarkGalleryItem } from '../helper/xmarkGalleryData';
 export function XmarkPortfolioGallery() {
   const [sortTab, setSortTab] = useState<XmarkSortTab>('all');
   const [page, setPage] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
+  // 최초 진입 시 카드가 올라오는 등장 애니메이션도 "전환 중"으로 간주해 잠근다(아래 참고).
+  const [isTransitioning, setIsTransitioning] = useState(true);
   const [activeItem, setActiveItem] = useState<XmarkGalleryItem | null>(null);
   // 최초 진입/정렬 탭 변경 시에도 'forward'(아래에서 등장)를 기본값으로 쓴다.
   const [enterDirection, setEnterDirection] =
@@ -45,6 +46,13 @@ export function XmarkPortfolioGallery() {
     [filteredItems, page],
   );
 
+  // 등장 애니메이션(2초)이 끝나야 비로소 잠금을 푼다. 퇴장 직후(페이지 전환)에만 풀어버리면
+  // 새 카드가 아직 올라오는 도중에 휠을 연달아 돌렸을 때 등장 타임라인이 끊기며 화면이 튀는
+  // 현상이 생긴다.
+  const handleEnterComplete = useCallback(() => {
+    setIsTransitioning(false);
+  }, []);
+
   // Portfolio/gallery/GalleryMain.as의 tabControl(false) + 썸네일 outThumb → addThumb 순서를 그대로 옮김:
   // 전환 중에는 입력을 잠그고(GNB/탭은 상위 XmarkStage가 아닌 이 화면의 탭만 해당), 기존 썸네일을
   // 먼저 퇴장시킨 뒤 페이지를 바꾸고 새 썸네일을 등장시킨다.
@@ -63,12 +71,12 @@ export function XmarkPortfolioGallery() {
     gridRef.current?.playExit(() => {
       setEnterDirection(direction);
       setPage(nextPage);
-      setIsTransitioning(false);
     }, direction);
   };
 
   const handleSortSelect = (tab: XmarkSortTab) => {
     if (isTransitioning) return;
+    setIsTransitioning(true);
     setSortTab(tab);
     setPage(0);
     setEnterDirection('forward');
@@ -102,6 +110,7 @@ export function XmarkPortfolioGallery() {
           items={pageItems}
           onThumbClick={setActiveItem}
           enterDirection={enterDirection}
+          onEnterComplete={handleEnterComplete}
         />
         <div className="xmark-gallery-pager">
           {Array.from({ length: pageCount }, (_, i) => i).map((pageIndex) => (

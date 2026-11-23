@@ -1,10 +1,15 @@
 /* 원본은 noScale + StageInfo로 logo/GNB/util/footer/recruit를 브라우저 창 모서리에 고정한다.
-   여기서는 스테이지 역할을 하는 컨테이너(.xmark-stage) 기준으로 같은 모서리 고정을 재현한다. */
+   여기서는 스테이지 역할을 하는 컨테이너(.xmark-stage) 기준으로 같은 모서리 고정을 재현한다.
+   region-view(.region-view__wrapper)와 동일하게 margin:-24px로 AppLayout Content의 24px
+   패딩을 상쇄해 화면을 꽉 채운다. 이 패턴은 xmark 전용 클래스에만 적용되므로 폴리곤/권역조회
+   레이아웃(각자 자기 CSS로 이미 패딩 없음을 구현함)에는 영향이 없다. */
 .xmark-stage {
   position: relative;
-  width: 100%;
+  /* width를 명시하면 margin:-24px가 상쇄해야 할 패딩만큼 늘어나지 못해 오른쪽에 48px
+     틈이 남는다(align-items:stretch 기본 동작에 맡겨야 음수 마진만큼 폭이 늘어남). */
   min-height: 720px;
   flex: 1;
+  margin: -24px;
   background: #090909;
   color: #fff;
   overflow: hidden;
@@ -171,6 +176,8 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: 12px;
   overflow: auto;
   padding: 0 24px 24px;
@@ -180,14 +187,18 @@
   perspective: 1000px;
 }
 
+/* 카드 영역을 화면의 100%가 아닌 약 80%만 차지하게 줄여, 패널이 3D로 기울어질 때
+   생기는 바운딩 박스 증가분을 주변 여백이 흡수하게 한다(이 여백이 없으면 기울어질
+   때마다 .xmark-gallery-area에 가로/세로 스크롤이 생김). */
 .xmark-gallery-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(150px, 1fr));
-  grid-template-rows: repeat(2, minmax(170px, 1fr));
+  grid-template-columns: repeat(5, minmax(120px, 1fr));
+  grid-auto-rows: auto;
+  align-content: center;
   gap: 16px;
   transform-style: preserve-3d;
-  flex: 1;
-  min-height: 340px;
+  width: 80%;
+  height: 80%;
 }
 
 .xmark-gallery-thumb {
@@ -195,7 +206,11 @@
   background: #141414;
   border: 1px solid #262626;
   transform-style: preserve-3d;
-  display: block;
+  display: flex;
+  flex-direction: column;
+  /* 카드 전체(이미지+타이틀)가 폭에 따라 늘어난 직사각형이 아니라 항상 정사각형을
+     유지하도록, 셀 폭을 기준으로 높이를 결정한다. */
+  aspect-ratio: 1 / 1;
   width: 100%;
   padding: 0;
   text-align: left;
@@ -207,7 +222,8 @@
 .xmark-gallery-thumb-img {
   display: block;
   width: 100%;
-  aspect-ratio: 174 / 156;
+  flex: 1;
+  min-height: 0;
   object-fit: cover;
 }
 
