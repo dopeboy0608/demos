@@ -1,3 +1,4 @@
+import gyeonggiDistricts from '../data/gyeonggiDistricts.json';
 import seoulDistricts from '../data/seoulDistricts.json';
 
 export const CITY_HALL = { lat: 37.566634, lng: 126.97836 };
@@ -269,11 +270,12 @@ const SIMULATED_PARCEL_GROUPS_PER_DONG = 3;
 // 행정동 개수를 쓰고, subRegionCount(세분류=지번그룹 시뮬레이션)는 동당 평균
 // SIMULATED_PARCEL_GROUPS_PER_DONG개로 추정한다(#69, regionViewApi.ts에서 동별 실제
 // 분할 개수를 distributeCount로 다시 배정).
+// 서비스유형: 샛별배송(DAWN)은 서울 센터 전용으로 고정한다(#84, 기존 홀짝 배정 로직 제거).
 const SEOUL_DISTRICT_PROFILES: RegionGroupProfile[] = seoulDistricts.map(
-  (district, index) => ({
+  (district) => ({
     code: district.code,
     name: district.name,
-    serviceType: index % 2 === 0 ? SERVICE_TYPE.DAWN : SERVICE_TYPE.DAY,
+    serviceType: SERVICE_TYPE.DAWN,
     zipCodeCount: district.dongCount * 10,
     regionCount: district.dongCount,
     subRegionCount: district.dongCount * SIMULATED_PARCEL_GROUPS_PER_DONG,
@@ -282,9 +284,32 @@ const SEOUL_DISTRICT_PROFILES: RegionGroupProfile[] = seoulDistricts.map(
   }),
 );
 
+// 경기도 42개 시/군/구를 실제 경계 데이터(#91)로 센터 목록에 추가한다. 읍면동 단위 실데이터가
+// 없어 regionCount/subRegionCount는 서울 평균 규모를 참고한 고정값으로 시뮬레이션한다
+// (regionViewApi.ts의 buildGyeonggiDistrictDerived가 실제 시/군/구 경계를 조각내 사용).
+// 서비스유형: 하루배송(DAY)은 경기 센터 전용으로 고정한다(#84).
+const SIMULATED_GYEONGGI_REGION_COUNT = 4;
+const SEOUL_AVG_DONG_COUNT =
+  SEOUL_DISTRICT_PROFILES.reduce((sum, p) => sum + p.regionCount, 0) /
+  SEOUL_DISTRICT_PROFILES.length;
+const GYEONGGI_DISTRICT_PROFILES: RegionGroupProfile[] = gyeonggiDistricts.map(
+  (district) => ({
+    code: district.code,
+    name: district.name,
+    serviceType: SERVICE_TYPE.DAY,
+    zipCodeCount: Math.round(SEOUL_AVG_DONG_COUNT * 10),
+    regionCount: SIMULATED_GYEONGGI_REGION_COUNT,
+    subRegionCount:
+      SIMULATED_GYEONGGI_REGION_COUNT * SIMULATED_PARCEL_GROUPS_PER_DONG,
+    center: approximatePolygonCenter(district.coordinates),
+    coordinates: district.coordinates,
+  }),
+);
+
 export const REGION_GROUP_PROFILES: RegionGroupProfile[] = [
   ...PROCEDURAL_PROFILES,
   ...SEOUL_DISTRICT_PROFILES,
+  ...GYEONGGI_DISTRICT_PROFILES,
 ];
 
 // 절차적 가상센터(PROCEDURAL_PROFILES, A/B 등)는 서울·경기 행정구역 적용 전 임시 데이터이므로
