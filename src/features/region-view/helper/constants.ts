@@ -287,13 +287,15 @@ export const REGION_GROUP_PROFILES: RegionGroupProfile[] = [
   ...SEOUL_DISTRICT_PROFILES,
 ];
 
-export const TEMP_REGION_GROUP_OPTIONS = REGION_GROUP_PROFILES.map(
-  (profile) => ({
-    code: profile.code,
-    name: profile.name,
-    serviceType: profile.serviceType,
-  }),
-);
+// 절차적 가상센터(PROCEDURAL_PROFILES, A/B 등)는 서울·경기 행정구역 적용 전 임시 데이터이므로
+// 검색조건 UI에는 비노출한다(#90). 데이터 자체(REGION_GROUP_PROFILES)는 롤백을 대비해 유지한다.
+export const TEMP_REGION_GROUP_OPTIONS = REGION_GROUP_PROFILES.filter(
+  (profile) => profile.name !== undefined,
+).map((profile) => ({
+  code: profile.code,
+  name: profile.name,
+  serviceType: profile.serviceType,
+}));
 
 // REGION_VIEW 화면에서 노출하는 검색 타입만 추림(정제주소 ADDRESS_DOS는 레거시에서도 사용 안 함).
 export const LOCATION_SEARCH_TYPES = {
