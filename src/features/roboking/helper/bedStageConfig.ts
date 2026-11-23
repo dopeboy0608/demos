@@ -5,6 +5,14 @@ import type { StageConfig } from './stageConfig';
 // stage_bed.fla(XFL)의 LIBRARY/mc/wall.xml, mc/dust_mc.xml, LIBRARY/stage_mc.xml(아이템·
 // 로봇·Dog 시작 위치)에서 추출한 실제 좌표. eventDust는 비워둔다 — 원본 bed/Dog.as가
 // 화면 밖에 미리 심어둔 event_dust0~14를 Dog 위치로 옮기는 방식이라 고정 좌표가 없다.
+//
+// 원래 있던 'wall14'(tx 489.4, ty 530.95)는 배경 그림 중앙의 원형 침대/테이블 가구 위치와
+// 거의 정확히 겹쳐(#86) 제거했다. 원본(RoboKing.as)은 침대를 히트박스에서 제외해 로봇이
+// 그 위를 지나다닐 수 있었고, 여기서도 그 위를 지나다니며 Dog가 떨어뜨린 이벤트 먼지를
+// 모두 모을 수 있어야 100% 클리어가 항상 가능하다 — 이 벽이 있으면 Dog가 침대 위에 먼지를
+// 떨어뜨릴 때마다 클리어 불가능한 상태가 됐다. 로봇 스프라이트는 이미 배경 이미지보다 나중에
+// DOM에 그려져 항상 위에 보이므로, 원본의 "침대가 반투명해짐" 효과를 별도로 흉내낼 필요는
+// 없다.
 export const bedStageConfig: StageConfig = {
   totalDust: 90,
   backgroundImage: toAssetUrl('/roboking/img/stage3_game_bg.png'),
@@ -135,15 +143,6 @@ export const bedStageConfig: StageConfig = {
       d: 0,
       tx: 765.6,
       ty: 337.6,
-    },
-    {
-      name: 'wall14',
-      a: -1.24554443359375,
-      b: 0,
-      c: 0,
-      d: -0.482818603515625,
-      tx: 489.4,
-      ty: 530.95,
     },
     {
       name: 'wall15',
