@@ -47,6 +47,8 @@
   3. `.xmark-gallery-thumb`에 `aspect-ratio:1/1` 적용, `.xmark-gallery-thumb-img`를 `flex:1`로 바꿔 해상도가 바뀌어도 카드가 항상 정사각형을 유지하도록 수정.
   4. 등장 애니메이션(2초)이 끝나야 `isTransitioning` 잠금이 풀리도록 변경(`XmarkGalleryGrid`에 `onEnterComplete` 콜백 추가, 초기 상태도 `true`로 시작). 뷰포트가 채 정착하기 전 휠을 연타하면 등장 타임라인이 끊기며 화면이 튀던 버그를 브라우저로 재현 후 수정 확인(4연속 스크롤 시도 중 페이지 번호가 그대로 유지됨을 확인).
 
+- PR #81 머지 후 추가 요청(2026-11-23) 반영(487df67): 페이징(퇴장→등장) 전환 중 카드가 뷰포트 밖까지 날아가는 동안 그 transform이 `.xmark-gallery-area`(overflow:auto)의 스크롤 가능 영역으로 잡혀 가로/세로 스크롤바가 일시적으로 깜빡이는 문제 발견 → `overflow`를 `hidden`으로 변경. requestAnimationFrame으로 전환 전 구간(약 3초)을 폴링해 `scrollWidth>clientWidth`/`scrollHeight>clientHeight`가 단 한 프레임도 발생하지 않음을 확인. 최소 카드 크기 폴백은 `.xmark-stage`의 `min-height:720px`를 통한 AppLayout Content 레벨 스크롤에만 의존.
+
 ## 다음 단계
 
-- 스토리 #71의 모든 서브태스크(01~06) + PR #80 리뷰 반영 완료.
+- 스토리 #71의 모든 서브태스크(01~06) + PR #80/#81 리뷰 반영 완료.
