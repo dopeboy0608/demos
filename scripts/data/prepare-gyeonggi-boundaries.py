@@ -64,7 +64,11 @@ def main(sigungu_path: str, out_dir: str) -> None:
         simplified = shape(feat["geometry"]).simplify(
             SIMPLIFY_TOLERANCE_DEGREES, preserve_topology=True
         )
-        geom = mapping(simplified)
+        # simplify()가 자가교차(self-intersection)를 만드는 경우가 많다(#94 확인 결과
+        # 42개 중 41개가 simplify 직후 invalid). buffer(0)으로 1차 정제하면 면적 변화 없이
+        # (테스트 결과 최대 상대 오차 ~1e-15) 모두 valid가 된다.
+        cleaned = simplified.buffer(0)
+        geom = mapping(cleaned)
         districts.append(
             {
                 "code": feat["properties"]["SIG_CD"],
