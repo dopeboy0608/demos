@@ -36,9 +36,9 @@ export function RegionViewSubRegionResult({
         items={regions.map((region) => ({
           key: region.regionCode,
           label: (
-            <span>
-              {region.label ?? region.regionCode} 세분류 권역{' '}
-              {region.subRegions.length}
+            <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span>{region.label ?? region.regionCode}</span>
+              <Tag>세분류 권역 {region.subRegions.length}</Tag>
             </span>
           ),
           extra: (
@@ -73,11 +73,17 @@ export function RegionViewSubRegionResult({
                     padding: '4px 0',
                   }}
                 >
-                  <span>
-                    {subRegion.label ?? subRegion.subRegionCode} 배송회차{' '}
-                    {subRegion.deliveryRounds.length
-                      ? subRegion.deliveryRounds.join('/')
-                      : '정보없음'}
+                  <span
+                    style={{ display: 'flex', alignItems: 'center', gap: 6 }}
+                  >
+                    <span>{subRegion.label ?? subRegion.subRegionCode}</span>
+                    {subRegion.deliveryRounds.length ? (
+                      subRegion.deliveryRounds.map((round) => (
+                        <Tag key={round}>배송회차 {round}</Tag>
+                      ))
+                    ) : (
+                      <Tag>배송회차 정보없음</Tag>
+                    )}
                   </span>
                   <Button
                     shape="circle"

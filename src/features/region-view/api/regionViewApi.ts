@@ -40,6 +40,8 @@ export interface RegionGroupListItem {
   regionCount: number;
   subRegionCount: number;
   regions: RegionItem[];
+  // 실제 이름이 있는 센터(서울/경기 행정구역)만 채운다. 없으면 regionGroupCode를 그대로 표시한다.
+  label?: string;
 }
 
 export interface LocationSearchPayload {
@@ -55,6 +57,11 @@ export interface LocationResult {
 
 // TODO(API) 실제 백엔드 연동 시 이 파일의 함수들을 교체한다. 시그니처(params → Promise)는 그대로 유지.
 // 아래 MOCK_* 는 모두 helper/constants.ts의 REGION_GROUP_PROFILES(단일 소스)에서 파생한다.
+
+const MOCK_REGION_GROUP_LABEL: Record<string, string | undefined> =
+  Object.fromEntries(
+    REGION_GROUP_PROFILES.map((profile) => [profile.code, profile.name]),
+  );
 
 const MOCK_REGION_META: Record<
   string,
@@ -376,6 +383,7 @@ export function fetchRegionGroupList(
   return Promise.resolve(
     params.regionGroupCodes.map((code) => ({
       regionGroupCode: code,
+      label: MOCK_REGION_GROUP_LABEL[code],
       ...(MOCK_REGION_META[code] ?? {
         zipCodeCount: 0,
         regionCount: 0,
