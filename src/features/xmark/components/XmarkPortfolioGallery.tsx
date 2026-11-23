@@ -11,7 +11,10 @@ import {
   getGalleryPageCount,
   paginateGalleryItems,
 } from '../helper/xmarkGalleryFilter';
-import type { XmarkGalleryGridHandle } from './XmarkGalleryGrid';
+import type {
+  XmarkGalleryGridHandle,
+  XmarkGalleryTransitionDirection,
+} from './XmarkGalleryGrid';
 import type { XmarkSortTab } from '../helper/xmarkGalleryConstants';
 import type { XmarkGalleryItem } from '../helper/xmarkGalleryData';
 
@@ -20,6 +23,9 @@ export function XmarkPortfolioGallery() {
   const [page, setPage] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [activeItem, setActiveItem] = useState<XmarkGalleryItem | null>(null);
+  // 최초 진입/정렬 탭 변경 시에도 'forward'(아래에서 등장)를 기본값으로 쓴다.
+  const [enterDirection, setEnterDirection] =
+    useState<XmarkGalleryTransitionDirection>('forward');
 
   const gridRef = useRef<XmarkGalleryGridHandle>(null);
 
@@ -51,17 +57,21 @@ export function XmarkPortfolioGallery() {
     ) {
       return;
     }
+    const direction: XmarkGalleryTransitionDirection =
+      nextPage > page ? 'forward' : 'backward';
     setIsTransitioning(true);
     gridRef.current?.playExit(() => {
+      setEnterDirection(direction);
       setPage(nextPage);
       setIsTransitioning(false);
-    });
+    }, direction);
   };
 
   const handleSortSelect = (tab: XmarkSortTab) => {
     if (isTransitioning) return;
     setSortTab(tab);
     setPage(0);
+    setEnterDirection('forward');
   };
 
   // 원본은 wheel delta<0일 때 다음 페이지였지만(Flash의 delta 부호 관례), 웹 휠 이벤트는
@@ -91,6 +101,7 @@ export function XmarkPortfolioGallery() {
           ref={gridRef}
           items={pageItems}
           onThumbClick={setActiveItem}
+          enterDirection={enterDirection}
         />
         <div className="xmark-gallery-pager">
           {Array.from({ length: pageCount }, (_, i) => i).map((pageIndex) => (
