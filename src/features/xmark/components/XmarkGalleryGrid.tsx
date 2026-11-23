@@ -47,12 +47,19 @@ interface XmarkGalleryGridProps {
   items: XmarkGalleryItem[];
   onThumbClick: (item: XmarkGalleryItem) => void;
   enterDirection: XmarkGalleryTransitionDirection;
+  // 등장 애니메이션(2초)이 완전히 끝날 때까지 부모가 입력을 잠그도록 알려준다.
+  // 이게 없으면 카드가 자리 잡기 전에 휠을 연달아 돌렸을 때 등장 중인 타임라인이
+  // 바로 다음 퇴장으로 끊기면서 화면이 튀는 현상이 생긴다.
+  onEnterComplete: () => void;
 }
 
 export const XmarkGalleryGrid = forwardRef<
   XmarkGalleryGridHandle,
   XmarkGalleryGridProps
->(function XmarkGalleryGrid({ items, onThumbClick, enterDirection }, ref) {
+>(function XmarkGalleryGrid(
+  { items, onThumbClick, enterDirection, onEnterComplete },
+  ref,
+) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useImperativeHandle(ref, () => ({
@@ -132,7 +139,10 @@ export const XmarkGalleryGrid = forwardRef<
     const thumbs = Array.from(
       container.querySelectorAll<HTMLElement>('.xmark-gallery-thumb'),
     );
-    if (thumbs.length !== items.length) return;
+    if (thumbs.length !== items.length) {
+      onEnterComplete();
+      return;
+    }
 
     // forward(다음 페이지로 이동했거나 최초 진입)는 아래에서, backward(이전 페이지로
     // 이동)는 위에서 등장한다.
@@ -146,7 +156,7 @@ export const XmarkGalleryGrid = forwardRef<
       rotationY: 0,
     });
 
-    const timeline = gsap.timeline();
+    const timeline = gsap.timeline({ onComplete: onEnterComplete });
     const order = shuffleArray(thumbs);
     order.forEach((el, i) => {
       timeline.to(
@@ -166,7 +176,7 @@ export const XmarkGalleryGrid = forwardRef<
     return () => {
       timeline.kill();
     };
-  }, [items, enterDirection]);
+  }, [items, enterDirection, onEnterComplete]);
 
   return (
     <div ref={containerRef} className="xmark-gallery-grid">
