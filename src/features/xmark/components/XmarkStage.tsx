@@ -30,7 +30,9 @@ export function XmarkStage() {
       <XmarkUtilPanel />
       <XmarkRecruitButton onClick={showComingSoon} />
 
-      <div className="xmark-content">
+      <div
+        className={`xmark-content${activeTab === 'portfolio' ? ' xmark-content--full' : ''}`}
+      >
         {activeTab === 'about' ? (
           <XmarkAbout />
         ) : activeTab === 'contact' ? (

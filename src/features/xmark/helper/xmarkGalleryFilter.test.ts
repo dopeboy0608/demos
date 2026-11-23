@@ -4,7 +4,6 @@ import type { XmarkGalleryItem } from './xmarkGalleryData';
 import {
   filterGalleryItemsByTab,
   getGalleryPageCount,
-  getListMaxScroll,
   paginateGalleryItems,
 } from './xmarkGalleryFilter';
 
@@ -84,17 +83,5 @@ describe('getGalleryPageCount', () => {
 
   it('항목이 0개여도 최소 1페이지를 반환한다', () => {
     expect(getGalleryPageCount(0, 12)).toBe(1);
-  });
-});
-
-describe('getListMaxScroll', () => {
-  it('12행보다 많으면 초과분만큼 스크롤 가능하다', () => {
-    expect(getListMaxScroll(14, 12)).toBe(2);
-    expect(getListMaxScroll(60, 12)).toBe(48);
-  });
-
-  it('12행 이하면 스크롤이 없다(0)', () => {
-    expect(getListMaxScroll(12, 12)).toBe(0);
-    expect(getListMaxScroll(5, 12)).toBe(0);
   });
 });

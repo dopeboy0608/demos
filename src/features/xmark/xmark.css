@@ -108,28 +108,38 @@
   font-size: 14px;
 }
 
+/* 포트폴리오(갤러리) 탭 전용: #71 - 페이지 패딩 제거, 세로 스크롤 제거(카드 10장이 항상
+   한 화면에 들어오도록 반응형 그리드로 채움). 로고/Gnb 등 고정 UI 레이아웃은 .xmark-content의
+   left:220px 오프셋 그대로 유지되므로 영향 없음. */
+.xmark-content--full {
+  padding: 0;
+  overflow: hidden;
+}
+
 .xmark-portfolio {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px;
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .xmark-portfolio-tabs {
+  flex: none;
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 12px;
+  padding: 24px 24px 0;
 }
 
-.xmark-sort-tabs,
-.xmark-style-tabs {
+.xmark-sort-tabs {
   display: flex;
   gap: 16px;
 }
 
-.xmark-sort-tab,
-.xmark-style-tab {
+.xmark-sort-tab {
   background: none;
   border: none;
   color: #777;
@@ -139,28 +149,45 @@
   cursor: pointer;
 }
 
-.xmark-sort-tab:hover,
-.xmark-style-tab:hover {
+.xmark-sort-tab:hover {
   color: #ccc;
 }
 
-.xmark-sort-tab-active,
-.xmark-style-tab-active {
+.xmark-sort-tab-active {
   color: #fff;
   font-weight: bold;
 }
 
-.xmark-sort-tab:disabled,
-.xmark-style-tab:disabled {
+.xmark-sort-tab:disabled {
   color: #444;
   cursor: default;
 }
 
+/* 카드 10장이 해상도와 무관하게 한 화면에 들어오도록 flex:1 영역을 꽉 채운다. 카드가
+   최소 크기(XMARK_GALLERY_CARD_MIN_WIDTH/HEIGHT 상당, 150x170px) 밑으로 줄어야 하는
+   해상도에서는 overflow:auto로 로컬 스크롤을 허용한다(#71 "브라우저 스크롤 허용"). */
+.xmark-gallery-area {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow: auto;
+  padding: 0 24px 24px;
+  box-sizing: border-box;
+  /* 카드 컨테이너(.xmark-gallery-grid) 자체가 3D로 기울어지므로(#71 FR-05),
+     perspective는 그 부모인 이 요소에 둬야 입체감이 적용된다. */
+  perspective: 1000px;
+}
+
 .xmark-gallery-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, minmax(150px, 1fr));
+  grid-template-rows: repeat(2, minmax(170px, 1fr));
   gap: 16px;
-  perspective: 800px;
+  transform-style: preserve-3d;
+  flex: 1;
+  min-height: 340px;
 }
 
 .xmark-gallery-thumb {
@@ -226,46 +253,6 @@
 .xmark-gallery-page-btn:disabled {
   color: #444;
   cursor: default;
-}
-
-.xmark-list-mask {
-  position: relative;
-  overflow: hidden;
-}
-
-.xmark-list-track {
-  position: relative;
-  transition: transform 1s cubic-bezier(0.215, 0.61, 0.355, 1);
-}
-
-.xmark-list-row {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 56px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  border: none;
-  border-bottom: 1px solid #1a1a1a;
-  background: none;
-  color: #999;
-  font-size: 14px;
-  font-family: inherit;
-  text-align: left;
-  padding: 0;
-  cursor: pointer;
-}
-
-.xmark-list-row-new {
-  background: #ff6a00;
-  color: #fff;
-  font-size: 10px;
-  padding: 2px 6px;
-}
-
-.xmark-list-row-title {
-  color: #ccc;
 }
 
 .xmark-poc-wrapper {
