@@ -50,7 +50,12 @@ export function RegionViewSearchPanel({
   );
   const [pdd, setPdd] = useState(pddOptions[0].value);
 
-  const [regionGroupCodes, setRegionGroupCodes] = useState<string[]>([]);
+  // 배송센터는 기본값으로 전체 선택 상태로 진입한다(#89).
+  const [regionGroupCodes, setRegionGroupCodes] = useState<string[]>(() =>
+    TEMP_REGION_GROUP_OPTIONS.filter(
+      (option) => option.serviceType === SERVICE_TYPE.DAWN,
+    ).map((option) => option.code),
+  );
   const [regionGroupError, setRegionGroupError] = useState(false);
 
   const regionGroupOptions = TEMP_REGION_GROUP_OPTIONS.filter(
@@ -62,7 +67,12 @@ export function RegionViewSearchPanel({
 
   const handleChangeServiceType = (value: string) => {
     setServiceType(value);
-    setRegionGroupCodes([]);
+    // 서비스유형 전환 후에도 전체 선택 기본값을 유지한다(#89).
+    setRegionGroupCodes(
+      TEMP_REGION_GROUP_OPTIONS.filter(
+        (option) => option.serviceType === value,
+      ).map((option) => option.code),
+    );
   };
 
   const handleAllSelect = (checked: boolean) => {

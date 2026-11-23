@@ -1,5 +1,5 @@
 import { PushpinOutlined } from '@ant-design/icons';
-import { Button, Collapse, Divider } from 'antd';
+import { Button, Collapse, Divider, Tag } from 'antd';
 
 import type { RegionGroupListItem } from '../api/regionViewApi';
 import { createRegionGroupColors } from '../helper/regionViewParser';
@@ -35,26 +35,31 @@ export function RegionViewRegionResult({
         key: group.regionGroupCode,
         label: (
           <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            {/* 행정구역 센터(서울/경기)는 코드가 아닌 긴 지역명을 쓰므로, 고정 원형 대신
+                내용 길이에 맞춰 늘어나는 pill 배지로 표기한다(#84). */}
             <span
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                width: 22,
+                minWidth: 22,
                 height: 22,
                 flexShrink: 0,
-                borderRadius: '50%',
+                borderRadius: 11,
+                padding: '0 8px',
                 backgroundColor: regionGroupColors[group.regionGroupCode],
                 color: '#fff',
                 fontSize: 10,
                 fontWeight: 700,
+                whiteSpace: 'nowrap',
               }}
             >
-              {group.regionGroupCode}
+              {group.label ?? group.regionGroupCode}
             </span>
-            <span>
-              우편번호 {group.zipCodeCount} · 소분류 권역 {group.regionCount} |
-              세분류 권역 {group.subRegionCount}
+            <span style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+              <Tag>우편번호 {group.zipCodeCount}</Tag>
+              <Tag>소분류 권역 {group.regionCount}</Tag>
+              <Tag>세분류 권역 {group.subRegionCount}</Tag>
             </span>
           </span>
         ),

@@ -40,6 +40,8 @@ export interface RegionGroupListItem {
   regionCount: number;
   subRegionCount: number;
   regions: RegionItem[];
+  // 실제 이름이 있는 센터(서울/경기 행정구역)만 채운다. 없으면 regionGroupCode를 그대로 표시한다.
+  label?: string;
 }
 
 export interface LocationSearchPayload {
@@ -55,6 +57,11 @@ export interface LocationResult {
 
 // TODO(API) 실제 백엔드 연동 시 이 파일의 함수들을 교체한다. 시그니처(params → Promise)는 그대로 유지.
 // 아래 MOCK_* 는 모두 helper/constants.ts의 REGION_GROUP_PROFILES(단일 소스)에서 파생한다.
+
+const MOCK_REGION_GROUP_LABEL: Record<string, string | undefined> =
+  Object.fromEntries(
+    REGION_GROUP_PROFILES.map((profile) => [profile.code, profile.name]),
+  );
 
 const MOCK_REGION_META: Record<
   string,
@@ -136,10 +143,18 @@ function buildProfileDerived(
   }
 
   // 서울시 구 센터(실제 경계, #64/#69)는 소분류=실제 행정동 경계, 세분류=동별 지번그룹
-  // 시뮬레이션(splitAreaIntoPieces)으로 만든다. 그 외(절차적 21개 센터)는 기존 그대로.
-  if (profile.name && profile.coordinates) {
+  // 시뮬레이션(splitAreaIntoPieces)으로 만든다.
+  if (profile.name && SEOUL_DONGS_BY_GU[profile.name]) {
     return buildSeoulDistrictDerived(profile, index);
   }
+
+  // 경기도 시/군/구 센터(실제 경계, #91)는 읍면동 실데이터가 없어 소분류·세분류 모두 시/군/구
+  // 외곽 경계를 splitAreaIntoPieces로 재귀 분할해 시뮬레이션한다(#92).
+  if (profile.name && profile.coordinates) {
+    return buildGyeonggiDistrictDerived(profile, index);
+  }
+
+  // 그 외(절차적 21개 센터)는 기존 그대로 center/반경 기반 절차적 생성을 쓴다.
 
   const subCounts = distributeCount(
     profile.subRegionCount,
@@ -275,6 +290,82 @@ function buildSeoulDistrictDerived(
   return { regions, regionPolygons, subRegionPolygons };
 }
 
+// 경기도 시/군/구 센터 전용: 읍면동 실데이터가 없어(#91), 시/군/구 외곽 경계(profile.coordinates)
+// 자체를 splitAreaIntoPieces(#51)로 재귀 분할해 소분류·세분류를 시뮬레이션한다(#92). 소분류로
+// 한 번 나눈 조각을 다시 나눠 세분류를 만들므로, 합치면 항상 원래 시/군/구 영역과 일치한다.
+function buildGyeonggiDistrictDerived(
+  profile: RegionGroupProfile,
+  index: number,
+): ProfileDerived {
+  const { mainRing, otherPolygons } = splitDongOuterRing(
+    profile.coordinates as number[][][][],
+  );
+  const regionPieces = createAreaDivisionsFromRing(
+    mainRing,
+    profile.regionCount,
+  );
+  if (otherPolygons.length > 0) {
+    regionPieces[0] = [...otherPolygons, ...regionPieces[0]];
+  }
+
+  const subCounts = distributeCount(
+    profile.subRegionCount,
+    profile.regionCount,
+    index,
+  );
+
+  const regions: RegionItem[] = [];
+  const regionPolygons: RawDraftPolygon[] = [];
+  const subRegionPolygons: RawDraftPolygon[] = [];
+
+  regionPieces.forEach((regionPiece, regionIndex) => {
+    const regionCode = `${profile.code}${padCode(regionIndex + 1)}`;
+    const regionLabel = `${profile.name}-${padCode(regionIndex + 1)}`;
+    // 마지막 소분류를 상온 only로 둬(2개 이상일 때) 기존 분류유형 토글 데모를 유지한다.
+    const sortingTypeCode: RegionItem['sortingTypeCode'] =
+      profile.regionCount >= 2 && regionIndex === profile.regionCount - 1
+        ? 'ROOM_ONLY'
+        : 'NORMAL';
+
+    const subCount = subCounts[regionIndex];
+    const subPieces = createAreaDivisionsFromRing(regionPiece[0][0], subCount);
+
+    const subRegions: SubRegionItem[] = Array.from(
+      { length: subCount },
+      (_, subIndex) => ({
+        subRegionCode: `${regionCode}-${padCode(subIndex + 1)}`,
+        label: `${regionLabel}-${padCode(subIndex + 1)}`,
+        deliveryRounds: subIndex === 0 ? ['1회차', '2회차'] : ['1회차'],
+      }),
+    );
+
+    regions.push({
+      regionCode,
+      label: regionLabel,
+      sortingTypeCode,
+      subRegions,
+    });
+
+    regionPolygons.push({
+      regionGroupCode: profile.code,
+      code: regionCode,
+      label: regionLabel,
+      geom: { coordinates: regionPiece },
+    });
+
+    for (let subIndex = 0; subIndex < subCount; subIndex++) {
+      subRegionPolygons.push({
+        regionGroupCode: profile.code,
+        code: `${regionCode}-${padCode(subIndex + 1)}`,
+        label: `${regionLabel}-${padCode(subIndex + 1)}`,
+        geom: { coordinates: subPieces[subIndex] },
+      });
+    }
+  });
+
+  return { regions, regionPolygons, subRegionPolygons };
+}
+
 const PROFILE_DERIVED: Record<string, ProfileDerived> = Object.fromEntries(
   REGION_GROUP_PROFILES.map((profile, index) => [
     profile.code,
@@ -376,6 +467,7 @@ export function fetchRegionGroupList(
   return Promise.resolve(
     params.regionGroupCodes.map((code) => ({
       regionGroupCode: code,
+      label: MOCK_REGION_GROUP_LABEL[code],
       ...(MOCK_REGION_META[code] ?? {
         zipCodeCount: 0,
         regionCount: 0,
