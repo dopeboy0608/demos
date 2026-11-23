@@ -82,6 +82,32 @@ describe('parseRegionViewDraftPolygon', () => {
     expect(result.center.lng).toBeCloseTo(127.05, 2);
   });
 
+  it('구멍(hole)이 있는 폴리곤은 외곽 링과 구멍 링을 합치지 않고 별도 path로 둔다(#94)', () => {
+    const outerRing = [
+      [127.0, 37.5],
+      [127.2, 37.5],
+      [127.2, 37.7],
+      [127.0, 37.7],
+    ];
+    const holeRing = [
+      [127.05, 37.55],
+      [127.1, 37.55],
+      [127.1, 37.6],
+    ];
+    const data = [
+      {
+        regionGroupCode: 'A',
+        geom: { coordinates: [[outerRing, holeRing]] },
+      },
+    ];
+
+    const [result] = parseRegionViewDraftPolygon(data, ['A']);
+
+    expect(result.polygonPoints).toHaveLength(2);
+    expect(result.polygonPoints[0]).toHaveLength(outerRing.length);
+    expect(result.polygonPoints[1]).toHaveLength(holeRing.length);
+  });
+
   it('useColor가 false면 polygonColor를 빈 문자열로 둔다', () => {
     const data = [
       {

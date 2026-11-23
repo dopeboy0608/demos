@@ -84,9 +84,13 @@ export interface ParsedDraftPolygon extends RawDraftPolygon {
   center: LatLng;
 }
 
+// 폴리곤(섬) 하나가 외곽 링 + 구멍(hole) 링 여러 개로 이뤄질 수 있다(예: 경기 화성시/연천군
+// 일부 폴리곤에 작은 구멍이 있음, #94). 링을 하나로 합쳐 버리면 외곽과 구멍 사이에 지도에
+// 없어야 할 연결선이 그려지므로, 링마다 별도의 path로 둬 Kakao Polygon이 각각 따로
+// 그리게 한다.
 function flattenPolygonCoordinates(coordinates: number[][][][]): LatLng[][] {
-  return coordinates.map((polygon) =>
-    polygon.flatMap((ring) => ring.map(([lng, lat]) => ({ lat, lng }))),
+  return coordinates.flatMap((polygon) =>
+    polygon.map((ring) => ring.map(([lng, lat]) => ({ lat, lng }))),
   );
 }
 
