@@ -17,10 +17,10 @@ describe('toRouterBasepath', () => {
 
 describe('joinAssetPath', () => {
   it.each([
-    ['/', '/vonin/img/event.png', '/vonin/img/event.png'],
-    ['/demos/', '/vonin/img/event.png', '/demos/vonin/img/event.png'],
-    ['/demos', '/vonin/img/event.png', '/demos/vonin/img/event.png'],
-    ['', '/vonin/img/event.png', '/vonin/img/event.png'],
+    ['/', '/roboking/img/event.png', '/roboking/img/event.png'],
+    ['/demos/', '/roboking/img/event.png', '/demos/roboking/img/event.png'],
+    ['/demos', '/roboking/img/event.png', '/demos/roboking/img/event.png'],
+    ['', '/roboking/img/event.png', '/roboking/img/event.png'],
   ])('base %j + path %j → %j', (base, path, expected) => {
     expect(joinAssetPath(base, path)).toBe(expected);
   });
