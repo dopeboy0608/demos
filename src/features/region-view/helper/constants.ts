@@ -12,8 +12,10 @@ export const DEFAULT_MAP_ZOOM_LEVEL = 8;
 export const CENTER_POLYGON_BASE_RADIUS = 0.08;
 
 // 지도 중심이 서울시청(CITY_HALL)일 때를 기준으로 한 폴리곤 표기 전환 줌 레벨(#47, #84).
-// 레벨이 클수록 넓게 보임: 8 이상=기본(센터), 5~7=소분류, 4 이하=세분류.
-export const ZOOM_LEVEL_BASE = 8;
+// 레벨이 클수록 넓게 보임: 7 이상=기본(센터), 5~6=소분류, 4 이하=세분류. 기본 진입 레벨
+// (DEFAULT_MAP_ZOOM_LEVEL=8)에서 두 번 확대(8→7→6)해야 소분류로 전환되도록, 기본 범위를
+// 7까지 유지한다(한 번만 확대해도 바로 소분류로 바뀌던 문제 수정).
+export const ZOOM_LEVEL_BASE = 7;
 export const ZOOM_LEVEL_REGION_MIN = 5;
 
 export const SERVICE_TYPE = { DAWN: 'DAWN', DAY: 'DAY' } as const;
